@@ -1,0 +1,2369 @@
+{% extends "admin_panel/base.html" %}
+
+{% block title %}
+    {% if survey %}
+        ویرایش نظرسنجی
+    {% else %}
+        ایجاد نظرسنجی
+    {% endif %}
+{% endblock %}
+
+{% block surveys_active %}active{% endblock %}
+
+{% block page_title %}
+    {% if survey %}
+        ویرایش نظرسنجی
+    {% else %}
+        ایجاد نظرسنجی
+    {% endif %}
+{% endblock %}
+
+{% block page_description %}
+    {% if survey %}
+        ویرایش اطلاعات، سوالات و گزینه‌های نظرسنجی
+    {% else %}
+        ایجاد و تنظیم یک نظرسنجی جدید
+    {% endif %}
+{% endblock %}
+
+
+{% block extra_css %}
+<style>
+
+    /* =========================
+       Page
+    ========================= */
+
+    .survey-editor {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        padding-bottom: 100px;
+    }
+
+
+    /* =========================
+       Main Cards
+    ========================= */
+
+    .editor-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-sm);
+        overflow: hidden;
+    }
+
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 18px 21px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .section-icon {
+        width: 40px;
+        height: 40px;
+        flex: 0 0 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 11px;
+        background: var(--background-secondary);
+        color: var(--primary);
+        font-size: 17px;
+    }
+
+    .section-title {
+        margin: 0;
+        color: var(--text);
+        font-size: 14px;
+        font-weight: 800;
+    }
+
+    .section-description {
+        margin: 4px 0 0;
+        color: var(--muted);
+        font-size: 11px;
+    }
+
+    .section-body {
+        padding: 21px;
+    }
+
+
+    /* =========================
+       Form Controls
+    ========================= */
+
+    .form-label {
+        margin-bottom: 7px;
+        color: var(--text);
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .form-control,
+    .form-select {
+        min-height: 43px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        background: var(--background-secondary);
+        color: var(--text);
+        font-family: inherit;
+        font-size: 12px;
+    }
+
+    textarea.form-control {
+        min-height: 110px;
+        resize: vertical;
+        line-height: 1.9;
+    }
+
+    .form-control::placeholder {
+        color: var(--muted);
+        opacity: .8;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: var(--primary);
+        background: var(--card);
+        color: var(--text);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, .10);
+    }
+
+
+    /* =========================
+       Active Status
+    ========================= */
+
+    .active-box {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 15px 17px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: var(--background-secondary);
+    }
+
+    .active-title {
+        color: var(--text);
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .active-description {
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 10px;
+        line-height: 1.7;
+    }
+
+    .active-switch .form-check-input {
+        width: 43px;
+        height: 23px;
+        margin: 0;
+        cursor: pointer;
+    }
+
+
+    /* =========================
+       Question Cards
+    ========================= */
+
+    .questions-list {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .question-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        overflow: hidden;
+        transition: var(--transition);
+    }
+
+    .question-card:hover {
+        border-color: rgba(37, 99, 235, .28);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .question-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        padding: 13px 16px;
+        border-bottom: 1px solid var(--border);
+        background: var(--background-secondary);
+    }
+
+    .question-heading {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .question-number {
+        width: 33px;
+        height: 33px;
+        flex: 0 0 33px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9px;
+        background: var(--primary);
+        color: #fff;
+        font-size: 11px;
+        font-weight: 800;
+    }
+
+    .question-title {
+        color: var(--text);
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .question-meta {
+        margin-top: 3px;
+        color: var(--muted);
+        font-size: 9px;
+    }
+
+    .remove-question {
+        width: 34px;
+        height: 34px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid transparent;
+        border-radius: 9px;
+        background: transparent;
+        color: #dc2626;
+        transition: var(--transition);
+    }
+
+    .remove-question:hover {
+        border-color: rgba(220, 38, 38, .15);
+        background: rgba(220, 38, 38, .08);
+    }
+
+    .question-body {
+        padding: 19px;
+    }
+
+
+    /* =========================
+       Options
+    ========================= */
+
+    .options-container {
+        margin-top: 19px;
+        padding: 16px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: var(--background-secondary);
+    }
+
+    .options-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        margin-bottom: 13px;
+    }
+
+    .options-title {
+        color: var(--text);
+        font-size: 11px;
+        font-weight: 800;
+    }
+
+    .options-description {
+        margin-top: 3px;
+        color: var(--muted);
+        font-size: 9px;
+    }
+
+    .add-option {
+        min-height: 34px;
+        padding: 0 11px;
+        border: 1px solid var(--border);
+        border-radius: 9px;
+        background: var(--card);
+        color: var(--primary);
+        font-family: inherit;
+        font-size: 10px;
+        font-weight: 700;
+    }
+
+    .add-option:hover {
+        border-color: var(--primary);
+        background: var(--card);
+        color: var(--primary-dark);
+    }
+
+    .options-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .option-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .option-number {
+        width: 29px;
+        height: 29px;
+        flex: 0 0 29px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        background: var(--card);
+        border: 1px solid var(--border);
+        color: var(--muted);
+        font-size: 9px;
+        font-weight: 800;
+    }
+
+    .option-item .form-control {
+        min-height: 38px;
+        background: var(--card);
+    }
+
+    .remove-option {
+        width: 34px;
+        height: 34px;
+        flex: 0 0 34px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid transparent;
+        border-radius: 8px;
+        background: transparent;
+        color: #dc2626;
+        transition: var(--transition);
+    }
+
+    .remove-option:hover {
+        border-color: rgba(220, 38, 38, .15);
+        background: rgba(220, 38, 38, .08);
+    }
+
+
+    /* =========================
+       Question Footer
+    ========================= */
+
+    .question-actions {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 18px;
+        padding-top: 14px;
+        border-top: 1px solid var(--border);
+    }
+
+    .question-help {
+        color: var(--muted);
+        font-size: 9px;
+    }
+
+    .question-order {
+        color: var(--muted);
+        font-size: 9px;
+        white-space: nowrap;
+    }
+
+
+    /* =========================
+       Add Question
+    ========================= */
+
+    .add-question {
+        width: 100%;
+        min-height: 74px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        border: 1px dashed rgba(37, 99, 235, .35);
+        border-radius: 13px;
+        background: var(--background-secondary);
+        color: var(--primary);
+        font-family: inherit;
+        font-size: 11px;
+        font-weight: 800;
+        transition: var(--transition);
+    }
+
+    .add-question:hover {
+        border-color: var(--primary);
+        background: rgba(37, 99, 235, .06);
+        color: var(--primary-dark);
+    }
+
+    .add-question i {
+        font-size: 18px;
+    }
+
+
+    /* =========================
+       Empty Questions
+    ========================= */
+
+    .empty-questions {
+        padding: 50px 20px 25px;
+        text-align: center;
+    }
+
+    .empty-icon {
+        width: 62px;
+        height: 62px;
+        margin: 0 auto 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 17px;
+        background: var(--background-secondary);
+        color: var(--muted);
+        font-size: 25px;
+    }
+
+    .empty-title {
+        margin-bottom: 6px;
+        color: var(--text);
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    .empty-description {
+        margin: 0 0 18px;
+        color: var(--muted);
+        font-size: 10px;
+    }
+
+
+    /* =========================
+       Bottom Actions
+    ========================= */
+
+    .form-actions {
+        position: sticky;
+        bottom: 15px;
+        z-index: 30;
+        padding: 12px 14px;
+        border: 1px solid var(--border);
+        border-radius: 13px;
+        background: color-mix(
+            in srgb,
+            var(--card) 94%,
+            transparent
+        );
+        backdrop-filter: blur(12px);
+        box-shadow: var(--shadow);
+    }
+
+    .form-actions-info {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        color: var(--muted);
+        font-size: 10px;
+    }
+
+    .form-actions-info i {
+        color: #16a34a;
+    }
+
+    .cancel-btn {
+        min-height: 39px;
+        border-radius: 9px;
+        font-family: inherit;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .save-btn {
+        min-height: 39px;
+        min-width: 130px;
+        border: 0;
+        border-radius: 9px;
+        background: var(--primary);
+        color: #fff;
+        font-family: inherit;
+        font-size: 11px;
+        font-weight: 800;
+    }
+
+    .save-btn:hover {
+        background: var(--primary-dark);
+        color: #fff;
+    }
+
+    .save-btn:disabled {
+        opacity: .65;
+        cursor: not-allowed;
+    }
+
+    .save-loading {
+        display: none;
+    }
+
+
+    /* =========================
+       Responsive
+    ========================= */
+
+    @media (max-width: 768px) {
+
+        .survey-editor {
+            padding-bottom: 20px;
+        }
+
+        .section-body,
+        .question-body {
+            padding: 16px;
+        }
+
+        .form-actions {
+            position: static;
+        }
+
+        .form-actions-info {
+            display: none;
+        }
+
+    }
+
+    @media (max-width: 576px) {
+
+        .section-header {
+            padding: 15px;
+        }
+
+        .section-icon {
+            width: 36px;
+            height: 36px;
+            flex-basis: 36px;
+            font-size: 15px;
+        }
+
+        .section-title {
+            font-size: 12px;
+        }
+
+        .section-description {
+            font-size: 9px;
+        }
+
+        .question-header {
+            align-items: flex-start;
+        }
+
+        .question-body {
+            padding: 14px;
+        }
+
+        .options-container {
+            padding: 12px;
+        }
+
+        .options-header {
+            align-items: flex-start;
+        }
+
+        .question-actions {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .form-actions > div {
+            flex-direction: column;
+        }
+
+        .form-actions .d-flex.gap-2 {
+            width: 100%;
+        }
+
+        .form-actions .cancel-btn,
+        .form-actions .save-btn {
+            flex: 1;
+        }
+
+    }
+
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="survey-editor">
+
+<form
+    method="post"
+    id="surveyForm"
+    novalidate
+>
+
+    {% csrf_token %}
+
+
+    <!-- =========================
+         Survey Information
+    ========================= -->
+
+    <div class="editor-card">
+
+        <div class="section-header">
+
+            <div class="section-icon">
+                <i class="bi bi-ui-checks-grid"></i>
+            </div>
+
+            <div>
+
+                <h5 class="section-title">
+                    اطلاعات نظرسنجی
+                </h5>
+
+                <p class="section-description">
+                    اطلاعات اصلی و وضعیت نظرسنجی را مشخص کنید.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="section-body">
+
+            <div class="row g-4">
+
+                <div class="col-12">
+
+                    <label
+                        for="surveyTitle"
+                        class="form-label"
+                    >
+                        عنوان نظرسنجی
+                        <span class="text-danger">*</span>
+                    </label>
+
+                    <input
+                        type="text"
+                        id="surveyTitle"
+                        name="title"
+                        class="form-control"
+                        value="{{ survey.title|default:'' }}"
+                        placeholder="مثلاً: نظرسنجی کیفیت آموزشی"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="col-12">
+
+                    <label
+                        for="surveyDescription"
+                        class="form-label"
+                    >
+                        توضیحات
+                    </label>
+
+                    <textarea
+                        id="surveyDescription"
+                        name="description"
+                        class="form-control"
+                        rows="4"
+                        placeholder="توضیحات مربوط به این نظرسنجی را وارد کنید..."
+                    >{{ survey.description|default:'' }}</textarea>
+
+                </div>
+
+
+                <div class="col-12">
+
+                    <div class="active-box">
+
+                        <div>
+
+                            <div class="active-title">
+                                فعال بودن نظرسنجی
+                            </div>
+
+                            <div class="active-description">
+                                کاربران فقط نظرسنجی‌های فعال را مشاهده و تکمیل می‌کنند.
+                            </div>
+
+                        </div>
+
+
+                        <div class="form-check form-switch active-switch">
+
+                            <input
+                                class="form-check-input"
+                                type="checkbox"
+                                role="switch"
+                                id="isActive"
+                                name="is_active"
+                                {% if survey.is_active or not survey %}
+                                    checked
+                                {% endif %}
+                            >
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         Questions
+    ========================= -->
+
+    <div class="editor-card">
+
+        <div class="section-header">
+
+            <div class="section-icon">
+                <i class="bi bi-question-circle"></i>
+            </div>
+
+            <div>
+
+                <h5 class="section-title">
+                    سوالات نظرسنجی
+                </h5>
+
+                <p class="section-description">
+                    سوال‌ها، نوع پاسخ و گزینه‌های موردنظر را مدیریت کنید.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div
+            class="section-body"
+            id="questionsContainer"
+        >
+
+            <div class="questions-list">
+
+            {% if survey %}
+
+                {% for question in survey.questions.all %}
+
+                <div
+                    class="question-card"
+                    data-question
+                    data-question-id="{{ question.id }}"
+                >
+
+                    <div class="question-header">
+
+                        <div class="question-heading">
+
+                            <div class="question-number">
+                                {{ forloop.counter }}
+                            </div>
+
+                            <div>
+
+                                <div class="question-title">
+                                    سوال {{ forloop.counter }}
+                                </div>
+
+                                <div class="question-meta">
+                                    تنظیم متن، نوع پاسخ و وضعیت سوال
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <button
+                            type="button"
+                            class="remove-question"
+                            title="حذف سوال"
+                        >
+                            <i class="bi bi-trash3"></i>
+                        </button>
+
+                    </div>
+
+
+                    <div class="question-body">
+
+                        <div class="row g-3">
+
+                            <div class="col-12 col-lg-7">
+
+                                <label class="form-label">
+                                    متن سوال
+                                    <span class="text-danger">*</span>
+                                </label>
+
+                                <input
+                                    type="text"
+                                    class="form-control question-text"
+                                    value="{{ question.text }}"
+                                    placeholder="متن سوال را وارد کنید..."
+                                    required
+                                >
+
+                            </div>
+
+
+                            <div class="col-12 col-md-6 col-lg-3">
+
+                                <label class="form-label">
+                                    نوع سوال
+                                </label>
+
+                                <select
+                                    class="form-select question-type"
+                                >
+
+                                    <option
+                                        value="text"
+                                        {% if question.question_type == "text" %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        تشریحی
+                                    </option>
+
+                                    <option
+                                        value="single_choice"
+                                        {% if question.question_type == "single_choice" %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        تک گزینه‌ای
+                                    </option>
+
+                                    <option
+                                        value="multiple_choice"
+                                        {% if question.question_type == "multiple_choice" %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        چند گزینه‌ای
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <div class="col-12 col-md-6 col-lg-2">
+
+                                <label class="form-label d-block">
+                                    وضعیت
+                                </label>
+
+                                <div
+                                    class="form-check"
+                                    style="padding-top:8px;"
+                                >
+
+                                    <input
+                                        class="form-check-input question-required"
+                                        type="checkbox"
+                                        {% if question.is_required %}
+                                            checked
+                                        {% endif %}
+                                    >
+
+                                    <label class="form-check-label text-muted">
+                                        اجباری
+                                    </label>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div
+                            class="options-container"
+                            {% if question.question_type == "text" %}
+                                style="display:none;"
+                            {% endif %}
+                        >
+
+                            <div class="options-header">
+
+                                <div>
+
+                                    <div class="options-title">
+                                        گزینه‌های پاسخ
+                                    </div>
+
+                                    <div class="options-description">
+                                        گزینه‌هایی که کاربر می‌تواند انتخاب کند.
+                                    </div>
+
+                                </div>
+
+
+                                <button
+                                    type="button"
+                                    class="add-option"
+                                >
+                                    <i class="bi bi-plus-lg me-1"></i>
+                                    افزودن گزینه
+                                </button>
+
+                            </div>
+
+
+                            <div class="options-list">
+
+                                {% for option in question.options.all %}
+
+                                <div
+                                    class="option-item"
+                                    data-option-id="{{ option.id }}"
+                                >
+
+                                    <div class="option-number">
+                                        {{ forloop.counter }}
+                                    </div>
+
+                                    <input
+                                        type="text"
+                                        class="form-control option-text"
+                                        value="{{ option.text }}"
+                                        placeholder="متن گزینه..."
+                                    >
+
+                                    <button
+                                        type="button"
+                                        class="remove-option"
+                                        title="حذف گزینه"
+                                    >
+                                        <i class="bi bi-trash3"></i>
+                                    </button>
+
+                                </div>
+
+                                {% empty %}
+
+                                <div class="option-item">
+
+                                    <div class="option-number">
+                                        1
+                                    </div>
+
+                                    <input
+                                        type="text"
+                                        class="form-control option-text"
+                                        placeholder="متن گزینه..."
+                                    >
+
+                                    <button
+                                        type="button"
+                                        class="remove-option"
+                                        title="حذف گزینه"
+                                    >
+                                        <i class="bi bi-trash3"></i>
+                                    </button>
+
+                                </div>
+
+                                {% endfor %}
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="question-actions">
+
+                            <div class="question-help">
+                                <i class="bi bi-info-circle me-1"></i>
+                                نوع سوال را می‌توانید تغییر دهید.
+                            </div>
+
+                            <span class="question-order">
+                                ترتیب: {{ forloop.counter }}
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <div
+                    class="empty-questions"
+                    id="emptyQuestions"
+                >
+
+                    <div class="empty-icon">
+                        <i class="bi bi-question-circle"></i>
+                    </div>
+
+                    <div class="empty-title">
+                        هنوز سوالی اضافه نشده است
+                    </div>
+
+                    <p class="empty-description">
+                        برای شروع، اولین سوال نظرسنجی را اضافه کنید.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+            </div>
+
+
+            <button
+                type="button"
+                class="add-question mt-3"
+                id="addQuestion"
+            >
+                <i class="bi bi-plus-circle"></i>
+                افزودن سوال جدید
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         Actions
+    ========================= -->
+
+    <div class="form-actions">
+
+        <div
+            class="d-flex align-items-center justify-content-between gap-3"
+        >
+
+            <div class="form-actions-info">
+
+                <i class="bi bi-shield-check"></i>
+
+                اطلاعات واردشده پس از ذخیره ثبت خواهد شد.
+
+            </div>
+
+
+            <div class="d-flex gap-2">
+
+                <a
+                    href="{% url 'admin_panel:ui-surveys' %}"
+                    class="btn btn-light cancel-btn"
+                >
+                    انصراف
+                </a>
+
+
+                <button
+                    type="submit"
+                    class="save-btn"
+                    id="saveSurveyButton"
+                >
+
+                    <span class="save-normal">
+
+                        <i class="bi bi-check-lg me-1"></i>
+
+                        {% if survey %}
+                            ذخیره تغییرات
+                        {% else %}
+                            ایجاد نظرسنجی
+                        {% endif %}
+
+                    </span>
+
+
+                    <span class="save-loading">
+
+                        <span
+                            class="spinner-border spinner-border-sm me-1"
+                            role="status"
+                        ></span>
+
+                        در حال ذخیره...
+
+                    </span>
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</form>
+
+</div>
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const API_BASE = "/admin-panel/api";
+
+    const surveyForm =
+        document.getElementById("surveyForm");
+
+    const questionsContainer =
+        document.getElementById("questionsContainer");
+
+    const addQuestionButton =
+        document.getElementById("addQuestion");
+
+    const saveSurveyButton =
+        document.getElementById("saveSurveyButton");
+
+
+    const pathParts =
+        window.location.pathname
+            .split("/")
+            .filter(Boolean);
+
+    const surveysIndex =
+        pathParts.indexOf("surveys");
+
+    let surveyId = null;
+
+    if (
+        surveysIndex !== -1 &&
+        pathParts[surveysIndex + 1] &&
+        /^\d+$/.test(
+            pathParts[surveysIndex + 1]
+        )
+    ) {
+        surveyId =
+            pathParts[surveysIndex + 1];
+    }
+
+
+    let questionIndex =
+        document.querySelectorAll(
+            "[data-question]"
+        ).length;
+
+
+    const deletedQuestions = [];
+    const deletedOptions = [];
+
+
+    /* =========================
+       JWT Authentication
+    ========================= */
+
+    function getAccessToken() {
+
+        return localStorage.getItem(
+            "access_token"
+        );
+
+    }
+
+
+    function logoutAdmin() {
+
+        localStorage.removeItem(
+            "access_token"
+        );
+
+        localStorage.removeItem(
+            "refresh_token"
+        );
+
+        window.location.href =
+            "/login/";
+
+    }
+
+
+    async function apiRequest(
+    url,
+    options = {}
+) {
+
+    const token =
+        getAccessToken();
+
+
+    if (!token) {
+
+        logoutAdmin();
+
+        throw new Error(
+            "Access token not found."
+        );
+
+    }
+
+
+    const headers =
+        new Headers(
+            options.headers || {}
+        );
+
+
+    headers.set(
+        "Authorization",
+        `Bearer ${token}`
+    );
+
+
+    headers.set(
+        "Accept",
+        "application/json"
+    );
+
+
+    headers.set(
+        "Content-Type",
+        "application/json"
+    );
+
+
+    const response =
+        await fetch(
+            url,
+            {
+                ...options,
+                headers: headers
+            }
+        );
+
+
+    if (
+        response.status === 401
+    ) {
+
+        logoutAdmin();
+
+        throw new Error(
+            "Unauthorized."
+        );
+
+    }
+
+
+    if (
+        response.status === 403
+    ) {
+
+        throw new Error(
+            "شما دسترسی لازم برای این بخش را ندارید."
+        );
+
+    }
+
+
+    let data = null;
+
+
+    try {
+
+        data =
+            await response.json();
+
+    }
+
+    catch (error) {
+
+        data = null;
+
+    }
+
+
+    if (!response.ok) {
+
+        let message =
+            "خطا در ارتباط با سرور";
+
+
+        if (data) {
+
+            if (
+                typeof data === "string"
+            ) {
+
+                message = data;
+
+            }
+
+            else if (
+                data.detail
+            ) {
+
+                message =
+                    data.detail;
+
+            }
+
+            else {
+
+                const errors =
+                    Object.entries(data)
+                        .map(
+                            ([field, value]) =>
+                                `${field}: ${
+                                    Array.isArray(value)
+                                        ? value.join("، ")
+                                        : value
+                                }`
+                        )
+                        .join("\n");
+
+
+                if (errors) {
+
+                    message =
+                        errors;
+
+                }
+
+            }
+
+        }
+
+
+        throw new Error(
+            message
+        );
+
+    }
+
+
+    return data;
+
+}
+
+
+    function showError(message) {
+
+        alert(
+            message ||
+            "خطایی هنگام ذخیره اطلاعات رخ داد."
+        );
+
+    }
+
+
+    function createOption(
+        optionText = "",
+        optionId = ""
+    ) {
+
+        return `
+
+            <div
+                class="option-item"
+                ${
+                    optionId
+                        ? `data-option-id="${optionId}"`
+                        : ""
+                }
+            >
+
+                <div class="option-number">
+                    1
+                </div>
+
+                <input
+                    type="text"
+                    class="form-control option-text"
+                    value="${escapeHtml(optionText)}"
+                    placeholder="متن گزینه..."
+                >
+
+                <button
+                    type="button"
+                    class="remove-option"
+                    title="حذف گزینه"
+                >
+                    <i class="bi bi-trash3"></i>
+                </button>
+
+            </div>
+
+        `;
+
+    }
+
+
+    function escapeHtml(value) {
+
+        return String(value)
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+
+    }
+
+
+    function createQuestion() {
+
+        const questionCard =
+            document.createElement("div");
+
+        questionCard.className =
+            "question-card";
+
+        questionCard.setAttribute(
+            "data-question",
+            ""
+        );
+
+
+        questionCard.innerHTML = `
+
+            <div class="question-header">
+
+                <div class="question-heading">
+
+                    <div class="question-number">
+                        1
+                    </div>
+
+                    <div>
+
+                        <div class="question-title">
+                            سوال جدید
+                        </div>
+
+                        <div class="question-meta">
+                            تنظیم متن، نوع پاسخ و وضعیت سوال
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    class="remove-question"
+                    title="حذف سوال"
+                >
+                    <i class="bi bi-trash3"></i>
+                </button>
+
+            </div>
+
+
+            <div class="question-body">
+
+                <div class="row g-3">
+
+                    <div class="col-12 col-lg-7">
+
+                        <label class="form-label">
+                            متن سوال
+                            <span class="text-danger">*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            class="form-control question-text"
+                            placeholder="متن سوال را وارد کنید..."
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="col-12 col-md-6 col-lg-3">
+
+                        <label class="form-label">
+                            نوع سوال
+                        </label>
+
+                        <select
+                            class="form-select question-type"
+                        >
+
+                            <option value="text">
+                                تشریحی
+                            </option>
+
+                            <option value="single_choice">
+                                تک گزینه‌ای
+                            </option>
+
+                            <option value="multiple_choice">
+                                چند گزینه‌ای
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="col-12 col-md-6 col-lg-2">
+
+                        <label class="form-label d-block">
+                            وضعیت
+                        </label>
+
+                        <div
+                            class="form-check"
+                            style="padding-top:8px;"
+                        >
+
+                            <input
+                                class="form-check-input question-required"
+                                type="checkbox"
+                                checked
+                            >
+
+                            <label class="form-check-label text-muted">
+                                اجباری
+                            </label>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="options-container"
+                    style="display:none;"
+                >
+
+                    <div class="options-header">
+
+                        <div>
+
+                            <div class="options-title">
+                                گزینه‌های پاسخ
+                            </div>
+
+                            <div class="options-description">
+                                گزینه‌هایی که کاربر می‌تواند انتخاب کند.
+                            </div>
+
+                        </div>
+
+
+                        <button
+                            type="button"
+                            class="add-option"
+                        >
+                            <i class="bi bi-plus-lg me-1"></i>
+                            افزودن گزینه
+                        </button>
+
+                    </div>
+
+
+                    <div class="options-list">
+
+                        ${createOption()}
+
+                    </div>
+
+                </div>
+
+
+                <div class="question-actions">
+
+                    <div class="question-help">
+                        <i class="bi bi-info-circle me-1"></i>
+                        نوع سوال را می‌توانید تغییر دهید.
+                    </div>
+
+                    <span class="question-order">
+                        ترتیب: 1
+                    </span>
+
+                </div>
+
+            </div>
+
+        `;
+
+
+        questionsContainer
+            .querySelector(".questions-list")
+            .appendChild(questionCard);
+
+
+        questionIndex++;
+
+        updateQuestionNumbers();
+
+    }
+
+
+    addQuestionButton.addEventListener(
+        "click",
+        function () {
+
+            const emptyState =
+                document.getElementById(
+                    "emptyQuestions"
+                );
+
+            if (emptyState) {
+                emptyState.remove();
+            }
+
+            createQuestion();
+
+        }
+    );
+
+
+    questionsContainer.addEventListener(
+        "click",
+        function (event) {
+
+            const removeQuestion =
+                event.target.closest(
+                    ".remove-question"
+                );
+
+            const removeOption =
+                event.target.closest(
+                    ".remove-option"
+                );
+
+            const addOption =
+                event.target.closest(
+                    ".add-option"
+                );
+
+
+            if (removeQuestion) {
+
+                const questionCard =
+                    removeQuestion.closest(
+                        "[data-question]"
+                    );
+
+                const questionId =
+                    questionCard.dataset.questionId;
+
+
+                if (questionId) {
+
+                    deletedQuestions.push(
+                        questionId
+                    );
+
+                }
+
+
+                questionCard.remove();
+
+                updateQuestionNumbers();
+
+                return;
+
+            }
+
+
+            if (removeOption) {
+
+                const optionItem =
+                    removeOption.closest(
+                        ".option-item"
+                    );
+
+                const optionId =
+                    optionItem.dataset.optionId;
+
+
+                if (optionId) {
+
+                    deletedOptions.push(
+                        optionId
+                    );
+
+                }
+
+
+                const optionsList =
+                    optionItem.parentElement;
+
+                const options =
+                    optionsList.querySelectorAll(
+                        ".option-item"
+                    );
+
+
+                if (options.length > 1) {
+
+                    optionItem.remove();
+
+                    updateOptionNumbers(
+                        optionsList
+                    );
+
+                }
+
+                return;
+
+            }
+
+
+            if (addOption) {
+
+                const questionCard =
+                    addOption.closest(
+                        "[data-question]"
+                    );
+
+                const optionsList =
+                    questionCard.querySelector(
+                        ".options-list"
+                    );
+
+
+                optionsList.insertAdjacentHTML(
+                    "beforeend",
+                    createOption()
+                );
+
+
+                updateOptionNumbers(
+                    optionsList
+                );
+
+            }
+
+        }
+    );
+
+
+    questionsContainer.addEventListener(
+        "change",
+        function (event) {
+
+            if (
+                !event.target.classList.contains(
+                    "question-type"
+                )
+            ) {
+                return;
+            }
+
+
+            const select =
+                event.target;
+
+            const questionCard =
+                select.closest(
+                    "[data-question]"
+                );
+
+            const optionsContainer =
+                questionCard.querySelector(
+                    ".options-container"
+                );
+
+
+            if (
+                select.value === "single_choice" ||
+                select.value === "multiple_choice"
+            ) {
+
+                optionsContainer.style.display =
+                    "block";
+
+            }
+
+            else {
+
+                optionsContainer.style.display =
+                    "none";
+
+            }
+
+        }
+    );
+
+
+    function updateQuestionNumbers() {
+
+        const questions =
+            questionsContainer.querySelectorAll(
+                "[data-question]"
+            );
+
+
+        questions.forEach(
+            function (question, index) {
+
+                const number =
+                    question.querySelector(
+                        ".question-number"
+                    );
+
+                const title =
+                    question.querySelector(
+                        ".question-title"
+                    );
+
+                const order =
+                    question.querySelector(
+                        ".question-order"
+                    );
+
+
+                if (number) {
+                    number.textContent =
+                        index + 1;
+                }
+
+
+                if (title) {
+                    title.textContent =
+                        `سوال ${index + 1}`;
+                }
+
+
+                if (order) {
+                    order.textContent =
+                        `ترتیب: ${index + 1}`;
+                }
+
+            }
+        );
+
+    }
+
+
+    function updateOptionNumbers(
+        optionsList
+    ) {
+
+        const options =
+            optionsList.querySelectorAll(
+                ".option-item"
+            );
+
+
+        options.forEach(
+            function (option, index) {
+
+                const number =
+                    option.querySelector(
+                        ".option-number"
+                    );
+
+                if (number) {
+                    number.textContent =
+                        index + 1;
+                }
+
+            }
+        );
+
+    }
+
+
+    async function deleteOldData() {
+
+        for (
+            const optionId
+            of deletedOptions
+        ) {
+
+            await apiRequest(
+                `${API_BASE}/options/${optionId}/`,
+                {
+                    method: "DELETE"
+                }
+            );
+
+        }
+
+
+        for (
+            const questionId
+            of deletedQuestions
+        ) {
+
+            await apiRequest(
+                `${API_BASE}/questions/${questionId}/`,
+                {
+                    method: "DELETE"
+                }
+            );
+
+        }
+
+    }
+
+
+    async function saveQuestion(
+        questionCard,
+        currentSurveyId
+    ) {
+
+        const questionId =
+            questionCard.dataset.questionId;
+
+        const textInput =
+            questionCard.querySelector(
+                ".question-text"
+            );
+
+        const typeInput =
+            questionCard.querySelector(
+                ".question-type"
+            );
+
+        const requiredInput =
+            questionCard.querySelector(
+                ".question-required"
+            );
+
+
+        const text =
+            textInput.value.trim();
+
+        const questionType =
+            typeInput.value;
+
+        const isRequired =
+            requiredInput.checked;
+
+
+        if (!text) {
+
+            throw new Error(
+                "متن یکی از سوال‌ها وارد نشده است."
+            );
+
+        }
+
+
+        const questionData = {
+            survey: Number(currentSurveyId),
+            text: text,
+            question_type: questionType,
+            is_required: isRequired
+        };
+
+
+        let question;
+
+
+        if (questionId) {
+
+            question =
+                await apiRequest(
+                    `${API_BASE}/questions/${questionId}/`,
+                    {
+                        method: "PATCH",
+                        body: JSON.stringify(
+                            questionData
+                        )
+                    }
+                );
+
+        }
+
+        else {
+
+            question =
+                await apiRequest(
+                    `${API_BASE}/questions/`,
+                    {
+                        method: "POST",
+                        body: JSON.stringify(
+                            questionData
+                        )
+                    }
+                );
+
+
+            questionCard.dataset.questionId =
+                question.id;
+
+        }
+
+
+        if (
+            questionType !== "single_choice" &&
+            questionType !== "multiple_choice"
+        ) {
+            return;
+        }
+
+
+        const options =
+            questionCard.querySelectorAll(
+                ".option-item"
+            );
+
+
+        for (
+            const optionItem
+            of options
+        ) {
+
+            const optionText =
+                optionItem
+                    .querySelector(
+                        ".option-text"
+                    )
+                    .value
+                    .trim();
+
+
+            if (!optionText) {
+                continue;
+            }
+
+
+            const optionId =
+                optionItem.dataset.optionId;
+
+
+            const optionData = {
+                question: Number(
+                    question.id
+                ),
+                text: optionText
+            };
+
+
+            let option;
+
+
+            if (optionId) {
+
+                option =
+                    await apiRequest(
+                        `${API_BASE}/options/${optionId}/`,
+                        {
+                            method: "PATCH",
+                            body: JSON.stringify(
+                                optionData
+                            )
+                        }
+                    );
+
+            }
+
+            else {
+
+                option =
+                    await apiRequest(
+                        `${API_BASE}/options/`,
+                        {
+                            method: "POST",
+                            body: JSON.stringify(
+                                optionData
+                            )
+                        }
+                    );
+
+
+                optionItem.dataset.optionId =
+                    option.id;
+
+            }
+
+        }
+
+    }
+
+
+    async function saveSurvey() {
+
+        const title =
+            document
+                .getElementById("surveyTitle")
+                .value
+                .trim();
+
+
+        const description =
+            document
+                .getElementById("surveyDescription")
+                .value
+                .trim();
+
+
+        const isActive =
+            document
+                .getElementById("isActive")
+                .checked;
+
+
+        if (!title) {
+
+            throw new Error(
+                "عنوان نظرسنجی را وارد کنید."
+            );
+
+        }
+
+
+        const surveyData = {
+            title: title,
+            description: description,
+            is_active: isActive
+        };
+
+
+        let survey;
+
+
+        if (surveyId) {
+
+            survey =
+                await apiRequest(
+                    `${API_BASE}/surveys/${surveyId}/`,
+                    {
+                        method: "PATCH",
+                        body: JSON.stringify(
+                            surveyData
+                        )
+                    }
+                );
+
+        }
+
+        else {
+
+            survey =
+                await apiRequest(
+                    `${API_BASE}/surveys/`,
+                    {
+                        method: "POST",
+                        body: JSON.stringify(
+                            surveyData
+                        )
+                    }
+                );
+
+
+            surveyId =
+                survey.id;
+
+        }
+
+
+        await deleteOldData();
+
+
+        const questions =
+            questionsContainer.querySelectorAll(
+                "[data-question]"
+            );
+
+
+        for (
+            const questionCard
+            of questions
+        ) {
+
+            await saveQuestion(
+                questionCard,
+                surveyId
+            );
+
+        }
+
+
+        return survey;
+
+    }
+
+
+    surveyForm.addEventListener(
+        "submit",
+        async function (event) {
+
+            event.preventDefault();
+
+
+            saveSurveyButton.disabled =
+                true;
+
+
+            saveSurveyButton
+                .querySelector(
+                    ".save-normal"
+                )
+                .style.display =
+                "none";
+
+
+            saveSurveyButton
+                .querySelector(
+                    ".save-loading"
+                )
+                .style.display =
+                "inline";
+
+
+            try {
+
+                await saveSurvey();
+
+
+                window.location.href =
+                    "{% url 'admin_panel:ui-surveys' %}";
+
+            }
+
+
+            catch (error) {
+
+                console.error(
+                    error
+                );
+
+
+                showError(
+                    error.message
+                );
+
+            }
+
+
+            finally {
+
+                saveSurveyButton.disabled =
+                    false;
+
+
+                saveSurveyButton
+                    .querySelector(
+                        ".save-normal"
+                    )
+                    .style.display =
+                    "inline";
+
+
+                saveSurveyButton
+                    .querySelector(
+                        ".save-loading"
+                    )
+                    .style.display =
+                    "none";
+
+            }
+
+        }
+    );
+
+
+    document
+        .querySelectorAll(
+            "[data-question]"
+        )
+        .forEach(
+            function (questionCard) {
+
+                const select =
+                    questionCard.querySelector(
+                        ".question-type"
+                    );
+
+                const optionsContainer =
+                    questionCard.querySelector(
+                        ".options-container"
+                    );
+
+
+                if (
+                    !select ||
+                    !optionsContainer
+                ) {
+                    return;
+                }
+
+
+                if (
+                    select.value === "single_choice" ||
+                    select.value === "multiple_choice"
+                ) {
+
+                    optionsContainer.style.display =
+                        "block";
+
+                }
+
+                else {
+
+                    optionsContainer.style.display =
+                        "none";
+
+                }
+
+
+                const optionsList =
+                    questionCard.querySelector(
+                        ".options-list"
+                    );
+
+
+                if (optionsList) {
+
+                    updateOptionNumbers(
+                        optionsList
+                    );
+
+                }
+
+            }
+        );
+
+
+    updateQuestionNumbers();
+
+});
+
+</script>
+
+{% endblock %}

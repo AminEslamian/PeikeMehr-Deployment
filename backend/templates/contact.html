@@ -1,0 +1,1228 @@
+{% extends "base.html" %}
+
+{% block title %}
+    تماس با ما
+{% endblock %}
+
+
+{% block extra_css %}
+
+<style>
+    .contact-page {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    /* =========================
+       Header
+    ========================= */
+
+    .contact-header {
+        margin-bottom: 28px;
+    }
+
+    .contact-title {
+        font-size: 30px;
+        font-weight: 800;
+        margin-bottom: 8px;
+    }
+
+    .contact-description {
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.9;
+        margin: 0;
+    }
+
+
+    /* =========================
+       Contact Information
+    ========================= */
+
+    .contact-info-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 26px;
+        box-shadow: var(--shadow-sm);
+        margin-bottom: 24px;
+    }
+
+    .contact-info-title {
+        font-size: 18px;
+        font-weight: 800;
+        margin-bottom: 8px;
+    }
+
+    .contact-info-description {
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.9;
+        margin-bottom: 22px;
+    }
+
+    .contact-links {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+    }
+
+    .contact-link {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: var(--background);
+        color: var(--text);
+        text-decoration: none;
+        transition: all var(--transition);
+    }
+
+    .contact-link:hover {
+        border-color: var(--primary);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .contact-link-icon {
+        width: 40px;
+        height: 40px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        background: rgba(79, 70, 229, 0.1);
+        color: var(--primary);
+        font-size: 18px;
+    }
+
+    .contact-link-content {
+        min-width: 0;
+    }
+
+    .contact-link-label {
+        display: block;
+        font-size: 12px;
+        color: var(--muted);
+        margin-bottom: 3px;
+    }
+
+    .contact-link-value {
+        display: block;
+        font-size: 13px;
+        font-weight: 700;
+        direction: ltr;
+        text-align: right;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+
+    /* =========================
+       Cards
+    ========================= */
+
+    .contact-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 28px;
+        box-shadow: var(--shadow-sm);
+        margin-bottom: 32px;
+    }
+
+    .section-title {
+        font-size: 19px;
+        font-weight: 800;
+        margin-bottom: 7px;
+    }
+
+    .section-description {
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.8;
+        margin-bottom: 25px;
+    }
+
+
+    /* =========================
+       Form
+    ========================= */
+
+    .form-label {
+        font-size: 13px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .form-control {
+        min-height: 46px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        background: var(--background);
+        color: var(--text);
+        font-family: "Vazirmatn", sans-serif;
+        font-size: 13px;
+        transition: all var(--transition);
+    }
+
+    textarea.form-control {
+        min-height: 140px;
+        resize: vertical;
+        line-height: 1.9;
+    }
+
+    .form-control:focus {
+        background: var(--card);
+        color: var(--text);
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+    }
+
+    .form-control::placeholder {
+        color: var(--muted);
+        opacity: 0.75;
+    }
+
+    .submit-button {
+        width: 100%;
+        min-height: 46px;
+        border: none;
+        border-radius: 10px;
+        background: linear-gradient(
+            135deg,
+            var(--primary),
+            var(--primary-dark)
+        );
+        color: #fff;
+        font-family: "Vazirmatn", sans-serif;
+        font-size: 13px;
+        font-weight: 700;
+        transition: all var(--transition);
+    }
+
+    .submit-button:hover:not(:disabled) {
+        transform: translateY(-1px);
+        box-shadow: 0 8px 20px rgba(79, 70, 229, 0.22);
+    }
+
+    .submit-button:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+    .form-message {
+        min-height: 22px;
+        font-size: 13px;
+        line-height: 1.8;
+    }
+
+    .form-message.success {
+        color: #16a34a;
+    }
+
+    .form-message.error {
+        color: #dc2626;
+    }
+
+
+    /* =========================
+       Tickets
+    ========================= */
+
+    .tickets-section {
+        margin-top: 10px;
+    }
+
+    .tickets-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        margin-bottom: 18px;
+    }
+
+    .tickets-title {
+        font-size: 20px;
+        font-weight: 800;
+        margin: 0;
+    }
+
+    .tickets-count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 32px;
+        height: 28px;
+        padding: 0 9px;
+        border-radius: 20px;
+        background: var(--background-secondary);
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .ticket-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 22px;
+        margin-bottom: 14px;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .ticket-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 15px;
+        margin-bottom: 14px;
+    }
+
+    .ticket-title {
+        font-size: 16px;
+        font-weight: 800;
+        margin: 0;
+        line-height: 1.6;
+    }
+
+    .ticket-date {
+        flex-shrink: 0;
+        color: var(--muted);
+        font-size: 11px;
+        white-space: nowrap;
+    }
+
+    .ticket-content {
+        background: var(--background);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 14px;
+        color: var(--text);
+        font-size: 13px;
+        line-height: 2;
+        margin-bottom: 12px;
+        white-space: pre-wrap;
+    }
+
+    .ticket-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--muted);
+    }
+
+    .ticket-status-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #f59e0b;
+    }
+
+    .ticket-answer {
+        background: rgba(79, 70, 229, 0.07);
+        border-right: 3px solid var(--primary);
+        border-radius: 10px;
+        padding: 14px;
+        margin-top: 12px;
+    }
+
+    .answer-title {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        color: var(--primary);
+        font-size: 13px;
+        font-weight: 800;
+        margin-bottom: 7px;
+    }
+
+    .answer-text {
+        color: var(--text);
+        font-size: 13px;
+        line-height: 2;
+        white-space: pre-wrap;
+    }
+
+    .answered-status {
+        color: #16a34a;
+    }
+
+    .answered-status .ticket-status-dot {
+        background: #16a34a;
+    }
+
+
+    /* =========================
+       Empty / Loading
+    ========================= */
+
+    .tickets-message {
+        background: var(--card);
+        border: 1px dashed var(--border);
+        border-radius: var(--radius);
+        padding: 35px 20px;
+        text-align: center;
+        color: var(--muted);
+        font-size: 13px;
+    }
+
+    .tickets-message i {
+        display: block;
+        font-size: 30px;
+        margin-bottom: 10px;
+        opacity: 0.55;
+    }
+
+
+    /* =========================
+       Responsive
+    ========================= */
+
+    @media (max-width: 768px) {
+
+        .contact-page {
+            max-width: 100%;
+        }
+
+        .contact-title {
+            font-size: 25px;
+        }
+
+        .contact-links {
+            grid-template-columns: 1fr;
+        }
+
+        .contact-card,
+        .contact-info-card {
+            padding: 20px;
+        }
+
+        .ticket-header {
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .ticket-date {
+            font-size: 11px;
+        }
+    }
+</style>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container">
+
+    <div class="contact-page">
+
+        <!-- =========================
+             Page Header
+        ========================= -->
+
+        <div class="contact-header">
+
+            <h1 class="contact-title">
+                تماس با ما
+            </h1>
+
+            <p class="contact-description">
+                اگر سوالی دارید، با مشکلی در سامانه مواجه شده‌اید
+                یا نیاز به راهنمایی دارید، می‌توانید از راه‌های ارتباطی
+                زیر با ما در تماس باشید.
+            </p>
+
+        </div>
+
+
+        <!-- =========================
+             Contact Information
+        ========================= -->
+
+        <div class="contact-info-card">
+
+            <div class="contact-info-title">
+                راه‌های ارتباطی
+            </div>
+
+            <p class="contact-info-description">
+                برای موضوعات عمومی می‌توانید مستقیماً از راه‌های ارتباطی
+                زیر استفاده کنید. برای پیگیری مشکلات مربوط به سامانه،
+                پیشنهاد می‌کنیم تیکت ثبت کنید.
+            </p>
+
+
+            <div class="contact-links">
+
+                <!-- Phone -->
+
+                <a
+                    href="tel:02112345678"
+                    class="contact-link"
+                >
+
+                    <div class="contact-link-icon">
+                        <i class="bi bi-telephone-fill"></i>
+                    </div>
+
+                    <div class="contact-link-content">
+
+                        <span class="contact-link-label">
+                            تلفن پشتیبانی
+                        </span>
+
+                        <span class="contact-link-value">
+                            ۰۲۱-۱۲۳۴۵۶۷۸
+                        </span>
+
+                    </div>
+
+                </a>
+
+
+                <!-- Email -->
+
+                <a
+                    href="mailto:support@example.com"
+                    class="contact-link"
+                >
+
+                    <div class="contact-link-icon">
+                        <i class="bi bi-envelope-fill"></i>
+                    </div>
+
+                    <div class="contact-link-content">
+
+                        <span class="contact-link-label">
+                            ایمیل پشتیبانی
+                        </span>
+
+                        <span class="contact-link-value">
+                            support@example.com
+                        </span>
+
+                    </div>
+
+                </a>
+
+
+                <!-- Telegram -->
+
+                <a
+                    href="https://t.me/example"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="contact-link"
+                >
+
+                    <div class="contact-link-icon">
+                        <i class="bi bi-telegram"></i>
+                    </div>
+
+                    <div class="contact-link-content">
+
+                        <span class="contact-link-label">
+                            تلگرام
+                        </span>
+
+                        <span class="contact-link-value">
+                            @example
+                        </span>
+
+                    </div>
+
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- =========================
+             New Ticket
+        ========================= -->
+
+        <div class="contact-card">
+
+            <h2 class="section-title">
+                ثبت تیکت پشتیبانی
+            </h2>
+
+            <p class="section-description">
+                مشکل یا درخواست خود را با جزئیات بنویسید تا تیم پشتیبانی
+                بتواند بهتر شما را راهنمایی کند.
+            </p>
+
+
+            <form id="ticketForm">
+
+                <div class="row">
+
+                    <!-- First Name -->
+
+                    <div class="col-md-6 mb-3">
+
+                        <label
+                            for="firstName"
+                            class="form-label"
+                        >
+                            نام
+                        </label>
+
+                        <input
+                            type="text"
+                            id="firstName"
+                            class="form-control"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- Last Name -->
+
+                    <div class="col-md-6 mb-3">
+
+                        <label
+                            for="lastName"
+                            class="form-label"
+                        >
+                            نام خانوادگی
+                        </label>
+
+                        <input
+                            type="text"
+                            id="lastName"
+                            class="form-control"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- Phone -->
+
+                    <div class="col-md-6 mb-3">
+
+                        <label
+                            for="phoneNumber"
+                            class="form-label"
+                        >
+                            شماره تلفن
+                        </label>
+
+                        <input
+                            type="tel"
+                            id="phoneNumber"
+                            class="form-control"
+                            maxlength="11"
+                            inputmode="numeric"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- Title -->
+
+                    <div class="col-md-6 mb-3">
+
+                        <label
+                            for="title"
+                            class="form-label"
+                        >
+                            عنوان تیکت
+                        </label>
+
+                        <input
+                            type="text"
+                            id="title"
+                            class="form-control"
+                            maxlength="200"
+                            placeholder="مثلاً مشکل در ارسال گزارش"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- Content -->
+
+                    <div class="col-12 mb-3">
+
+                        <label
+                            for="content"
+                            class="form-label"
+                        >
+                            توضیحات
+                        </label>
+
+                        <textarea
+                            id="content"
+                            class="form-control"
+                            rows="6"
+                            placeholder="مشکل یا درخواست خود را توضیح دهید..."
+                            required
+                        ></textarea>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="formMessage"
+                    class="form-message"
+                ></div>
+
+
+                <button
+                    type="submit"
+                    class="submit-button"
+                    id="submitButton"
+                >
+                    <i class="bi bi-send me-1"></i>
+                    ثبت تیکت
+                </button>
+
+            </form>
+
+        </div>
+
+
+        <!-- =========================
+             Previous Tickets
+        ========================= -->
+
+        <section class="tickets-section">
+
+            <div class="tickets-header">
+
+                <h2 class="tickets-title">
+                    تیکت‌های قبلی
+                </h2>
+
+                <span
+                    class="tickets-count"
+                    id="ticketsCount"
+                >
+                    ۰
+                </span>
+
+            </div>
+
+
+            <div id="ticketsContainer">
+
+                <div class="tickets-message">
+
+                    <i class="bi bi-hourglass-split"></i>
+
+                    در حال دریافت تیکت‌ها...
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+<script>
+
+(function () {
+
+    "use strict";
+
+
+    const accessToken =
+        localStorage.getItem("access_token");
+
+
+    /* =========================
+       Authentication
+    ========================= */
+
+    if (!accessToken) {
+
+        window.location.href = "/login/";
+
+        return;
+
+    }
+
+
+    /* =========================
+       Elements
+    ========================= */
+
+    const ticketForm =
+        document.getElementById("ticketForm");
+
+    const submitButton =
+        document.getElementById("submitButton");
+
+    const formMessage =
+        document.getElementById("formMessage");
+
+    const ticketsContainer =
+        document.getElementById("ticketsContainer");
+
+    const ticketsCount =
+        document.getElementById("ticketsCount");
+
+
+    /* =========================
+       Logout
+    ========================= */
+
+    function logout() {
+
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
+
+        window.location.href = "/login/";
+
+    }
+
+
+    /* =========================
+       Load Tickets
+    ========================= */
+
+    async function loadTickets() {
+
+        ticketsContainer.innerHTML = `
+            <div class="tickets-message">
+                <i class="bi bi-hourglass-split"></i>
+                در حال دریافت تیکت‌ها...
+            </div>
+        `;
+
+
+        try {
+
+            const response =
+                await fetch(
+                    "/api/tickets/",
+                    {
+                        method: "GET",
+
+                        headers: {
+                            "Authorization":
+                                `Bearer ${accessToken}`
+                        }
+                    }
+                );
+
+
+            if (response.status === 401) {
+
+                logout();
+
+                return;
+
+            }
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "خطا در دریافت تیکت‌ها"
+                );
+
+            }
+
+
+            const data =
+                await response.json();
+
+
+            const tickets =
+                Array.isArray(data)
+                    ? data
+                    : (data.results || []);
+
+
+            ticketsCount.textContent =
+                tickets.length.toLocaleString("fa-IR");
+
+
+            ticketsContainer.innerHTML = "";
+
+
+            if (!tickets.length) {
+
+                ticketsContainer.innerHTML = `
+                    <div class="tickets-message">
+                        <i class="bi bi-ticket-perforated"></i>
+                        هنوز تیکتی ثبت نکرده‌اید.
+                    </div>
+                `;
+
+                return;
+
+            }
+
+
+            tickets.forEach(function (ticket) {
+
+                const card =
+                    document.createElement("article");
+
+                card.className =
+                    "ticket-card";
+
+
+                /* Header */
+
+                const header =
+                    document.createElement("div");
+
+                header.className =
+                    "ticket-header";
+
+
+                const title =
+                    document.createElement("h3");
+
+                title.className =
+                    "ticket-title";
+
+                title.textContent =
+                    ticket.title;
+
+
+                const date =
+                    document.createElement("span");
+
+                date.className =
+                    "ticket-date";
+
+                date.textContent =
+                    formatDate(ticket.created_at);
+
+
+                header.appendChild(title);
+                header.appendChild(date);
+
+
+                card.appendChild(header);
+
+
+                /* Content */
+
+                const content =
+                    document.createElement("div");
+
+                content.className =
+                    "ticket-content";
+
+                content.textContent =
+                    ticket.content;
+
+
+                card.appendChild(content);
+
+
+                /* Answer */
+
+                if (
+                    ticket.is_answered &&
+                    ticket.answer
+                ) {
+
+                    const answer =
+                        document.createElement("div");
+
+                    answer.className =
+                        "ticket-answer";
+
+
+                    const answerTitle =
+                        document.createElement("div");
+
+                    answerTitle.className =
+                        "answer-title";
+
+                    answer.innerHTML = `
+                        <div class="answer-title">
+                            <i class="bi bi-headset"></i>
+                            پاسخ پشتیبانی
+                        </div>
+                    `;
+
+
+                    const answerText =
+                        document.createElement("div");
+
+                    answerText.className =
+                        "answer-text";
+
+                    answerText.textContent =
+                        ticket.answer;
+
+
+                    answer.appendChild(answerText);
+
+                    card.appendChild(answer);
+
+
+                    /* Status */
+
+                    const status =
+                        document.createElement("div");
+
+                    status.className =
+                        "ticket-status answered-status mt-3";
+
+                    status.innerHTML = `
+                        <span class="ticket-status-dot"></span>
+                        پاسخ داده شده
+                    `;
+
+                    card.appendChild(status);
+
+                } else {
+
+                    const waiting =
+                        document.createElement("div");
+
+                    waiting.className =
+                        "ticket-status mt-3";
+
+                    waiting.innerHTML = `
+                        <span class="ticket-status-dot"></span>
+                        در انتظار پاسخ پشتیبانی
+                    `;
+
+                    card.appendChild(waiting);
+
+                }
+
+
+                ticketsContainer.appendChild(card);
+
+            });
+
+
+        } catch (error) {
+
+            console.error(error);
+
+            ticketsContainer.innerHTML = `
+                <div class="tickets-message text-danger">
+                    <i class="bi bi-exclamation-circle"></i>
+                    دریافت تیکت‌ها با خطا مواجه شد.
+                </div>
+            `;
+
+        }
+
+    }
+
+
+    /* =========================
+       Submit Ticket
+    ========================= */
+
+    ticketForm.addEventListener(
+        "submit",
+        async function (event) {
+
+            event.preventDefault();
+
+
+            const payload = {
+
+                title:
+                    document
+                        .getElementById("title")
+                        .value
+                        .trim(),
+
+                content:
+                    document
+                        .getElementById("content")
+                        .value
+                        .trim(),
+
+                first_name:
+                    document
+                        .getElementById("firstName")
+                        .value
+                        .trim(),
+
+                last_name:
+                    document
+                        .getElementById("lastName")
+                        .value
+                        .trim(),
+
+                phone_number:
+                    document
+                        .getElementById("phoneNumber")
+                        .value
+                        .trim()
+
+            };
+
+
+            submitButton.disabled = true;
+
+            submitButton.innerHTML = `
+                <span
+                    class="spinner-border spinner-border-sm me-1"
+                    aria-hidden="true"
+                ></span>
+                در حال ارسال...
+            `;
+
+
+            formMessage.className =
+                "form-message";
+
+            formMessage.textContent =
+                "";
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/api/tickets/",
+                        {
+                            method: "POST",
+
+                            headers: {
+
+                                "Content-Type":
+                                    "application/json",
+
+                                "Authorization":
+                                    `Bearer ${accessToken}`
+
+                            },
+
+                            body:
+                                JSON.stringify(payload)
+
+                        }
+                    );
+
+
+                if (response.status === 401) {
+
+                    logout();
+
+                    return;
+
+                }
+
+
+                const data =
+                    await response.json();
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        data.detail ||
+                        "ثبت تیکت با خطا مواجه شد."
+                    );
+
+                }
+
+
+                formMessage.className =
+                    "form-message success";
+
+                formMessage.textContent =
+                    "تیکت شما با موفقیت ثبت شد.";
+
+
+                ticketForm.reset();
+
+
+                await loadTickets();
+
+
+            } catch (error) {
+
+                console.error(error);
+
+                formMessage.className =
+                    "form-message error";
+
+                formMessage.textContent =
+                    error.message ||
+                    "ثبت تیکت با خطا مواجه شد.";
+
+            } finally {
+
+                submitButton.disabled = false;
+
+                submitButton.innerHTML = `
+                    <i class="bi bi-send me-1"></i>
+                    ثبت تیکت
+                `;
+
+            }
+
+        }
+    );
+
+
+    /* =========================
+       Helpers
+    ========================= */
+
+    function formatDate(dateString) {
+
+        if (!dateString) {
+            return "";
+        }
+
+
+        const date =
+            new Date(dateString);
+
+
+        if (Number.isNaN(date.getTime())) {
+            return "";
+        }
+
+
+        return date.toLocaleDateString(
+            "fa-IR"
+        );
+
+    }
+
+
+    /* =========================
+       Initial Load
+    ========================= */
+
+    loadTickets();
+
+})();
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,618 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}سامانه گزارش معلمان{% endblock %}</title>
+
+    <!-- Bootstrap -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css"
+        rel="stylesheet"
+    >
+
+    <!-- Bootstrap Icons -->
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    >
+
+    <!-- Vazirmatn -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{% static 'css/main.css' %}"
+    >
+
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+
+            --background: #f6f7fb;
+            --background-secondary: #eef0f6;
+
+            --card: #ffffff;
+
+            --text: #171923;
+            --muted: #6b7280;
+
+            --border: #e5e7eb;
+
+            --shadow-sm:
+                0 2px 8px rgba(15, 23, 42, 0.05);
+
+            --shadow:
+                0 10px 30px rgba(15, 23, 42, 0.08);
+
+            --radius: 12px;
+            --radius-lg: 18px;
+
+            --transition: 0.2s ease;
+        }
+
+
+        /* =========================
+           Dark Mode
+        ========================= */
+
+        [data-theme="dark"] {
+            --background: #111318;
+            --background-secondary: #181b22;
+
+            --card: #1d2129;
+
+            --text: #f3f4f6;
+            --muted: #9ca3af;
+
+            --border: #303540;
+
+            --shadow-sm:
+                0 2px 8px rgba(0, 0, 0, 0.2);
+
+            --shadow:
+                0 10px 30px rgba(0, 0, 0, 0.25);
+        }
+
+
+        * {
+            box-sizing: border-box;
+        }
+
+
+        body {
+            margin: 0;
+
+            font-family:
+                "Vazirmatn",
+                sans-serif;
+
+            background: var(--background);
+            color: var(--text);
+
+            transition:
+                background-color var(--transition),
+                color var(--transition);
+        }
+
+
+        /* =========================
+           Navbar
+        ========================= */
+
+        .teacher-navbar {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+
+            background: var(--card);
+
+            border-bottom:
+                1px solid var(--border);
+
+            box-shadow: var(--shadow-sm);
+        }
+
+
+        .navbar-inner {
+            min-height: 70px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 20px;
+        }
+
+
+        .brand {
+            display: flex;
+            align-items: center;
+
+            gap: 12px;
+
+            color: var(--text);
+
+            text-decoration: none;
+
+            font-weight: 800;
+
+            font-size: 16px;
+        }
+
+
+        .brand-icon {
+            width: 40px;
+            height: 40px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 11px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--primary),
+                    var(--primary-dark)
+                );
+
+            color: white;
+
+            font-size: 19px;
+        }
+
+
+        .navbar-actions {
+            display: flex;
+            align-items: center;
+
+            gap: 8px;
+        }
+
+
+        /* =========================
+           Navbar Buttons
+        ========================= */
+
+        .nav-action {
+            height: 40px;
+
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            gap: 7px;
+
+            padding:
+                0 13px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 10px;
+
+            background: var(--card);
+
+            color: var(--text);
+
+            text-decoration: none;
+
+            font-size: 13px;
+            font-weight: 600;
+
+            transition:
+                all var(--transition);
+        }
+
+
+        .nav-action:hover {
+            background: var(--background-secondary);
+
+            border-color:
+                var(--primary);
+
+            color:
+                var(--primary);
+        }
+
+
+        .theme-button {
+            width: 40px;
+            padding: 0;
+        }
+
+
+        .logout-button {
+            color: #dc2626;
+        }
+
+
+        .logout-button:hover {
+            color: #b91c1c;
+
+            border-color:
+                #ef4444;
+
+            background:
+                rgba(239, 68, 68, 0.06);
+        }
+
+
+        /* =========================
+           Main
+        ========================= */
+
+        .teacher-main {
+            min-height:
+                calc(100vh - 70px);
+
+            padding:
+                40px 0 60px;
+        }
+
+
+        /* =========================
+           Responsive
+        ========================= */
+
+        @media (max-width: 576px) {
+
+            .teacher-main {
+                padding:
+                    25px 0 40px;
+            }
+
+
+            .brand-text {
+                display: none;
+            }
+
+
+            .nav-action span {
+                display: none;
+            }
+
+
+            .nav-action {
+                width: 40px;
+                padding: 0;
+            }
+
+        }
+
+
+        {% block extra_css %}{% endblock %}
+    </style>
+</head>
+
+
+<body>
+
+<!-- =========================
+     Navbar
+========================= -->
+
+<nav class="teacher-navbar">
+
+    <div class="container">
+
+        <div class="navbar-inner">
+
+            <!-- Home -->
+            <!-- کلاس auth-link اضافه شد -->
+            <a
+                href="/main/"
+                class="brand auth-link"
+            >
+
+                <div class="brand-icon">
+                    <i class="bi bi-mortarboard-fill"></i>
+                </div>
+
+                <span class="brand-text">
+                    سامانه گزارش معلمان
+                </span>
+
+            </a>
+
+
+            <!-- Actions -->
+            <div class="navbar-actions">
+
+                <!-- Teacher Home -->
+                <!-- کلاس auth-link اضافه شد -->
+                <a
+                    href="/main/"
+                    class="nav-action auth-link"
+                    title="خانه معلم"
+                >
+
+                    <i class="bi bi-house-fill"></i>
+
+                    <span>
+                        خانه معلم
+                    </span>
+
+                </a>
+
+
+                <!-- Theme -->
+                <button
+                    type="button"
+                    class="nav-action theme-button"
+                    id="themeToggle"
+                    title="تغییر تم"
+                    aria-label="تغییر تم"
+                >
+
+                    <i
+                        class="bi bi-moon-fill"
+                        id="themeIcon"
+                    ></i>
+
+                </button>
+
+
+                <!-- Logout -->
+                <button
+                    type="button"
+                    class="nav-action logout-button"
+                    id="logoutButton"
+                    title="خروج"
+                >
+
+                    <i class="bi bi-box-arrow-right"></i>
+
+                    <span>
+                        خروج
+                    </span>
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</nav>
+
+
+<!-- =========================
+     Main Content
+========================= -->
+
+<main class="teacher-main">
+
+    {% block content %}
+    {% endblock %}
+
+</main>
+
+
+<!-- Bootstrap -->
+<script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+></script>
+
+
+<script>
+
+    /* =========================
+       Theme
+    ========================= */
+
+    const savedTheme =
+        localStorage.getItem("teacher_theme");
+
+    const systemDark =
+        window.matchMedia &&
+        window.matchMedia(
+            "(prefers-color-scheme: dark)"
+        ).matches;
+
+    const initialTheme =
+        savedTheme ||
+        (systemDark ? "dark" : "light");
+
+
+    document.documentElement
+        .setAttribute(
+            "data-theme",
+            initialTheme
+        );
+
+
+    function updateThemeIcon() {
+
+        const theme =
+            document.documentElement
+                .getAttribute("data-theme");
+
+        const icon =
+            document.getElementById(
+                "themeIcon"
+            );
+
+        if (!icon) {
+            return;
+        }
+
+
+        if (theme === "dark") {
+
+            icon.className =
+                "bi bi-sun-fill";
+
+        } else {
+
+            icon.className =
+                "bi bi-moon-fill";
+
+        }
+
+    }
+
+
+    updateThemeIcon();
+
+
+    document
+        .getElementById("themeToggle")
+        .addEventListener(
+            "click",
+            function () {
+
+                const currentTheme =
+                    document.documentElement
+                        .getAttribute("data-theme");
+
+
+                const newTheme =
+                    currentTheme === "dark"
+                        ? "light"
+                        : "dark";
+
+
+                document.documentElement
+                    .setAttribute(
+                        "data-theme",
+                        newTheme
+                    );
+
+
+                localStorage.setItem(
+                    "teacher_theme",
+                    newTheme
+                );
+
+
+                updateThemeIcon();
+
+            }
+        );
+
+
+    /* =========================
+       Logout
+    ========================= */
+
+    document
+        .getElementById("logoutButton")
+        .addEventListener(
+            "click",
+            function () {
+
+                localStorage.removeItem(
+                    "access_token"
+                );
+
+                localStorage.removeItem(
+                    "refresh_token"
+                );
+
+                window.location.href =
+                    "/login/";
+
+            }
+        );
+
+    
+    /* =========================
+       Authenticated Navigation
+    ========================= */
+    
+    // تابعی برای دریافت صفحات محافظت‌شده با ارسال توکن
+    async function navigateWithToken(url) {
+        const token = localStorage.getItem("access_token");
+        
+        // اگر توکن وجود نداشت هدایت به لاگین
+        if (!token) {
+            window.location.href = "/login/";
+            return;
+        }
+
+        try {
+            const response = await fetch(url, {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${token}`, // یا JWT بسته به کانفیگ بک‌اند
+                    "Accept": "text/html"
+                }
+            });
+
+            if (response.status === 401) {
+                // توکن منقضی شده یا نامعتبر است
+                localStorage.removeItem("access_token");
+                window.location.href = "/login/";
+                return;
+            }
+
+            if (response.ok) {
+                const html = await response.text();
+                
+                // تغییر URL نوار آدرس بدون رفرش کامل
+                window.history.pushState({ path: url }, "", url);
+                
+                // جایگزینی محتوای صفحه با HTML جدید
+                document.open();
+                document.write(html);
+                document.close();
+            } else {
+                // در صورت بروز خطاهای دیگر (مثلا 404 یا 500) فال‌بک به هدایت عادی
+                window.location.href = url;
+            }
+        } catch (error) {
+            console.error("Navigation error:", error);
+            window.location.href = url;
+        }
+    }
+
+    // رهگیری کلیک روی لینک‌هایی که نیاز به توکن دارند
+    document.addEventListener("click", function(e) {
+        // بررسی می‌کنیم آیا عنصر کلیک شده یا والدین آن تگ a با کلاس auth-link است
+        const link = e.target.closest("a.auth-link");
+        
+        if (link && link.href) {
+            // جلوگیری از رفتار پیش‌فرض (تغییر صفحه عادی)
+            e.preventDefault();
+            
+            const targetUrl = link.getAttribute("href");
+            
+            // جلوگیری از رهگیری لینک‌های لنگر درون صفحه‌ای
+            if (targetUrl.startsWith("#")) {
+                return;
+            }
+            
+            navigateWithToken(link.href);
+        }
+    });
+
+    // مدیریت دکمه‌های Back/Forward مرورگر
+    window.addEventListener("popstate", function(e) {
+        if (e.state && e.state.path) {
+            navigateWithToken(e.state.path);
+        } else {
+            window.location.reload();
+        }
+    });
+
+</script>
+
+
+{% block extra_js %}
+{% endblock %}
+
+</body>
+
+</html>

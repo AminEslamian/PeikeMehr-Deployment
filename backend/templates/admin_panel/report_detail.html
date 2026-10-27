@@ -1,0 +1,1269 @@
+{% extends "admin_panel/base.html" %}
+
+{% block title %}جزئیات گزارش{% endblock %}
+
+{% block extra_css %}
+
+<style>
+    .report-detail-page {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .detail-header {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .detail-header-content h3 {
+        margin: 0 0 7px;
+        color: var(--text);
+        font-size: 24px;
+        font-weight: 800;
+    }
+
+    .detail-header-content p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 13px;
+    }
+
+    .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 42px;
+        padding: 0 15px;
+        border: 1px solid var(--border);
+        border-radius: 11px;
+        background: var(--card);
+        color: var(--text);
+        text-decoration: none;
+        font-family: inherit;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .back-btn:hover {
+        background: var(--background-secondary);
+        color: var(--text);
+    }
+
+    .detail-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-sm);
+        overflow: hidden;
+    }
+
+    .detail-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        padding: 20px 22px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .detail-card-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--text);
+        font-size: 15px;
+        font-weight: 800;
+    }
+
+    .section-icon {
+        width: 34px;
+        height: 34px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        background: var(--background-secondary);
+        color: var(--primary);
+        font-size: 15px;
+    }
+
+    .detail-card-body {
+        padding: 22px;
+    }
+
+    .report-summary {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 20px;
+    }
+
+    .teacher-summary {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        min-width: 0;
+    }
+
+    .teacher-avatar {
+        width: 50px;
+        height: 50px;
+        flex: 0 0 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 14px;
+        background: var(--background-secondary);
+        color: var(--primary);
+        font-size: 21px;
+    }
+
+    .teacher-summary-name {
+        margin: 0 0 5px;
+        color: var(--text);
+        font-size: 17px;
+        font-weight: 800;
+    }
+
+    .teacher-summary-date {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--muted);
+        font-size: 11px;
+    }
+
+    .media-count-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        flex-shrink: 0;
+        padding: 8px 11px;
+        border-radius: 9px;
+        background: var(--background-secondary);
+        color: var(--primary);
+        font-size: 11px;
+        font-weight: 800;
+    }
+
+    .media-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+        padding: 14px;
+        background: var(--background-secondary);
+    }
+
+    .media-item {
+        position: relative;
+        min-width: 0;
+        height: 300px;
+        overflow: hidden;
+        border: 1px solid var(--border);
+        border-radius: 13px;
+        background: #111827;
+    }
+
+    .media-item img,
+    .media-item video {
+        width: 100%;
+        height: 100%;
+        display: block;
+        object-fit: contain;
+    }
+
+    .media-item img {
+        cursor: pointer;
+    }
+
+    .media-type {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 2;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 6px 9px;
+        border-radius: 8px;
+        background: rgba(0, 0, 0, .62);
+        color: #fff;
+        font-size: 10px;
+        font-weight: 700;
+        backdrop-filter: blur(5px);
+    }
+
+    .empty-media {
+        padding: 55px 20px;
+        text-align: center;
+        color: var(--muted);
+        background: var(--background-secondary);
+    }
+
+    .empty-media-icon {
+        width: 52px;
+        height: 52px;
+        margin: 0 auto 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 15px;
+        background: var(--card);
+        border: 1px solid var(--border);
+        font-size: 20px;
+    }
+
+    .report-content {
+        padding: 22px;
+    }
+
+    .content-section + .content-section {
+        margin-top: 24px;
+    }
+
+    .content-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 11px;
+        color: var(--text);
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    .content-title i {
+        color: var(--primary);
+    }
+
+    .report-text-box {
+        padding: 15px 16px;
+        border: 1px solid var(--border);
+        border-radius: 11px;
+        background: var(--background-secondary);
+        color: var(--text);
+        font-size: 13px;
+        line-height: 2;
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+
+    .tags-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 7px;
+    }
+
+    .report-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 6px 9px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--background-secondary);
+        color: var(--text);
+        font-size: 11px;
+    }
+
+    .no-tags {
+        color: var(--muted);
+        font-size: 12px;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .info-item {
+        padding: 14px;
+        border: 1px solid var(--border);
+        border-radius: 11px;
+        background: var(--background-secondary);
+    }
+
+    .info-label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 7px;
+        color: var(--muted);
+        font-size: 10px;
+        font-weight: 700;
+    }
+
+    .info-label i {
+        color: var(--primary);
+    }
+
+    .info-value {
+        color: var(--text);
+        font-size: 12px;
+        font-weight: 700;
+        word-break: break-word;
+    }
+
+    .score-card {
+        position: sticky;
+        top: 20px;
+    }
+
+    .score-intro {
+        margin-bottom: 20px;
+        padding: 13px;
+        border-radius: 11px;
+        background: var(--background-secondary);
+        color: var(--muted);
+        font-size: 11px;
+        line-height: 1.9;
+    }
+
+    .form-label-custom {
+        display: block;
+        margin-bottom: 7px;
+        color: var(--text);
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .form-control-custom,
+    .form-select-custom {
+        width: 100%;
+        min-height: 44px;
+        padding: 9px 12px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        outline: none;
+        background: var(--background-secondary);
+        color: var(--text);
+        font-family: inherit;
+        font-size: 12px;
+    }
+
+    .form-control-custom:focus,
+    .form-select-custom:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, .10);
+    }
+
+    textarea.form-control-custom {
+        min-height: 130px;
+        resize: vertical;
+        line-height: 1.9;
+    }
+
+    .submit-point-btn {
+        width: 100%;
+        min-height: 44px;
+        border: 0;
+        border-radius: 10px;
+        background: var(--primary);
+        color: #fff;
+        font-family: inherit;
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .submit-point-btn:hover {
+        background: var(--primary-dark);
+    }
+
+    .submit-point-btn:disabled {
+        opacity: .6;
+        cursor: not-allowed;
+    }
+
+    .points-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .point-item {
+        padding: 13px;
+        border: 1px solid var(--border);
+        border-radius: 11px;
+        background: var(--background-secondary);
+    }
+
+    .point-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 9px;
+    }
+
+    .point-score {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 38px;
+        height: 30px;
+        padding: 0 8px;
+        border-radius: 8px;
+        background: var(--primary);
+        color: #fff;
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .point-date {
+        color: var(--muted);
+        font-size: 10px;
+    }
+
+    .point-reason {
+        color: var(--text);
+        font-size: 11px;
+        line-height: 1.9;
+    }
+
+    .points-empty {
+        padding: 28px 10px;
+        text-align: center;
+        color: var(--muted);
+        font-size: 12px;
+    }
+
+    .points-empty i {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 22px;
+    }
+
+    .state-card {
+        padding: 75px 20px;
+        text-align: center;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+    }
+
+    .state-icon {
+        width: 58px;
+        height: 58px;
+        margin: 0 auto 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 16px;
+        background: var(--background-secondary);
+        color: var(--primary);
+        font-size: 23px;
+    }
+
+    .state-card h5 {
+        margin-bottom: 7px;
+        color: var(--text);
+        font-weight: 800;
+    }
+
+    .state-card p {
+        margin-bottom: 18px;
+        color: var(--muted);
+        font-size: 12px;
+    }
+
+    .state-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        min-height: 40px;
+        padding: 0 14px;
+        border: 0;
+        border-radius: 10px;
+        background: var(--primary);
+        color: #fff;
+        text-decoration: none;
+        font-family: inherit;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .state-btn:hover {
+        background: var(--primary-dark);
+        color: #fff;
+    }
+
+    @media (max-width: 1200px) {
+        .media-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 992px) {
+        .score-card {
+            position: static;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .detail-header {
+            align-items: stretch;
+        }
+
+        .back-btn {
+            justify-content: center;
+        }
+
+        .report-summary {
+            flex-direction: column;
+        }
+
+        .media-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .media-item {
+            height: 320px;
+        }
+
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .detail-header-content h3 {
+            font-size: 21px;
+        }
+
+        .detail-card-header,
+        .detail-card-body,
+        .report-content {
+            padding: 17px;
+        }
+
+        .media-grid {
+            padding: 10px;
+            gap: 8px;
+        }
+
+        .media-item {
+            height: 270px;
+        }
+    }
+</style>
+
+{% endblock %}
+
+{% block content %}
+
+<div class="report-detail-page">
+
+    <div class="detail-header">
+        <div class="detail-header-content">
+            <h3>جزئیات گزارش</h3>
+            <p>مشاهده جزئیات گزارش و ثبت امتیاز برای استاد</p>
+        </div>
+
+        <a href="/admin-panel/reports/" class="back-btn">
+            <i class="bi bi-arrow-right"></i>
+            بازگشت به گزارش‌ها
+        </a>
+    </div>
+
+
+    <div id="loading" class="state-card">
+        <div class="state-icon">
+            <div class="spinner-border spinner-border-sm" role="status"></div>
+        </div>
+        <h5>در حال دریافت اطلاعات</h5>
+        <p class="mb-0">اطلاعات گزارش در حال بارگذاری است...</p>
+    </div>
+
+
+    <div id="errorState" class="state-card d-none">
+        <div class="state-icon">
+            <i class="bi bi-exclamation-triangle"></i>
+        </div>
+        <h5>خطا در دریافت اطلاعات</h5>
+        <p id="errorMessage"></p>
+        <a href="/admin-panel/reports/" class="state-btn">
+            <i class="bi bi-arrow-right"></i>
+            بازگشت به گزارش‌ها
+        </a>
+    </div>
+
+
+    <div id="pageContent" class="d-none">
+        <div class="row g-4">
+
+            <div class="col-lg-8">
+
+                <div class="detail-card mb-4">
+
+                    <div class="detail-card-body">
+                        <div class="report-summary">
+                            <div class="teacher-summary">
+                                <div class="teacher-avatar">
+                                    <i class="bi bi-person"></i>
+                                </div>
+                                <div>
+                                    <h4 id="teacherName" class="teacher-summary-name"></h4>
+                                    <div class="teacher-summary-date">
+                                        <i class="bi bi-calendar3"></i>
+                                        <span id="reportDate"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <span id="mediaCount" class="media-count-badge"></span>
+                        </div>
+                    </div>
+
+                    <div id="mediaContainer" class="media-grid"></div>
+
+                    <div class="report-content">
+                        <div class="content-section">
+                            <div class="content-title">
+                                <i class="bi bi-file-text"></i>
+                                متن گزارش
+                            </div>
+                            <div id="reportText" class="report-text-box"></div>
+                        </div>
+
+                        <div class="content-section">
+                            <div class="content-title">
+                                <i class="bi bi-tags"></i>
+                                برچسب‌ها
+                            </div>
+                            <div id="tagsContainer" class="tags-container"></div>
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <div class="detail-card">
+                    <div class="detail-card-header">
+                        <div class="detail-card-title">
+                            <span class="section-icon">
+                                <i class="bi bi-person-vcard"></i>
+                            </span>
+                            اطلاعات استاد
+                        </div>
+                    </div>
+                    <div class="detail-card-body">
+                        <div class="info-grid">
+
+                            <div class="info-item">
+                                <div class="info-label">
+                                    <i class="bi bi-person"></i>
+                                    نام و نام خانوادگی
+                                </div>
+                                <div id="teacherNameInfo" class="info-value"></div>
+                            </div>
+
+                            <div class="info-item">
+                                <div class="info-label">
+                                    <i class="bi bi-telephone"></i>
+                                    شماره تلفن
+                                </div>
+                                <div id="teacherPhone" class="info-value"></div>
+                            </div>
+
+                            <div class="info-item">
+                                <div class="info-label">
+                                    <i class="bi bi-geo-alt"></i>
+                                    استان
+                                </div>
+                                <div id="teacherProvince" class="info-value"></div>
+                            </div>
+
+                            <div class="info-item">
+                                <div class="info-label">
+                                    <i class="bi bi-buildings"></i>
+                                    شهر
+                                </div>
+                                <div id="teacherCity" class="info-value"></div>
+                            </div>
+
+                            <div class="info-item">
+                                <div class="info-label">
+                                    <i class="bi bi-building"></i>
+                                    مدرسه
+                                </div>
+                                <div id="teacherSchool" class="info-value"></div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="col-lg-4">
+
+                <div class="detail-card score-card mb-4">
+                    <div class="detail-card-header">
+                        <div class="detail-card-title">
+                            <span class="section-icon">
+                                <i class="bi bi-star"></i>
+                            </span>
+                            امتیازدهی به استاد
+                        </div>
+                    </div>
+                    <div class="detail-card-body">
+                        <div class="score-intro">
+                            امتیاز خود را از ۱ تا ۱۰ انتخاب کنید
+                            و دلیل آن را برای ثبت ارزیابی وارد کنید.
+                        </div>
+
+                        <form id="pointForm">
+                            <div class="mb-3">
+                                <label for="score" class="form-label-custom">امتیاز</label>
+                                <select id="score" class="form-select-custom" required>
+                                    <option value="">انتخاب امتیاز</option>
+                                    <option value="1">۱</option>
+                                    <option value="2">۲</option>
+                                    <option value="3">۳</option>
+                                    <option value="4">۴</option>
+                                    <option value="5">۵</option>
+                                    <option value="6">۶</option>
+                                    <option value="7">۷</option>
+                                    <option value="8">۸</option>
+                                    <option value="9">۹</option>
+                                    <option value="10">۱۰</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="reason" class="form-label-custom">دلیل امتیاز</label>
+                                <textarea
+                                    id="reason"
+                                    class="form-control-custom"
+                                    placeholder="دلیل امتیازی که به استاد می‌دهید را بنویسید..."
+                                    required
+                                ></textarea>
+                            </div>
+
+                            <div id="pointMessage" class="d-none mb-3"></div>
+
+                            <button id="submitPoint" type="submit" class="submit-point-btn">
+                                <i class="bi bi-check2-circle me-1"></i>
+                                ثبت امتیاز
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+
+                <div class="detail-card">
+                    <div class="detail-card-header">
+                        <div class="detail-card-title">
+                            <span class="section-icon">
+                                <i class="bi bi-clock-history"></i>
+                            </span>
+                            امتیازهای ثبت‌شده
+                        </div>
+                    </div>
+                    <div class="detail-card-body">
+                        <div id="pointsContainer">
+                            <div class="points-empty">
+                                <i class="bi bi-arrow-repeat"></i>
+                                در حال دریافت امتیازها...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+
+<script>
+(function () {
+
+    const API_BASE = "/admin-panel/api";
+
+
+    function getAccessToken() {
+        return localStorage.getItem("access_token");
+    }
+
+
+    function logoutAdmin() {
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
+        window.location.href = "/login/";
+    }
+
+
+    async function getJson(url, options = {}) {
+
+        const token = getAccessToken();
+
+        if (!token) {
+            logoutAdmin();
+            throw new Error("Access token not found.");
+        }
+
+        const headers = new Headers(options.headers || {});
+        headers.set("Authorization", `Bearer ${token}`);
+        headers.set("Accept", "application/json");
+
+        const response = await fetch(url, { ...options, headers });
+
+        if (response.status === 401) {
+            logoutAdmin();
+            throw new Error("Unauthorized.");
+        }
+
+        if (response.status === 403) {
+            throw new Error("شما دسترسی لازم برای این بخش را ندارید.");
+        }
+
+        const contentType = response.headers.get("content-type") || "";
+
+        let data;
+
+        if (contentType.includes("application/json")) {
+            data = await response.json();
+        } else {
+            const text = await response.text();
+            if (!response.ok) {
+                throw new Error(text || `خطای API: ${response.status}`);
+            }
+            throw new Error(`پاسخ API معتبر نیست. وضعیت: ${response.status}`);
+        }
+
+        if (!response.ok) {
+            throw new Error(
+                data.detail ||
+                data.message ||
+                `خطای API: ${response.status}`
+            );
+        }
+
+        return data;
+    }
+
+
+    /* ====== Report ID از URL ====== */
+
+    const pathParts = window.location.pathname.split("/").filter(Boolean);
+    const reportsIndex = pathParts.indexOf("reports");
+
+    let reportId = null;
+
+    if (reportsIndex !== -1 && pathParts[reportsIndex + 1]) {
+        reportId = pathParts[reportsIndex + 1];
+    }
+
+
+    /* ====== DOM ====== */
+
+    const loading = document.getElementById("loading");
+    const errorState = document.getElementById("errorState");
+    const errorMessage = document.getElementById("errorMessage");
+    const pageContent = document.getElementById("pageContent");
+
+    const teacherName = document.getElementById("teacherName");
+    const reportDate = document.getElementById("reportDate");
+    const mediaCount = document.getElementById("mediaCount");
+    const mediaContainer = document.getElementById("mediaContainer");
+    const reportText = document.getElementById("reportText");
+    const tagsContainer = document.getElementById("tagsContainer");
+
+    const teacherNameInfo = document.getElementById("teacherNameInfo");
+    const teacherPhone = document.getElementById("teacherPhone");
+    const teacherProvince = document.getElementById("teacherProvince");
+    const teacherCity = document.getElementById("teacherCity");
+    const teacherSchool = document.getElementById("teacherSchool");
+
+    const pointForm = document.getElementById("pointForm");
+    const score = document.getElementById("score");
+    const reason = document.getElementById("reason");
+    const submitPoint = document.getElementById("submitPoint");
+    const pointMessage = document.getElementById("pointMessage");
+    const pointsContainer = document.getElementById("pointsContainer");
+
+
+    let report = null;
+
+
+    /* ====== Helpers ====== */
+
+    function escapeHtml(value) {
+        if (value === null || value === undefined) return "";
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+
+    function formatDate(value) {
+        if (!value) return "-";
+        const date = new Date(value);
+        if (isNaN(date.getTime())) return "-";
+        return new Intl.DateTimeFormat("fa-IR", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit"
+        }).format(date);
+    }
+
+
+    /* =========================================================
+       Load Report
+       ---------------------------------------------------------
+       ساختار پاسخ /reports/{id}/ طبق AdminReportSerializer:
+         {
+           id,
+           teacher,               (ID عددی)
+           teacher_name,          (رشته)
+           teacher_phone,         (رشته یا null)
+           teacher_province,      (رشته یا null)
+           teacher_city,          (رشته یا null)
+           teacher_school,        (رشته یا null)
+           text,
+           tags: [ {id, name, created_at}, ... ],
+           images: [ {id, url, created_at}, ... ],
+           videos: [ {id, url, created_at}, ... ],
+           images_count,
+           videos_count,
+           created_at,
+           updated_at
+         }
+    ========================================================= */
+
+    async function loadReport() {
+
+        if (!reportId) {
+            throw new Error("شناسه گزارش از آدرس صفحه پیدا نشد.");
+        }
+
+        report = await getJson(`${API_BASE}/reports/${reportId}/`);
+
+        renderReport();
+
+        /* بارگذاری امتیازهای همین استاد */
+        if (report.teacher) {
+            loadPoints(report.teacher);
+        } else {
+            pointsContainer.innerHTML = `
+                <div class="points-empty">
+                    <i class="bi bi-person-x"></i>
+                    این گزارش استاد مشخصی ندارد.
+                </div>
+            `;
+        }
+
+        loading.classList.add("d-none");
+        pageContent.classList.remove("d-none");
+    }
+
+
+    /* =========================================================
+       Render Report
+    ========================================================= */
+
+    function renderReport() {
+
+        /* ---------- اطلاعات استاد (از سطح Report) ---------- */
+
+        const teacher_name = report.teacher_name || "بدون استاد";
+        const teacher_phone = report.teacher_phone || "";
+        const province = report.teacher_province || "";
+        const city = report.teacher_city || "";
+        const school = report.teacher_school || "";
+
+
+        teacherName.textContent = teacher_name;
+        reportDate.textContent = formatDate(report.created_at);
+        reportText.textContent = report.text || "متن گزارش ثبت نشده است.";
+
+        teacherNameInfo.textContent = teacher_name || "-";
+        teacherPhone.textContent = teacher_phone || "-";
+        teacherProvince.textContent = province || "-";
+        teacherCity.textContent = city || "-";
+        teacherSchool.textContent = school || "-";
+
+
+        /* ---------- مدیا ---------- */
+
+        const images = Array.isArray(report.images) ? report.images : [];
+        const videos = Array.isArray(report.videos) ? report.videos : [];
+
+        /*
+         * توجه: در AdminReportSerializer هر image
+         * به شکل {id, url, created_at} است و هر video
+         * هم به شکل {id, url, created_at}.
+         */
+
+        const mediaItems = [];
+
+        images.forEach(img => {
+            if (img && img.url) {
+                mediaItems.push({
+                    type: "image",
+                    url: img.url
+                });
+            }
+        });
+
+        videos.forEach(vid => {
+            if (vid && vid.url) {
+                mediaItems.push({
+                    type: "video",
+                    url: vid.url
+                });
+            }
+        });
+
+
+        mediaCount.innerHTML = `
+            <i class="bi bi-images"></i>
+            ${mediaItems.length.toLocaleString("fa-IR")}
+            رسانه
+        `;
+
+
+        if (!mediaItems.length) {
+
+            mediaContainer.innerHTML = `
+                <div class="empty-media w-100">
+                    <div class="empty-media-icon">
+                        <i class="bi bi-images"></i>
+                    </div>
+                    رسانه‌ای برای این گزارش ثبت نشده است.
+                </div>
+            `;
+
+        } else {
+
+            mediaContainer.innerHTML = mediaItems.map(item => {
+
+                if (item.type === "video") {
+                    return `
+                        <div class="media-item">
+                            <span class="media-type">
+                                <i class="bi bi-camera-video"></i>
+                                ویدیو
+                            </span>
+                            <video
+                                src="${escapeHtml(item.url)}"
+                                controls
+                                preload="metadata"
+                            ></video>
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div class="media-item">
+                        <span class="media-type">
+                            <i class="bi bi-image"></i>
+                            تصویر
+                        </span>
+                        <img
+                            src="${escapeHtml(item.url)}"
+                            alt="تصویر گزارش"
+                            onclick="window.open(this.src, '_blank')"
+                        >
+                    </div>
+                `;
+
+            }).join("");
+
+        }
+
+
+        /* ---------- برچسب‌ها (از سطح Report) ---------- */
+
+        const tags = Array.isArray(report.tags) ? report.tags : [];
+
+        if (!tags.length) {
+            tagsContainer.innerHTML = `
+                <span class="no-tags">این گزارش برچسبی ندارد.</span>
+            `;
+        } else {
+            tagsContainer.innerHTML = tags.map(tag => `
+                <span class="report-tag">
+                    <i class="bi bi-hash"></i>
+                    ${escapeHtml(tag.name)}
+                </span>
+            `).join("");
+        }
+
+    }
+
+
+    /* =========================================================
+       Load Points (سابقه امتیازهای همین استاد)
+    ========================================================= */
+
+    async function loadPoints(teacherId) {
+
+        try {
+
+            const data = await getJson(
+                `${API_BASE}/points/?teacher=${encodeURIComponent(teacherId)}`
+            );
+
+            const points = Array.isArray(data)
+                ? data
+                : (data.results || []);
+
+            renderPoints(points);
+
+        } catch (error) {
+
+            console.error(error);
+
+            pointsContainer.innerHTML = `
+                <div class="points-empty">
+                    <i class="bi bi-exclamation-circle"></i>
+                    دریافت امتیازهای قبلی با مشکل مواجه شد.
+                </div>
+            `;
+        }
+    }
+
+
+    function renderPoints(points) {
+
+        if (!points.length) {
+            pointsContainer.innerHTML = `
+                <div class="points-empty">
+                    <i class="bi bi-star"></i>
+                    هنوز امتیازی برای این استاد ثبت نشده است.
+                </div>
+            `;
+            return;
+        }
+
+        pointsContainer.innerHTML = `
+            <div class="points-list">
+                ${points.map(point => `
+                    <div class="point-item">
+                        <div class="point-top">
+                            <span class="point-score">
+                                ${escapeHtml(point.score)} / ۱۰
+                            </span>
+                            <span class="point-date">
+                                ${formatDate(point.created_at)}
+                            </span>
+                        </div>
+                        <div class="point-reason">
+                            ${escapeHtml(point.reason || "بدون دلیل")}
+                        </div>
+                    </div>
+                `).join("")}
+            </div>
+        `;
+    }
+
+
+    /* =========================================================
+       Submit Point
+    ========================================================= */
+
+    function showPointMessage(message, type) {
+        pointMessage.className = `alert alert-${type} mb-3`;
+        pointMessage.textContent = message;
+    }
+
+
+    pointForm.addEventListener("submit", async function (event) {
+
+        event.preventDefault();
+
+        if (!report || !report.teacher) {
+            showPointMessage("استاد این گزارش مشخص نشده است.", "danger");
+            return;
+        }
+
+        if (!score.value) {
+            showPointMessage("لطفاً امتیاز را انتخاب کنید.", "warning");
+            return;
+        }
+
+        if (!reason.value.trim()) {
+            showPointMessage("لطفاً دلیل امتیاز را وارد کنید.", "warning");
+            return;
+        }
+
+        submitPoint.disabled = true;
+        submitPoint.innerHTML = `
+            <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+            در حال ثبت...
+        `;
+
+        pointMessage.className = "d-none";
+
+        try {
+
+            await getJson(`${API_BASE}/points/`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    teacher: report.teacher,
+                    score: Number(score.value),
+                    reason: reason.value.trim()
+                })
+            });
+
+            score.value = "";
+            reason.value = "";
+
+            showPointMessage("امتیاز با موفقیت ثبت شد.", "success");
+
+            await loadPoints(report.teacher);
+
+        } catch (error) {
+
+            console.error(error);
+
+            showPointMessage(
+                error.message || "ثبت امتیاز با مشکل مواجه شد.",
+                "danger"
+            );
+
+        } finally {
+
+            submitPoint.disabled = false;
+            submitPoint.innerHTML = `
+                <i class="bi bi-check2-circle me-1"></i>
+                ثبت امتیاز
+            `;
+        }
+    });
+
+
+    /* =========================================================
+       Init
+    ========================================================= */
+
+    loadReport().catch(function (error) {
+
+        console.error(error);
+
+        loading.classList.add("d-none");
+
+        errorMessage.textContent =
+            error.message || "خطا در دریافت اطلاعات گزارش.";
+
+        errorState.classList.remove("d-none");
+    });
+
+})();
+</script>
+
+{% endblock %}

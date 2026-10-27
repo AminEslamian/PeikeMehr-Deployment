@@ -1,0 +1,473 @@
+* {
+      box-sizing: border-box;
+  }
+  
+  body {
+      margin: 0;
+      font-family: "Vazirmatn", sans-serif;
+      background: #f5f7fb;
+      color: #212529;
+  }
+  
+  
+  /* =========================
+     Navbar
+  ========================= */
+  
+  .survey-navbar {
+      background: #ffffff;
+      border-bottom: 1px solid #e9ecef;
+      padding: 14px 0;
+  }
+  
+  .navbar-brand {
+      color: #212529;
+      text-decoration: none;
+      font-size: 1.2rem;
+      font-weight: 800;
+  }
+  
+  .logout-btn {
+      border: 1px solid #dc3545;
+      color: #dc3545;
+      border-radius: 8px;
+      padding: 7px 18px;
+      font-size: 0.9rem;
+  }
+  
+  .logout-btn:hover {
+      background: #dc3545;
+      color: #ffffff;
+  }
+  
+  
+  /* =========================
+     Page
+  ========================= */
+  
+  .survey-page {
+      padding: 45px 0 70px;
+  }
+  
+  
+  /* =========================
+     Loading
+  ========================= */
+  
+  .loading-box {
+      text-align: center;
+      padding: 80px 20px;
+      color: #6c757d;
+  }
+  
+  .loading-box .spinner-border {
+      margin-bottom: 15px;
+  }
+  
+  .loading-box p {
+      margin: 0;
+  }
+  
+  
+  /* =========================
+     Page Header
+  ========================= */
+  
+  .page-header {
+      margin-bottom: 30px;
+  }
+  
+  .page-header h1 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+  }
+  
+  .page-header p {
+      color: #6c757d;
+      margin: 0;
+  }
+  
+  
+  /* =========================
+     Survey List
+  ========================= */
+  
+  .survey-list {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+  }
+  
+  .survey-list-card {
+      background: #ffffff;
+      border: 1px solid #e9ecef;
+      border-radius: 14px;
+      padding: 22px 24px;
+  
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+  
+      gap: 20px;
+  
+      transition: 0.2s ease;
+  }
+  
+  .survey-list-card:hover {
+      border-color: #0d6efd;
+  
+      transform: translateY(-2px);
+  
+      box-shadow:
+          0 5px 20px rgba(0, 0, 0, 0.05);
+  }
+  
+  .survey-list-content {
+      flex: 1;
+  }
+  
+  .survey-list-content h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+  }
+  
+  .survey-list-content p {
+      color: #6c757d;
+      margin: 0;
+      font-size: 0.9rem;
+      line-height: 1.8;
+  }
+  
+  
+  /* =========================
+     View Button
+  ========================= */
+  
+  .view-survey-btn {
+      background: #0d6efd;
+      color: #ffffff;
+      border-radius: 8px;
+      padding: 8px 20px;
+      white-space: nowrap;
+  }
+  
+  .view-survey-btn:hover {
+      background: #0b5ed7;
+      color: #ffffff;
+  }
+  
+  
+  /* =========================
+     Empty
+  ========================= */
+  
+  .empty-box {
+      background: #ffffff;
+      border: 1px solid #e9ecef;
+      border-radius: 14px;
+      padding: 50px 20px;
+      text-align: center;
+      color: #6c757d;
+  }
+  
+  
+  /* =========================
+     Back
+  ========================= */
+  
+  .back-btn {
+      background: #ffffff;
+      border: 1px solid #dee2e6;
+      color: #495057;
+      border-radius: 8px;
+      padding: 8px 18px;
+  }
+  
+  .back-btn:hover {
+      background: #f8f9fa;
+  }
+  
+  
+  /* =========================
+     Survey Card
+  ========================= */
+  
+  .survey-card {
+      background: #ffffff;
+      border-radius: 18px;
+      border: 1px solid #e9ecef;
+  
+      padding: 35px;
+  
+      max-width: 900px;
+  
+      margin: 0 auto;
+  }
+  
+  
+  /* =========================
+     Survey Header
+  ========================= */
+  
+  .survey-header {
+      border-bottom: 1px solid #e9ecef;
+  
+      padding-bottom: 25px;
+  
+      margin-bottom: 25px;
+  }
+  
+  .survey-header h1 {
+      font-size: 1.6rem;
+      font-weight: 800;
+  
+      margin-bottom: 12px;
+  }
+  
+  .survey-description {
+      color: #6c757d;
+  
+      margin: 0;
+  
+      line-height: 1.9;
+  }
+  
+  
+  /* =========================
+     Question
+  ========================= */
+  
+  .question-card {
+      border: 1px solid #e9ecef;
+  
+      border-radius: 14px;
+  
+      padding: 22px;
+  
+      margin-bottom: 18px;
+  
+      background: #ffffff;
+  }
+  
+  
+  .question-title {
+      display: flex;
+  
+      align-items: flex-start;
+  
+      gap: 10px;
+  
+      font-weight: 600;
+  
+      line-height: 1.8;
+  
+      margin-bottom: 18px;
+  }
+  
+  
+  .question-number {
+      width: 30px;
+      height: 30px;
+  
+      min-width: 30px;
+  
+      display: flex;
+  
+      align-items: center;
+      justify-content: center;
+  
+      background: #eef4ff;
+  
+      color: #0d6efd;
+  
+      border-radius: 50%;
+  
+      font-size: 0.85rem;
+  
+      font-weight: 700;
+  }
+  
+  
+  .question-text {
+      flex: 1;
+  }
+  
+  
+  .required-star {
+      color: #dc3545;
+  
+      font-size: 1rem;
+  
+      font-weight: 700;
+  }
+  
+  
+  /* =========================
+     Text Answer
+  ========================= */
+  
+  .text-answer {
+      resize: vertical;
+  
+      border-radius: 10px;
+  
+      padding: 12px;
+  
+      border-color: #dee2e6;
+  
+      font-family: "Vazirmatn", sans-serif;
+  }
+  
+  .text-answer:focus {
+      border-color: #86b7fe;
+  
+      box-shadow:
+          0 0 0 0.15rem
+          rgba(13, 110, 253, 0.1);
+  }
+  
+  
+  /* =========================
+     Options
+  ========================= */
+  
+  .options-container {
+      display: flex;
+  
+      flex-direction: column;
+  
+      gap: 10px;
+  }
+  
+  
+  .option-item {
+      display: flex;
+  
+      align-items: center;
+  
+      gap: 12px;
+  
+      padding: 13px 15px;
+  
+      border: 1px solid #dee2e6;
+  
+      border-radius: 10px;
+  
+      cursor: pointer;
+  
+      transition: 0.2s ease;
+  
+      user-select: none;
+  }
+  
+  
+  .option-item:hover {
+      background: #f8f9fa;
+  
+      border-color: #adb5bd;
+  }
+  
+  
+  /*
+   * Radio / Checkbox
+   */
+  
+  .option-item input {
+      width: 18px;
+      height: 18px;
+  
+      min-width: 18px;
+  
+      cursor: pointer;
+  }
+  
+  
+  .option-text {
+      font-size: 0.95rem;
+  
+      line-height: 1.7;
+  
+      flex: 1;
+  }
+  
+  
+  /* =========================
+     Submit
+  ========================= */
+  
+  .submit-btn {
+      width: 100%;
+  
+      background: #0d6efd;
+  
+      color: #ffffff;
+  
+      padding: 12px;
+  
+      border-radius: 10px;
+  
+      font-weight: 600;
+  
+      margin-top: 10px;
+  
+      border: none;
+  }
+  
+  .submit-btn:hover {
+      background: #0b5ed7;
+  
+      color: #ffffff;
+  }
+  
+  .submit-btn:disabled {
+      opacity: 0.7;
+  }
+  
+  
+  /* =========================
+     Responsive
+  ========================= */
+  
+  @media (max-width: 768px) {
+  
+      .survey-page {
+          padding: 25px 0 50px;
+      }
+  
+  
+      .survey-card {
+          padding: 20px;
+  
+          border-radius: 14px;
+      }
+  
+  
+      .survey-list-card {
+          flex-direction: column;
+  
+          align-items: stretch;
+      }
+  
+  
+      .view-survey-btn {
+          width: 100%;
+      }
+  
+  
+      .question-card {
+          padding: 17px;
+      }
+  
+  
+      .survey-header h1 {
+          font-size: 1.35rem;
+      }
+  
+  
+      .question-title {
+          font-size: 0.95rem;
+      }
+  
+  }

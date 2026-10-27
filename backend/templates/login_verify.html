@@ -1,0 +1,1609 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>تأیید کد ورود | سامانه گزارش معلمان</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{% static 'css/auth.css' %}"
+    >
+
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+
+            --background: #f6f7fb;
+            --card: #ffffff;
+
+            --text: #171923;
+            --muted: #6b7280;
+
+            --border: #e5e7eb;
+
+            --danger: #dc2626;
+            --danger-bg: #fef2f2;
+            --danger-border: #fecaca;
+
+            --success: #16a34a;
+            --success-bg: #f0fdf4;
+            --success-border: #bbf7d0;
+
+            --shadow: 0 20px 50px rgba(15, 23, 42, 0.10);
+
+            --radius: 20px;
+            --transition: 0.2s ease;
+        }
+
+        [data-theme="dark"] {
+            --background: #111318;
+            --card: #1d2129;
+
+            --text: #f3f4f6;
+            --muted: #9ca3af;
+
+            --border: #303540;
+
+            --danger: #f87171;
+            --danger-bg: rgba(127, 29, 29, 0.22);
+            --danger-border: rgba(248, 113, 113, 0.35);
+
+            --success: #4ade80;
+            --success-bg: rgba(20, 83, 45, 0.22);
+            --success-border: rgba(74, 222, 128, 0.35);
+
+            --shadow: 0 20px 50px rgba(0, 0, 0, 0.30);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+
+            font-family: "Vazirmatn", sans-serif;
+
+            background:
+                radial-gradient(
+                    circle at top right,
+                    rgba(79, 70, 229, 0.10),
+                    transparent 35%
+                ),
+                var(--background);
+
+            color: var(--text);
+
+            transition:
+                background-color var(--transition),
+                color var(--transition);
+        }
+
+        .auth-page {
+            min-height: 100vh;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            padding: 30px 16px;
+        }
+
+        .auth-wrapper {
+            width: 100%;
+            max-width: 460px;
+        }
+
+        .auth-card {
+            position: relative;
+
+            background: var(--card);
+
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+
+            box-shadow: var(--shadow);
+
+            padding: 38px 34px;
+
+            overflow: hidden;
+        }
+
+        .auth-card::before {
+            content: "";
+
+            position: absolute;
+
+            top: 0;
+            right: 0;
+            left: 0;
+
+            height: 4px;
+
+            background: linear-gradient(
+                90deg,
+                var(--primary),
+                var(--primary-dark)
+            );
+        }
+
+        /* =========================
+           Header
+        ========================= */
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 26px;
+        }
+
+        .auth-icon {
+            width: 68px;
+            height: 68px;
+
+            margin: 0 auto 18px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 18px;
+
+            background: linear-gradient(
+                135deg,
+                var(--primary),
+                var(--primary-dark)
+            );
+
+            color: white;
+
+            font-size: 29px;
+
+            box-shadow:
+                0 10px 25px rgba(79, 70, 229, 0.25);
+        }
+
+        .auth-title {
+            margin: 0 0 8px;
+
+            font-size: 24px;
+            font-weight: 800;
+
+            color: var(--text);
+        }
+
+        .auth-description {
+            margin: 0;
+
+            color: var(--muted);
+
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .phone-display {
+            margin: 7px 0 0;
+
+            direction: ltr;
+
+            color: var(--text);
+
+            font-size: 15px;
+            font-weight: 700;
+
+            letter-spacing: 0.5px;
+        }
+
+        /* =========================
+           Alert
+        ========================= */
+
+        .alert-box {
+            display: none;
+
+            align-items: flex-start;
+            gap: 12px;
+
+            margin-bottom: 20px;
+
+            padding: 13px 14px;
+
+            border: 1px solid var(--danger-border);
+            border-radius: 13px;
+
+            background: var(--danger-bg);
+
+            color: var(--danger);
+
+            animation: alertIn 0.2s ease;
+        }
+
+        .alert-box.show {
+            display: flex;
+        }
+
+        .alert-box.success {
+            background: var(--success-bg);
+            border-color: var(--success-border);
+            color: var(--success);
+        }
+
+        .alert-icon {
+            width: 28px;
+            height: 28px;
+
+            flex-shrink: 0;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 18px;
+        }
+
+        .alert-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .alert-title {
+            margin: 1px 0 3px;
+
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .alert-message {
+            margin: 0;
+
+            color: var(--muted);
+
+            font-size: 12px;
+            line-height: 1.8;
+        }
+
+        .alert-close {
+            width: 28px;
+            height: 28px;
+
+            flex-shrink: 0;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border: none;
+            border-radius: 8px;
+
+            background: transparent;
+
+            color: var(--muted);
+
+            cursor: pointer;
+
+            transition: all var(--transition);
+        }
+
+        .alert-close:hover {
+            background: rgba(127, 29, 29, 0.08);
+            color: var(--danger);
+        }
+
+        @keyframes alertIn {
+            from {
+                opacity: 0;
+                transform: translateY(-5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* =========================
+           Form
+        ========================= */
+
+        .form-group {
+            margin-bottom: 22px;
+        }
+
+        .form-label {
+            display: block;
+
+            margin-bottom: 9px;
+
+            color: var(--text);
+
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .otp-input {
+            width: 100%;
+            height: 58px;
+
+            border: 1px solid var(--border);
+            border-radius: 12px;
+
+            background: var(--card);
+
+            color: var(--text);
+
+            font-family: "Vazirmatn", sans-serif;
+
+            font-size: 25px;
+            font-weight: 700;
+
+            letter-spacing: 10px;
+
+            text-align: center;
+
+            outline: none;
+
+            transition:
+                border-color var(--transition),
+                box-shadow var(--transition);
+        }
+
+        .otp-input::placeholder {
+            color: #c4c7ce;
+            letter-spacing: 8px;
+        }
+
+        .otp-input:focus {
+            border-color: var(--primary);
+
+            box-shadow:
+                0 0 0 3px rgba(79, 70, 229, 0.10);
+        }
+
+        .otp-input.input-error {
+            border-color: var(--danger);
+        }
+
+        .otp-input.input-error:focus {
+            box-shadow:
+                0 0 0 3px rgba(220, 38, 38, 0.10);
+        }
+
+        .field-error {
+            display: none;
+
+            margin-top: 7px;
+
+            color: var(--danger);
+
+            font-size: 11px;
+        }
+
+        .field-error.show {
+            display: block;
+        }
+
+        .otp-hint {
+            margin-top: 9px;
+
+            text-align: center;
+
+            color: var(--muted);
+
+            font-size: 11px;
+        }
+
+        /* =========================
+           Submit
+        ========================= */
+
+        .submit-button {
+            width: 100%;
+            height: 50px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+
+            border: none;
+            border-radius: 11px;
+
+            background: linear-gradient(
+                135deg,
+                var(--primary),
+                var(--primary-dark)
+            );
+
+            color: white;
+
+            font-family: "Vazirmatn", sans-serif;
+
+            font-size: 14px;
+            font-weight: 700;
+
+            cursor: pointer;
+
+            box-shadow:
+                0 8px 18px rgba(79, 70, 229, 0.20);
+
+            transition:
+                transform var(--transition),
+                box-shadow var(--transition),
+                opacity var(--transition);
+        }
+
+        .submit-button:hover:not(:disabled) {
+            transform: translateY(-1px);
+
+            box-shadow:
+                0 10px 22px rgba(79, 70, 229, 0.28);
+        }
+
+        .submit-button:active {
+            transform: translateY(0);
+        }
+
+        .submit-button:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .spinner {
+            width: 17px;
+            height: 17px;
+
+            border: 2px solid rgba(255, 255, 255, 0.35);
+            border-top-color: white;
+
+            border-radius: 50%;
+
+            animation: spin 0.7s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* =========================
+           Resend
+        ========================= */
+
+        .resend-section {
+            margin-top: 22px;
+
+            padding-top: 19px;
+
+            border-top: 1px solid var(--border);
+
+            text-align: center;
+        }
+
+        .resend-text {
+            margin: 0 0 9px;
+
+            color: var(--muted);
+
+            font-size: 12px;
+        }
+
+        .resend-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+
+            min-width: 145px;
+
+            padding: 8px 12px;
+
+            border: none;
+            border-radius: 9px;
+
+            background: transparent;
+
+            color: var(--primary);
+
+            font-family: "Vazirmatn", sans-serif;
+
+            font-size: 12px;
+            font-weight: 700;
+
+            cursor: pointer;
+
+            transition: all var(--transition);
+        }
+
+        .resend-button:hover:not(:disabled) {
+            background: rgba(79, 70, 229, 0.08);
+        }
+
+        .resend-button:disabled {
+            color: var(--muted);
+            cursor: not-allowed;
+            opacity: 0.8;
+        }
+
+        .countdown {
+            display: inline-block;
+
+            min-width: 30px;
+
+            color: var(--primary);
+
+            font-weight: 800;
+        }
+
+        /* =========================
+           Footer
+        ========================= */
+
+        .auth-footer {
+            margin-top: 22px;
+
+            text-align: center;
+        }
+
+        .change-phone {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+
+            color: var(--muted);
+
+            font-size: 12px;
+
+            text-decoration: none;
+
+            transition: color var(--transition);
+        }
+
+        .change-phone:hover {
+            color: var(--primary);
+        }
+
+        /* =========================
+           Mobile
+        ========================= */
+
+        @media (max-width: 576px) {
+
+            .auth-page {
+                padding: 20px 12px;
+            }
+
+            .auth-card {
+                padding: 30px 22px;
+                border-radius: 17px;
+            }
+
+            .auth-title {
+                font-size: 21px;
+            }
+
+            .auth-icon {
+                width: 62px;
+                height: 62px;
+                font-size: 27px;
+            }
+
+            .otp-input {
+                height: 55px;
+                font-size: 23px;
+                letter-spacing: 8px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<main class="auth-page">
+
+    <div class="auth-wrapper">
+
+        <div class="auth-card">
+
+            <!-- Header -->
+            <div class="auth-header">
+
+                <div class="auth-icon">
+                    <i class="bi bi-shield-check"></i>
+                </div>
+
+                <h1 class="auth-title">
+                    تأیید کد ورود
+                </h1>
+
+                <p class="auth-description">
+                    کد تأیید ارسال‌شده به شماره زیر را وارد کنید.
+                </p>
+
+                <p
+                    id="phoneDisplay"
+                    class="phone-display"
+                ></p>
+
+            </div>
+
+
+            <!-- Alert -->
+            <div
+                id="alertBox"
+                class="alert-box"
+                role="alert"
+                aria-live="polite"
+            >
+
+                <div
+                    id="alertIcon"
+                    class="alert-icon"
+                >
+                    <i class="bi bi-exclamation-circle-fill"></i>
+                </div>
+
+                <div class="alert-content">
+
+                    <p
+                        id="alertTitle"
+                        class="alert-title"
+                    ></p>
+
+                    <p
+                        id="alertMessage"
+                        class="alert-message"
+                    ></p>
+
+                </div>
+
+                <button
+                    type="button"
+                    id="alertClose"
+                    class="alert-close"
+                    aria-label="بستن"
+                >
+                    <i class="bi bi-x-lg"></i>
+                </button>
+
+            </div>
+
+
+            <!-- Verify Form -->
+            <form
+                id="verifyForm"
+                novalidate
+            >
+
+                <div class="form-group">
+
+                    <label
+                        for="otp"
+                        class="form-label"
+                    >
+                        کد تأیید
+                    </label>
+
+                    <input
+                        type="text"
+                        class="otp-input"
+                        id="otp"
+                        name="otp"
+                        maxlength="4"
+                        inputmode="numeric"
+                        autocomplete="one-time-code"
+                        placeholder="----"
+                        dir="ltr"
+                    >
+
+                    <div
+                        id="otpError"
+                        class="field-error"
+                    ></div>
+
+                    <div class="otp-hint">
+                        کد ارسال‌شده ۴ رقمی است.
+                    </div>
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="submit-button"
+                    id="submitButton"
+                >
+
+                    <span id="submitText">
+                        تأیید و ورود
+                    </span>
+
+                    <span
+                        id="submitSpinner"
+                        class="spinner"
+                        style="display: none;"
+                    ></span>
+
+                    <i
+                        id="submitIcon"
+                        class="bi bi-arrow-left"
+                    ></i>
+
+                </button>
+
+            </form>
+
+
+            <!-- Resend -->
+            <div class="resend-section">
+
+                <p class="resend-text">
+                    کد را دریافت نکردید؟
+                </p>
+
+                <button
+                    type="button"
+                    id="resendButton"
+                    class="resend-button"
+                    disabled
+                >
+
+                    <i class="bi bi-arrow-repeat"></i>
+
+                    <span id="resendText">
+                        ارسال مجدد کد
+                    </span>
+
+                    <span
+                        id="countdown"
+                        class="countdown"
+                    >
+                        60
+                    </span>
+
+                </button>
+
+            </div>
+
+
+            <!-- Footer -->
+            <div class="auth-footer">
+
+                <a
+                    href="/login/"
+                    class="change-phone"
+                >
+                    <i class="bi bi-pencil"></i>
+                    تغییر شماره تماس
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</main>
+
+
+<script>
+
+    /* =========================================
+       Get phone
+    ========================================= */
+
+    const phone = sessionStorage.getItem("login_phone");
+
+    if (!phone) {
+        window.location.href = "/login/";
+    }
+
+
+    /* =========================================
+       Elements
+    ========================================= */
+
+    const phoneDisplay =
+        document.getElementById("phoneDisplay");
+
+    const form =
+        document.getElementById("verifyForm");
+
+    const otpInput =
+        document.getElementById("otp");
+
+    const otpError =
+        document.getElementById("otpError");
+
+    const submitButton =
+        document.getElementById("submitButton");
+
+    const submitText =
+        document.getElementById("submitText");
+
+    const submitSpinner =
+        document.getElementById("submitSpinner");
+
+    const submitIcon =
+        document.getElementById("submitIcon");
+
+    const alertBox =
+        document.getElementById("alertBox");
+
+    const alertIcon =
+        document.getElementById("alertIcon");
+
+    const alertTitle =
+        document.getElementById("alertTitle");
+
+    const alertMessage =
+        document.getElementById("alertMessage");
+
+    const alertClose =
+        document.getElementById("alertClose");
+
+    const resendButton =
+        document.getElementById("resendButton");
+
+    const resendText =
+        document.getElementById("resendText");
+
+    const countdown =
+        document.getElementById("countdown");
+
+
+    phoneDisplay.textContent = phone;
+
+
+    /* =========================================
+       Convert Persian / Arabic digits
+    ========================================= */
+
+    function convertToEnglishDigits(value) {
+
+        const persianDigits = "۰۱۲۳۴۵۶۷۸۹";
+        const arabicDigits = "٠١٢٣٤٥٦٧٨٩";
+
+        return value
+            .split("")
+            .map(char => {
+
+                const persianIndex =
+                    persianDigits.indexOf(char);
+
+                if (persianIndex !== -1) {
+                    return String(persianIndex);
+                }
+
+                const arabicIndex =
+                    arabicDigits.indexOf(char);
+
+                if (arabicIndex !== -1) {
+                    return String(arabicIndex);
+                }
+
+                return char;
+            })
+            .join("");
+    }
+
+
+    /* =========================================
+       Alert UI
+    ========================================= */
+
+    function hideAlert() {
+
+        alertBox.classList.remove("show");
+        alertBox.classList.remove("success");
+
+        alertTitle.textContent = "";
+        alertMessage.textContent = "";
+
+        alertIcon.innerHTML =
+            '<i class="bi bi-exclamation-circle-fill"></i>';
+    }
+
+
+    function showError(title, message) {
+
+        alertBox.classList.remove("success");
+
+        alertIcon.innerHTML =
+            '<i class="bi bi-exclamation-circle-fill"></i>';
+
+        alertTitle.textContent = title;
+        alertMessage.textContent = message;
+
+        alertBox.classList.add("show");
+
+        alertBox.scrollIntoView({
+            behavior: "smooth",
+            block: "nearest"
+        });
+    }
+
+
+    function showSuccess(title, message) {
+
+        alertBox.classList.add("success");
+
+        alertIcon.innerHTML =
+            '<i class="bi bi-check-circle-fill"></i>';
+
+        alertTitle.textContent = title;
+        alertMessage.textContent = message;
+
+        alertBox.classList.add("show");
+
+        alertBox.scrollIntoView({
+            behavior: "smooth",
+            block: "nearest"
+        });
+    }
+
+
+    alertClose.addEventListener(
+        "click",
+        hideAlert
+    );
+
+
+    /* =========================================
+       OTP Field Errors
+    ========================================= */
+
+    function showOtpError(message) {
+
+        otpInput.classList.add("input-error");
+
+        otpError.textContent = message;
+
+        otpError.classList.add("show");
+    }
+
+
+    function clearOtpError() {
+
+        otpInput.classList.remove("input-error");
+
+        otpError.textContent = "";
+
+        otpError.classList.remove("show");
+    }
+
+
+    /* =========================================
+       OTP Input
+    ========================================= */
+
+    otpInput.addEventListener(
+        "input",
+        function () {
+
+            let value =
+                convertToEnglishDigits(
+                    this.value
+                );
+
+            value = value.replace(/\D/g, "");
+
+            value = value.substring(0, 4);
+
+            this.value = value;
+
+            clearOtpError();
+            hideAlert();
+        }
+    );
+
+
+    /* =========================================
+       Friendly Backend Errors
+    ========================================= */
+
+    function getFriendlyError(data, status) {
+
+        const errorCode =
+            data?.error_code;
+
+
+        if (
+            errorCode === "invalid_otp" ||
+            errorCode === "invalid_code"
+        ) {
+
+            return {
+                title: "کد تأیید نادرست است",
+                message:
+                    "کدی که وارد کردید صحیح نیست. کد دریافت‌شده را بررسی کنید."
+            };
+        }
+
+
+        if (
+            errorCode === "otp_expired" ||
+            errorCode === "code_expired"
+        ) {
+
+            return {
+                title: "کد تأیید منقضی شده است",
+                message:
+                    "این کد دیگر قابل استفاده نیست. لطفاً یک کد جدید دریافت کنید."
+            };
+        }
+
+
+        if (
+            errorCode === "phone_not_found" ||
+            errorCode === "user_not_found"
+        ) {
+
+            return {
+                title: "حساب کاربری پیدا نشد",
+                message:
+                    "برای این شماره موبایل حساب کاربری‌ای پیدا نشد."
+            };
+        }
+
+
+        if (errorCode === "otp_rate_limit") {
+
+            return {
+                title: "تعداد درخواست‌ها زیاد است",
+                message:
+                    "لطفاً کمی صبر کنید و دوباره تلاش کنید."
+            };
+        }
+
+
+        if (errorCode === "sms_service_error") {
+
+            return {
+                title: "ارسال کد انجام نشد",
+                message:
+                    "در حال حاضر ارسال پیامک با مشکل مواجه شده است."
+            };
+        }
+
+
+        if (status === 400) {
+
+            return {
+                title: "کد تأیید نامعتبر است",
+                message:
+                    "لطفاً کد ۴ رقمی ارسال‌شده را بررسی کنید."
+            };
+        }
+
+
+        if (status === 401) {
+
+            return {
+                title: "کد تأیید نادرست است",
+                message:
+                    "کد واردشده صحیح نیست یا اعتبار آن به پایان رسیده است."
+            };
+        }
+
+
+        if (status === 404) {
+
+            return {
+                title: "حساب کاربری پیدا نشد",
+                message:
+                    "برای این شماره موبایل حساب کاربری‌ای پیدا نشد."
+            };
+        }
+
+
+        if (status === 429) {
+
+            return {
+                title: "تعداد درخواست‌ها زیاد است",
+                message:
+                    "لطفاً کمی صبر کنید و دوباره تلاش کنید."
+            };
+        }
+
+
+        if (status >= 500) {
+
+            return {
+                title: "خطا در سامانه",
+                message:
+                    "مشکلی در سمت سرور رخ داده است. لطفاً بعداً دوباره تلاش کنید."
+            };
+        }
+
+
+        return {
+            title: "تأیید کد انجام نشد",
+            message:
+                "لطفاً کد را بررسی کنید و دوباره تلاش کنید."
+        };
+    }
+
+
+    /* =========================================
+       Submit Loading
+    ========================================= */
+
+    function setSubmitLoading(isLoading) {
+
+        submitButton.disabled = isLoading;
+
+        if (isLoading) {
+
+            submitText.textContent =
+                "در حال بررسی...";
+
+            submitSpinner.style.display =
+                "block";
+
+            submitIcon.style.display =
+                "none";
+
+        } else {
+
+            submitText.textContent =
+                "تأیید و ورود";
+
+            submitSpinner.style.display =
+                "none";
+
+            submitIcon.style.display =
+                "block";
+        }
+    }
+
+
+    /* =========================================
+       Countdown
+    ========================================= */
+
+    let countdownTimer = null;
+    let remainingSeconds = 60;
+
+
+    function startCountdown() {
+
+        clearInterval(countdownTimer);
+
+        remainingSeconds = 60;
+
+        resendButton.disabled = true;
+
+        resendText.textContent =
+            "ارسال مجدد کد";
+
+        countdown.textContent =
+            remainingSeconds;
+
+
+        countdownTimer = setInterval(
+            function () {
+
+                remainingSeconds--;
+
+                countdown.textContent =
+                    remainingSeconds;
+
+
+                if (remainingSeconds <= 0) {
+
+                    clearInterval(countdownTimer);
+
+                    resendButton.disabled =
+                        false;
+
+                    resendText.textContent =
+                        "ارسال مجدد کد";
+
+                    countdown.textContent =
+                        "";
+                }
+
+            },
+            1000
+        );
+    }
+
+
+    /* =========================================
+       Resend OTP
+    ========================================= */
+
+    async function resendOTP() {
+
+        if (resendButton.disabled) {
+            return;
+        }
+
+
+        hideAlert();
+        clearOtpError();
+
+
+        resendButton.disabled = true;
+
+        resendText.textContent =
+            "در حال ارسال...";
+
+
+        try {
+
+            const response = await fetch(
+                "/api/auth/send-otp/",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        phone_number: phone
+                    })
+                }
+            );
+
+
+            let data = {};
+
+            try {
+                data = await response.json();
+            } catch (error) {
+                data = {};
+            }
+
+
+            if (!response.ok) {
+
+                const friendlyError =
+                    getFriendlyError(
+                        data,
+                        response.status
+                    );
+
+
+                showError(
+                    friendlyError.title,
+                    friendlyError.message
+                );
+
+
+                resendButton.disabled =
+                    false;
+
+                resendText.textContent =
+                    "ارسال مجدد کد";
+
+                return;
+            }
+
+
+            /* موفق */
+
+            showSuccess(
+                "کد جدید ارسال شد",
+                "کد تأیید جدید به شماره موبایل شما ارسال شد."
+            );
+
+
+            otpInput.value = "";
+
+            otpInput.focus();
+
+            startCountdown();
+
+
+        } catch (error) {
+
+            console.error(
+                "Resend OTP error:",
+                error
+            );
+
+
+            showError(
+                "ارتباط با سامانه برقرار نشد",
+                "لطفاً اتصال اینترنت خود را بررسی کنید و دوباره تلاش کنید."
+            );
+
+
+            resendButton.disabled =
+                false;
+
+            resendText.textContent =
+                "ارسال مجدد کد";
+        }
+    }
+
+
+    resendButton.addEventListener(
+        "click",
+        resendOTP
+    );
+
+
+    /* =========================================
+       Verify OTP
+    ========================================= */
+
+    form.addEventListener(
+        "submit",
+        async function (event) {
+
+            event.preventDefault();
+
+
+            hideAlert();
+            clearOtpError();
+
+
+            const code =
+                convertToEnglishDigits(
+                    otpInput.value.trim()
+                ).replace(/\D/g, "");
+
+
+            /* =========================
+               Validation
+            ========================= */
+
+            if (!code) {
+
+                showOtpError(
+                    "لطفاً کد تأیید را وارد کنید."
+                );
+
+                otpInput.focus();
+
+                return;
+            }
+
+
+            if (code.length !== 4) {
+
+                showOtpError(
+                    "کد تأیید باید ۴ رقم باشد."
+                );
+
+                otpInput.focus();
+
+                return;
+            }
+
+
+            otpInput.value = code;
+
+            setSubmitLoading(true);
+
+
+            try {
+
+                const response = await fetch(
+                    "/api/auth/login/verify-otp/",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+
+                        body: JSON.stringify({
+                            phone_number: phone,
+                            code: code
+                        })
+                    }
+                );
+
+
+                let data = {};
+
+                try {
+                    data = await response.json();
+                } catch (error) {
+                    data = {};
+                }
+
+
+                /* =========================
+                   Error
+                ========================= */
+
+                if (!response.ok) {
+
+                    const friendlyError =
+                        getFriendlyError(
+                            data,
+                            response.status
+                        );
+
+
+                    showError(
+                        friendlyError.title,
+                        friendlyError.message
+                    );
+
+
+                    if (
+                        data?.error_code === "invalid_otp" ||
+                        data?.error_code === "invalid_code" ||
+                        data?.error_code === "otp_expired" ||
+                        data?.error_code === "code_expired" ||
+                        response.status === 400 ||
+                        response.status === 401
+                    ) {
+
+                        showOtpError(
+                            friendlyError.message
+                        );
+                    }
+
+
+                    return;
+                }
+
+
+                /* =========================
+                   Success
+                ========================= */
+
+                if (!data.access) {
+
+                    showError(
+                        "ورود انجام نشد",
+                        "توکن ورود از سامانه دریافت نشد. لطفاً دوباره تلاش کنید."
+                    );
+
+                    return;
+                }
+
+
+                /* =========================
+                   Save Tokens
+                ========================= */
+
+                localStorage.setItem(
+                    "access_token",
+                    data.access
+                );
+
+
+                if (data.refresh) {
+
+                    localStorage.setItem(
+                        "refresh_token",
+                        data.refresh
+                    );
+                }
+
+
+                sessionStorage.removeItem(
+                    "login_phone"
+                );
+
+
+                /* =========================
+                   Redirect with JWT Header
+                ========================= */
+
+                const accessToken = data.access;
+
+                const redirectUrl =
+                    data.redirect_url || "/main/";
+
+
+                const pageResponse = await fetch(
+                    redirectUrl,
+                    {
+                        method: "GET",
+
+                        headers: {
+                            "Authorization":
+                                `Bearer ${accessToken}`,
+
+                            "Accept":
+                                "text/html"
+                        }
+                    }
+                );
+
+
+                if (pageResponse.status === 401) {
+
+                    localStorage.removeItem(
+                        "access_token"
+                    );
+
+                    localStorage.removeItem(
+                        "refresh_token"
+                    );
+
+                    throw new Error(
+                        "توکن ورود معتبر نیست."
+                    );
+                }
+
+
+                if (pageResponse.status === 403) {
+
+                    throw new Error(
+                        "شما دسترسی لازم برای ورود به این صفحه را ندارید."
+                    );
+                }
+
+
+                if (!pageResponse.ok) {
+
+                    throw new Error(
+                        `خطا در انتقال به صفحه: ${pageResponse.status}`
+                    );
+                }
+
+
+                const html =
+                    await pageResponse.text();
+
+
+                document.open();
+
+                document.write(html);
+
+                document.close();
+
+            } catch (error) {
+
+                console.error(
+                    "Verify OTP error:",
+                    error
+                );
+
+
+                showError(
+                    "ارتباط با سامانه برقرار نشد",
+                    "لطفاً اتصال اینترنت خود را بررسی کنید و دوباره تلاش کنید."
+                );
+
+            } finally {
+
+                setSubmitLoading(false);
+            }
+        }
+    );
+
+
+    /* =========================================
+       Initial Countdown
+    ========================================= */
+
+    startCountdown();
+
+</script>
+
+</body>
+</html>

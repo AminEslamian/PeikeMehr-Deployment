@@ -1,0 +1,965 @@
+{% extends "admin_panel/base.html" %}
+
+{% block title %}جزئیات معلم | پنل مدیریت{% endblock %}
+{% block teachers_active %}active{% endblock %}
+{% block page_title %}جزئیات معلم{% endblock %}
+{% block page_description %}مشاهده اطلاعات، گزارش‌ها و امتیازات معلم{% endblock %}
+
+{% block extra_css %}
+<style>
+    .teacher-detail-page{display:flex;flex-direction:column;gap:20px}
+    .detail-header{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
+    .detail-header-info{display:flex;align-items:center;gap:14px}
+    .teacher-large-avatar{width:58px;height:58px;flex-shrink:0;border-radius:17px;display:flex;align-items:center;justify-content:center;background:var(--primary);color:#fff;font-size:19px;font-weight:800}
+    .detail-title h3{margin:0 0 5px;color:var(--text);font-size:23px;font-weight:800}
+    .detail-title p{margin:0;color:var(--muted);font-size:12px}
+    .back-button{display:inline-flex;align-items:center;gap:7px;min-height:40px;padding:0 14px;border:1px solid var(--border);border-radius:10px;background:var(--card);color:var(--text);text-decoration:none;font-size:11px;font-weight:700;transition:var(--transition)}
+    .back-button:hover{border-color:var(--primary);color:var(--primary);background:var(--background-secondary)}
+    .detail-grid{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(320px,.8fr);gap:20px;align-items:start}
+    .detail-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);overflow:hidden}
+    .detail-card-header{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:19px 20px;border-bottom:1px solid var(--border)}
+    .detail-card-title{display:flex;align-items:center;gap:9px;color:var(--text);font-size:14px;font-weight:800}
+    .detail-card-title i{color:var(--primary)}
+    .detail-card-body{padding:20px}
+    .info-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+    .info-item{padding:14px;border:1px solid var(--border);border-radius:11px;background:var(--background-secondary)}
+    .info-item.full{grid-column:span 2}
+    .info-label{color:var(--muted);font-size:10px;margin-bottom:5px}
+    .info-value{color:var(--text);font-size:12px;font-weight:700;line-height:1.7;word-break:break-word}
+    .grade-list{display:flex;flex-wrap:wrap;gap:5px}
+    .grade-item{padding:4px 7px;border-radius:6px;background:var(--card);border:1px solid var(--border);color:var(--text);font-size:9px}
+    .summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
+    .summary-item{padding:15px;border-radius:11px;background:var(--background-secondary);border:1px solid var(--border)}
+    .summary-icon{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;margin-bottom:9px;color:var(--primary);background:var(--card)}
+    .summary-label{color:var(--muted);font-size:9px;margin-bottom:3px}
+    .summary-value{color:var(--text);font-size:17px;font-weight:800}
+    .point-form .form-label{color:var(--text);font-size:11px;font-weight:700;margin-bottom:7px}
+    .point-form .form-control,.point-form .form-select{min-height:43px;border:1px solid var(--border);border-radius:10px;background:var(--background-secondary);color:var(--text);font-family:inherit;font-size:12px}
+    .point-form textarea.form-control{min-height:110px;resize:vertical}
+    .point-form .form-control:focus,.point-form .form-select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.10)}
+    .submit-point{width:100%;min-height:43px;border:0;border-radius:10px;background:var(--primary);color:#fff;font-family:inherit;font-size:11px;font-weight:700;transition:var(--transition)}
+    .submit-point:hover{background:var(--primary-dark)}
+    .submit-point:disabled{opacity:.65;cursor:not-allowed}
+    .points-list{display:flex;flex-direction:column}
+    .point-item{padding:14px 0;border-bottom:1px solid var(--border)}
+    .point-item:first-child{padding-top:0}
+    .point-item:last-child{border-bottom:0;padding-bottom:0}
+    .point-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:7px}
+    .point-score{display:inline-flex;align-items:center;gap:5px;padding:5px 8px;border-radius:7px;background:var(--background-secondary);color:var(--text);font-size:11px;font-weight:800}
+    .point-score i{color:#f59e0b}
+    .point-date{color:var(--muted);font-size:9px}
+    .point-reason{color:var(--text);opacity:.8;font-size:11px;line-height:1.8}
+    .reports-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+    .report-item{background:var(--card);border:1px solid var(--border);border-radius:13px;overflow:hidden;cursor:pointer;transition:var(--transition);box-shadow:var(--shadow-sm)}
+    .report-item:hover{transform:translateY(-3px);box-shadow:var(--shadow);border-color:rgba(37,99,235,.35)}
+    .report-media-slider{position:relative;height:190px;overflow:hidden;background:#111827}
+    .report-media-track{display:flex;width:100%;height:100%;direction:ltr;transition:transform .35s ease}
+    .report-media-slide{position:relative;min-width:100%;width:100%;height:100%;background:#111827}
+    .report-media-slide img,.report-media-slide video{display:block;width:100%;height:100%;object-fit:cover}
+    .report-media-slide video{pointer-events:none}
+    .video-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;background:linear-gradient(to bottom,rgba(0,0,0,.03),rgba(0,0,0,.25))}
+    .video-icon{width:45px;height:45px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:rgba(0,0,0,.62);color:#fff;font-size:19px;backdrop-filter:blur(5px)}
+    .media-count{position:absolute;top:10px;right:10px;z-index:5;display:inline-flex;align-items:center;gap:5px;padding:6px 9px;border-radius:8px;background:rgba(0,0,0,.58);color:#fff;font-size:10px;font-weight:700;backdrop-filter:blur(6px)}
+    .slider-btn{position:absolute;top:50%;z-index:10;width:32px;height:32px;transform:translateY(-50%);display:flex;align-items:center;justify-content:center;border:0;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;cursor:pointer;transition:.2s;backdrop-filter:blur(5px)}
+    .slider-btn:hover{background:rgba(0,0,0,.8)}
+    .slider-prev{left:8px}.slider-next{right:8px}
+    .slider-dots{position:absolute;left:50%;bottom:9px;z-index:10;transform:translateX(-50%);display:flex;align-items:center;gap:4px;direction:ltr}
+    .slider-dot{width:5px;height:5px;padding:0;border:0;border-radius:50%;background:rgba(255,255,255,.5);transition:.2s}
+    .slider-dot.active{width:16px;border-radius:5px;background:#fff}
+    .report-item-body{padding:14px}
+    .report-item-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:9px}
+    .report-item-title{color:var(--text);font-size:12px;font-weight:800}
+    .report-item-date{color:var(--muted);font-size:9px;white-space:nowrap}
+    .report-item-text{color:var(--text);opacity:.82;font-size:11px;line-height:1.9;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:10px}
+    .report-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px}
+    .report-tag{padding:4px 7px;border-radius:6px;border:1px solid var(--border);background:var(--background-secondary);color:var(--text);font-size:9px}
+    .report-link{display:flex;align-items:center;justify-content:space-between;color:var(--primary);font-size:10px;font-weight:700}
+    .loading-state,.empty-state{padding:45px 20px;text-align:center;color:var(--muted);font-size:11px}
+    .state-icon{width:48px;height:48px;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;border-radius:13px;background:var(--background-secondary);color:var(--muted);font-size:20px}
+    @media(max-width:1100px){.detail-grid{grid-template-columns:1fr}}
+    @media(max-width:800px){.reports-list{grid-template-columns:1fr}}
+    @media(max-width:700px){.info-grid{grid-template-columns:1fr}.info-item.full{grid-column:auto}.summary-grid{grid-template-columns:1fr}.detail-header{align-items:flex-start}}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="teacher-detail-page">
+    <div class="detail-header">
+        <div class="detail-header-info">
+            <div id="teacherAvatar" class="teacher-large-avatar">م</div>
+            <div class="detail-title">
+                <h3 id="teacherTitle">جزئیات معلم</h3>
+                <p>اطلاعات شخصی، گزارش‌ها و امتیازات ثبت‌شده</p>
+            </div>
+        </div>
+        <a href="{% url 'admin_panel:ui-teachers' %}" class="back-button">
+            <i class="bi bi-arrow-right"></i>
+            بازگشت به معلم‌ها
+        </a>
+    </div>
+
+    <div id="pageLoading" class="detail-card">
+        <div class="loading-state">
+            <div class="state-icon"><div class="spinner-border spinner-border-sm" role="status"></div></div>
+            در حال دریافت اطلاعات معلم...
+        </div>
+    </div>
+
+    <div id="pageError" class="alert alert-danger d-none"></div>
+
+    <div id="pageContent" class="d-none">
+        <div class="detail-grid">
+            <div>
+                <div class="detail-card mb-4">
+                    <div class="detail-card-header">
+                        <div class="detail-card-title"><i class="bi bi-person-vcard"></i> اطلاعات معلم</div>
+                    </div>
+                    <div class="detail-card-body">
+                        <div class="info-grid">
+                            <div class="info-item"><div class="info-label">نام</div><div id="first-name" class="info-value">-</div></div>
+                            <div class="info-item"><div class="info-label">نام خانوادگی</div><div id="last-name" class="info-value">-</div></div>
+                            <div class="info-item"><div class="info-label">شماره تلفن</div><div id="phone-number" class="info-value">-</div></div>
+                            <div class="info-item"><div class="info-label">کد ملی</div><div id="national-id" class="info-value">-</div></div>
+                            <div class="info-item"><div class="info-label">جنسیت</div><div id="gender" class="info-value">-</div></div>
+                            <div class="info-item"><div class="info-label">سمت</div><div id="position" class="info-value">-</div></div>
+                            <div class="info-item"><div class="info-label">استان</div><div id="province" class="info-value">-</div></div>
+                            <div class="info-item"><div class="info-label">شهر</div><div id="city" class="info-value">-</div></div>
+                            <div class="info-item"><div class="info-label">روستا</div><div id="village" class="info-value">-</div></div>
+                            <div class="info-item"><div class="info-label">مدرسه</div><div id="school" class="info-value">-</div></div>
+                            <div class="info-item full"><div class="info-label">پایه‌های تدریس</div><div id="grade" class="info-value">-</div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-card-header">
+                        <div class="detail-card-title"><i class="bi bi-file-earmark-text"></i> گزارش‌های ثبت‌شده</div>
+                        <span id="reports-count" class="badge rounded-pill bg-primary">۰</span>
+                    </div>
+                    <div class="detail-card-body">
+                        <div id="reports-loading" class="loading-state">
+                            <div class="state-icon"><div class="spinner-border spinner-border-sm" role="status"></div></div>
+                            در حال دریافت گزارش‌ها...
+                        </div>
+                        <div id="reports-error" class="alert alert-danger d-none"></div>
+                        <div id="reports-list" class="reports-list"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="detail-card mb-4">
+                    <div class="detail-card-header">
+                        <div class="detail-card-title"><i class="bi bi-bar-chart"></i> خلاصه عملکرد</div>
+                    </div>
+                    <div class="detail-card-body">
+                        <div class="summary-grid">
+                            <div class="summary-item">
+                                <div class="summary-icon"><i class="bi bi-file-text"></i></div>
+                                <div class="summary-label">گزارش‌ها</div>
+                                <div id="report-count" class="summary-value">۰</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-icon"><i class="bi bi-star"></i></div>
+                                <div class="summary-label">مجموع امتیاز</div>
+                                <div id="point-total" class="summary-value">۰</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-icon"><i class="bi bi-check2-circle"></i></div>
+                                <div class="summary-label">وضعیت</div>
+                                <div id="teacher-status" class="summary-value">فعال</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-card mb-4">
+                    <div class="detail-card-header">
+                        <div class="detail-card-title"><i class="bi bi-star"></i> ثبت امتیاز جدید</div>
+                    </div>
+                    <div class="detail-card-body">
+                        <div id="point-success" class="alert alert-success d-none">امتیاز با موفقیت ثبت شد.</div>
+                        <div id="point-error" class="alert alert-danger d-none"></div>
+                        <form id="point-form" class="point-form">
+                            <div class="mb-3">
+                                <label for="score" class="form-label">امتیاز</label>
+                                <select id="score" class="form-select" required>
+                                    <option value="">انتخاب امتیاز</option>
+                                    <option value="1">۱</option><option value="2">۲</option><option value="3">۳</option>
+                                    <option value="4">۴</option><option value="5">۵</option><option value="6">۶</option>
+                                    <option value="7">۷</option><option value="8">۸</option><option value="9">۹</option><option value="10">۱۰</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="reason" class="form-label">دلیل امتیاز</label>
+                                <textarea id="reason" class="form-control" rows="4" placeholder="دلیل امتیازی که ثبت می‌کنید..." required></textarea>
+                            </div>
+                            <button type="submit" id="point-submit" class="submit-point">
+                                <i class="bi bi-check2 me-1"></i> ثبت امتیاز
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-card-header">
+                        <div class="detail-card-title"><i class="bi bi-stars"></i> امتیازهای ثبت‌شده</div>
+                    </div>
+                    <div class="detail-card-body">
+                        <div id="points-loading" class="loading-state">
+                            <div class="state-icon"><div class="spinner-border spinner-border-sm" role="status"></div></div>
+                            در حال دریافت امتیازها...
+                        </div>
+                        <div id="points-list" class="points-list"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    const teacherId = Number("{{ teacher_id|default:'' }}");
+
+    const TEACHER_API_URL = `/admin-panel/api/teachers/${teacherId}/`;
+    const REPORTS_API_URL = `/admin-panel/api/reports/?teacher=${teacherId}`;
+    const MEDIA_API_URL = `/admin-panel/api/media-list/?teacher=${teacherId}`;
+    const POINTS_API_URL = `/admin-panel/api/points/`;
+
+    const pageLoading = document.getElementById("pageLoading");
+    const pageContent = document.getElementById("pageContent");
+    const pageError = document.getElementById("pageError");
+
+    let objectUrls = [];
+
+    function getAccessToken() {
+        return localStorage.getItem("access_token");
+    }
+
+    function logoutAdmin() {
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
+        window.location.href = "/login/";
+    }
+
+    function getAuthHeaders(includeJson = false) {
+        const token = getAccessToken();
+
+        if (!token) {
+            logoutAdmin();
+            throw new Error("Access token not found.");
+        }
+
+        const headers = new Headers({
+            "Authorization": `Bearer ${token}`,
+            "Accept": "application/json"
+        });
+
+        if (includeJson) {
+            headers.set("Content-Type", "application/json");
+        }
+
+        return headers;
+    }
+
+    async function fetchAPI(url, options = {}) {
+        const headers = getAuthHeaders(
+            options.body !== undefined && !(options.body instanceof FormData)
+        );
+
+        Object.entries(options.headers || {}).forEach(([key, value]) => {
+            headers.set(key, value);
+        });
+
+        const response = await fetch(url, {
+            ...options,
+            headers
+        });
+
+        if (response.status === 401 || response.status === 403) {
+            logoutAdmin();
+            throw new Error(
+                response.status === 401 ? "Unauthorized." : "Forbidden."
+            );
+        }
+
+        if (!response.ok) {
+            let message = `خطا در دریافت اطلاعات (${response.status})`;
+
+            try {
+                const errorData = await response.json();
+                message =
+                    errorData?.detail ||
+                    errorData?.message ||
+                    message;
+            } catch (_) {}
+
+            throw new Error(message);
+        }
+
+        return response;
+    }
+
+    async function fetchMediaBlob(url) {
+        const parsedUrl = new URL(url, window.location.href);
+
+        if (parsedUrl.origin !== window.location.origin) {
+            const response = await fetch(parsedUrl.href);
+
+            if (!response.ok) {
+                throw new Error(`خطا در دریافت فایل: ${url}`);
+            }
+
+            return response.blob();
+        }
+
+        const response = await fetchAPI(parsedUrl.href, {
+            headers: { "Accept": "*/*" }
+        });
+
+        return response.blob();
+    }
+
+    async function prepareMediaUrl(url) {
+        if (!url) return "";
+
+        const parsedUrl = new URL(url, window.location.href);
+
+        if (parsedUrl.origin !== window.location.origin) {
+            return parsedUrl.href;
+        }
+
+        const blob = await fetchMediaBlob(parsedUrl.href);
+        const objectUrl = URL.createObjectURL(blob);
+        objectUrls.push(objectUrl);
+
+        return objectUrl;
+    }
+
+    function revokeObjectUrls() {
+        objectUrls.forEach(url => URL.revokeObjectURL(url));
+        objectUrls = [];
+    }
+
+    function showValue(value) {
+        return value === null || value === undefined || value === ""
+            ? "-"
+            : value;
+    }
+
+    function escapeHtml(value) {
+        if (value === null || value === undefined) return "";
+
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    function formatDate(value) {
+        if (!value) return "-";
+
+        const date = new Date(value);
+
+        if (Number.isNaN(date.getTime())) return "-";
+
+        return new Intl.DateTimeFormat("fa-IR", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit"
+        }).format(date);
+    }
+
+    function getResults(data) {
+        if (Array.isArray(data)) return data;
+        return data && Array.isArray(data.results) ? data.results : [];
+    }
+
+    function getInitials(teacher) {
+        const first = (teacher.first_name || "").trim();
+        const last = (teacher.last_name || "").trim();
+
+        if (first && last) {
+            return first.charAt(0) + last.charAt(0);
+        }
+
+        return (first || last || "م").charAt(0);
+    }
+
+    async function loadTeacher() {
+        if (!teacherId) {
+            throw new Error("شناسه معلم معتبر نیست.");
+        }
+
+        const response = await fetchAPI(TEACHER_API_URL);
+        const teacher = await response.json();
+
+        document.getElementById("teacherTitle").textContent =
+            teacher.full_name ||
+            `${teacher.first_name || ""} ${teacher.last_name || ""}`.trim() ||
+            "معلم";
+
+        document.getElementById("teacherAvatar").textContent = getInitials(teacher);
+
+        const fields = {
+            "first-name": teacher.first_name,
+            "last-name": teacher.last_name,
+            "phone-number": teacher.phone_number,
+            "national-id": teacher.national_id,
+            "gender": teacher.gender,
+            "position": teacher.position,
+            "province": teacher.province,
+            "city": teacher.city,
+            "village": teacher.village,
+            "school": teacher.school
+        };
+
+        Object.entries(fields).forEach(([id, value]) => {
+            document.getElementById(id).textContent = showValue(value);
+        });
+
+        const gradeContainer = document.getElementById("grade");
+        const grades = Array.isArray(teacher.grade)
+            ? teacher.grade
+            : Array.isArray(teacher.grades)
+                ? teacher.grades
+                : [];
+
+        if (grades.length) {
+            gradeContainer.innerHTML = `
+                <div class="grade-list">
+                    ${grades.map(grade => `
+                        <span class="grade-item">${escapeHtml(
+                            typeof grade === "object"
+                                ? (grade.name ?? grade.title ?? grade.id ?? "")
+                                : grade
+                        )}</span>
+                    `).join("")}
+                </div>
+            `;
+        } else {
+            gradeContainer.textContent = "ثبت نشده";
+        }
+
+        document.getElementById("report-count").textContent =
+            Number(teacher.report_count || 0).toLocaleString("fa-IR");
+
+        document.getElementById("point-total").textContent =
+            Number(teacher.point_total || 0).toLocaleString("fa-IR");
+
+        document.getElementById("teacher-status").textContent =
+            teacher.is_active === false ? "غیرفعال" : "فعال";
+    }
+
+    function getMediaUrl(item) {
+        return item.media_type === "video" ? item.video : item.image;
+    }
+
+    async function loadMedia() {
+        const response = await fetchAPI(MEDIA_API_URL);
+        return getResults(await response.json());
+    }
+
+    function getSlider(sliderId) {
+        return document.getElementById(sliderId);
+    }
+
+    function goToSlide(sliderId, index) {
+        const slider = getSlider(sliderId);
+        if (!slider) return;
+
+        const track = slider.querySelector(".report-media-track");
+        const total = Number(slider.dataset.total);
+
+        if (!total || !track) return;
+
+        if (index < 0) index = total - 1;
+        if (index >= total) index = 0;
+
+        slider.dataset.current = index;
+        track.style.transform = `translateX(-${index * 100}%)`;
+
+        slider.querySelectorAll(".slider-dot").forEach((dot, dotIndex) => {
+            dot.classList.toggle("active", dotIndex === index);
+        });
+    }
+
+    function changeSlide(sliderId, direction) {
+        const slider = getSlider(sliderId);
+        if (!slider) return;
+
+        goToSlide(
+            sliderId,
+            Number(slider.dataset.current) + direction
+        );
+    }
+
+    window.goToSlide = goToSlide;
+    window.changeSlide = changeSlide;
+
+    async function renderReportMedia(media) {
+        if (!media.length) {
+            return `
+                <div class="report-media-slider">
+                    <div class="d-flex align-items-center justify-content-center h-100"
+                         style="color:#9ca3af;background:#111827;">
+                        <div class="text-center">
+                            <i class="bi bi-images" style="font-size:28px;"></i>
+                            <div class="mt-2" style="font-size:10px;">بدون رسانه</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        const sliderId =
+            `teacher-report-slider-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
+        const slides = await Promise.all(
+            media.map(async item => {
+                const isVideo = item.media_type === "video";
+                const mediaUrl = getMediaUrl(item);
+
+                let preparedUrl = "";
+
+                try {
+                    preparedUrl = await prepareMediaUrl(mediaUrl);
+                } catch (error) {
+                    console.error("Media load error:", error);
+                }
+
+                if (!preparedUrl) {
+                    return `
+                        <div class="report-media-slide">
+                            <div class="d-flex align-items-center justify-content-center h-100"
+                                 style="color:#9ca3af;background:#111827;">
+                                <div class="text-center">
+                                    <i class="bi bi-exclamation-triangle" style="font-size:28px;"></i>
+                                    <div class="mt-2" style="font-size:10px;">خطا در دریافت رسانه</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div class="report-media-slide">
+                        ${
+                            isVideo
+                                ? `
+                                    <video
+                                        src="${escapeHtml(preparedUrl)}"
+                                        preload="metadata"
+                                        muted
+                                        playsinline
+                                    ></video>
+                                    <div class="video-overlay">
+                                        <span class="video-icon">
+                                            <i class="bi bi-play-fill"></i>
+                                        </span>
+                                    </div>
+                                `
+                                : `
+                                    <img
+                                        src="${escapeHtml(preparedUrl)}"
+                                        alt="رسانه گزارش"
+                                        loading="lazy"
+                                    >
+                                `
+                        }
+                    </div>
+                `;
+            })
+        );
+
+        const dots = media.length > 1
+            ? media.map((_, index) => `
+                <button
+                    type="button"
+                    class="slider-dot ${index === 0 ? "active" : ""}"
+                    onclick="event.stopPropagation(); goToSlide('${sliderId}', ${index});"
+                ></button>
+            `).join("")
+            : "";
+
+        const buttons = media.length > 1
+            ? `
+                <button type="button" class="slider-btn slider-prev"
+                        onclick="event.stopPropagation(); changeSlide('${sliderId}', -1);">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+                <button type="button" class="slider-btn slider-next"
+                        onclick="event.stopPropagation(); changeSlide('${sliderId}', 1);">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+            `
+            : "";
+
+        return `
+            <div
+                id="${sliderId}"
+                class="report-media-slider"
+                data-current="0"
+                data-total="${media.length}"
+                onclick="event.stopPropagation();"
+            >
+                <div class="report-media-track">${slides.join("")}</div>
+                ${buttons}
+                ${media.length > 1 ? `<div class="slider-dots">${dots}</div>` : ""}
+                <div class="media-count">
+                    <i class="bi bi-images"></i>
+                    ${media.length.toLocaleString("fa-IR")}
+                    رسانه
+                </div>
+            </div>
+        `;
+    }
+
+    function getReportMedia(media, reportId) {
+        return media.filter(item => {
+            const itemReport =
+                item.report_id ??
+                (typeof item.report === "object"
+                    ? item.report?.id
+                    : item.report);
+
+            return Number(itemReport) === Number(reportId);
+        });
+    }
+
+    async function loadReports() {
+        const loading = document.getElementById("reports-loading");
+        const container = document.getElementById("reports-list");
+        const errorBox = document.getElementById("reports-error");
+
+        try {
+            errorBox.classList.add("d-none");
+
+            const [reportsResponse, media] = await Promise.all([
+                fetchAPI(REPORTS_API_URL),
+                loadMedia()
+            ]);
+
+            const reports = getResults(await reportsResponse.json());
+
+            const reportsWithMedia = reports.map(report => ({
+                ...report,
+                media: getReportMedia(media, report.id)
+            }));
+
+            loading.classList.add("d-none");
+
+            document.getElementById("reports-count").textContent =
+                reports.length.toLocaleString("fa-IR");
+
+            if (!reports.length) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="state-icon">
+                            <i class="bi bi-file-earmark-x"></i>
+                        </div>
+                        هیچ گزارشی برای این معلم ثبت نشده است.
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = "";
+
+            for (const report of reportsWithMedia) {
+                const tags = Array.isArray(report.tags) ? report.tags : [];
+
+                const tagsHtml = tags.length
+                    ? `
+                        <div class="report-tags">
+                            ${tags.map(tag => `
+                                <span class="report-tag">
+                                    #${escapeHtml(
+                                        typeof tag === "object" ? tag.name : tag
+                                    )}
+                                </span>
+                            `).join("")}
+                        </div>
+                    `
+                    : "";
+
+                const mediaHtml =
+                    await renderReportMedia(report.media || []);
+
+                const reportElement =
+                    document.createElement("div");
+
+                reportElement.className = "report-item";
+                reportElement.dataset.reportId = report.id;
+
+                reportElement.innerHTML = `
+                    ${mediaHtml}
+
+                    <div class="report-item-body">
+                        <div class="report-item-header">
+                            <div class="report-item-title">
+                                <i class="bi bi-file-text me-1"></i>
+                                گزارش
+                            </div>
+
+                            <div class="report-item-date">
+                                ${formatDate(report.created_at)}
+                            </div>
+                        </div>
+
+                        <div class="report-item-text">
+                            ${escapeHtml(report.text || "بدون متن گزارش")}
+                        </div>
+
+                        ${tagsHtml}
+
+                        <div class="report-link">
+                            <span>مشاهده جزئیات گزارش</span>
+                            <i class="bi bi-arrow-left"></i>
+                        </div>
+                    </div>
+                `;
+
+                reportElement.addEventListener(
+                    "click",
+                    () => openReport(report.id)
+                );
+
+                container.appendChild(reportElement);
+            }
+        } catch (error) {
+            console.error(error);
+
+            loading.classList.add("d-none");
+            errorBox.textContent =
+                error.message || "دریافت گزارش‌ها با خطا مواجه شد.";
+            errorBox.classList.remove("d-none");
+        }
+    }
+
+    function openReport(reportId) {
+        window.location.href =
+            `/admin-panel/reports/${encodeURIComponent(reportId)}/`;
+    }
+
+    async function loadPoints() {
+        const loading = document.getElementById("points-loading");
+        const container = document.getElementById("points-list");
+
+        try {
+            const response = await fetchAPI(
+                `${POINTS_API_URL}?teacher=${encodeURIComponent(teacherId)}`
+            );
+
+            const points = getResults(await response.json());
+
+            const teacherPoints = points.filter(point => {
+                let pointTeacher = point.teacher;
+
+                if (
+                    typeof pointTeacher === "object" &&
+                    pointTeacher !== null
+                ) {
+                    pointTeacher = pointTeacher.id;
+                }
+
+                if (
+                    pointTeacher === undefined ||
+                    pointTeacher === null
+                ) {
+                    pointTeacher = point.teacher_id;
+                }
+
+                return Number(pointTeacher) === teacherId;
+            });
+
+            loading.classList.add("d-none");
+
+            if (!teacherPoints.length) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="state-icon">
+                            <i class="bi bi-star"></i>
+                        </div>
+                        هنوز امتیازی برای این معلم ثبت نشده است.
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = teacherPoints.map(point => `
+                <div class="point-item">
+                    <div class="point-top">
+                        <span class="point-score">
+                            <i class="bi bi-star-fill"></i>
+                            ${escapeHtml(point.score ?? "-")}
+                            از ۱۰
+                        </span>
+
+                        <span class="point-date">
+                            ${formatDate(point.created_at)}
+                        </span>
+                    </div>
+
+                    <div class="point-reason">
+                        ${escapeHtml(point.reason || "بدون دلیل")}
+                    </div>
+                </div>
+            `).join("");
+        } catch (error) {
+            loading.classList.add("d-none");
+
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="state-icon">
+                        <i class="bi bi-exclamation-triangle"></i>
+                    </div>
+                    ${escapeHtml(
+                        error.message || "دریافت امتیازات ناموفق بود."
+                    )}
+                </div>
+            `;
+        }
+    }
+
+    document
+        .getElementById("point-form")
+        .addEventListener("submit", async function (event) {
+            event.preventDefault();
+
+            const score =
+                Number(document.getElementById("score").value);
+
+            const reason =
+                document.getElementById("reason").value.trim();
+
+            const errorBox =
+                document.getElementById("point-error");
+
+            const successBox =
+                document.getElementById("point-success");
+
+            const submitButton =
+                document.getElementById("point-submit");
+
+            errorBox.classList.add("d-none");
+            successBox.classList.add("d-none");
+
+            if (!score || score < 1 || score > 10) {
+                errorBox.textContent =
+                    "لطفاً یک امتیاز بین ۱ تا ۱۰ انتخاب کنید.";
+
+                errorBox.classList.remove("d-none");
+                return;
+            }
+
+            if (!reason) {
+                errorBox.textContent =
+                    "لطفاً دلیل امتیاز را وارد کنید.";
+
+                errorBox.classList.remove("d-none");
+                return;
+            }
+
+            submitButton.disabled = true;
+
+            submitButton.innerHTML = `
+                <span class="spinner-border spinner-border-sm me-1"></span>
+                در حال ثبت...
+            `;
+
+            try {
+                const response = await fetchAPI(
+                    POINTS_API_URL,
+                    {
+                        method: "POST",
+                        body: JSON.stringify({
+                            teacher: teacherId,
+                            score: score,
+                            reason: reason
+                        })
+                    }
+                );
+
+                await response.json();
+
+                document.getElementById("point-form").reset();
+
+                successBox.textContent =
+                    "امتیاز با موفقیت ثبت شد.";
+
+                successBox.classList.remove("d-none");
+
+                await Promise.all([
+                    loadTeacher(),
+                    loadPoints()
+                ]);
+
+                setTimeout(() => {
+                    successBox.classList.add("d-none");
+                }, 3500);
+            } catch (error) {
+                errorBox.textContent =
+                    error.message ||
+                    "ثبت امتیاز با خطا مواجه شد.";
+
+                errorBox.classList.remove("d-none");
+            } finally {
+                submitButton.disabled = false;
+
+                submitButton.innerHTML = `
+                    <i class="bi bi-check2 me-1"></i>
+                    ثبت امتیاز
+                `;
+            }
+        });
+
+    async function init() {
+        if (!teacherId) {
+            pageLoading.classList.add("d-none");
+            pageError.textContent =
+                "شناسه معلم معتبر نیست.";
+
+            pageError.classList.remove("d-none");
+            return;
+        }
+
+        try {
+            await loadTeacher();
+
+            pageLoading.classList.add("d-none");
+            pageContent.classList.remove("d-none");
+
+            await Promise.all([
+                loadReports(),
+                loadPoints()
+            ]);
+        } catch (error) {
+            console.error(error);
+
+            pageLoading.classList.add("d-none");
+
+            pageError.textContent =
+                error.message ||
+                "دریافت اطلاعات معلم با خطا مواجه شد.";
+
+            pageError.classList.remove("d-none");
+        }
+    }
+
+    window.addEventListener(
+        "beforeunload",
+        revokeObjectUrls
+    );
+
+    init();
+})();
+</script>
+{% endblock %}

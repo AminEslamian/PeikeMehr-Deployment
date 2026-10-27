@@ -1,0 +1,2395 @@
+{% extends "admin_panel/base.html" %}
+
+{% block title %}
+تیکت‌ها
+{% endblock %}
+
+{% block tickets_active %}
+active
+{% endblock %}
+
+{% block page_title %}
+تیکت‌ها
+{% endblock %}
+
+{% block page_description %}
+مدیریت درخواست‌ها و پاسخ به تیکت‌های کاربران
+{% endblock %}
+
+{% block extra_css %}
+
+<style>
+
+    /* =========================================================
+       Main
+    ========================================================= */
+
+    .tickets-wrapper {
+        width: 100%;
+    }
+
+
+    /* =========================================================
+       Main Card
+    ========================================================= */
+
+    .tickets-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+    }
+
+
+    .tickets-header {
+        padding: 22px 26px;
+        border-bottom: 1px solid var(--border);
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 20px;
+    }
+
+
+    .tickets-header-content {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+    }
+
+
+    .tickets-header-icon {
+        width: 44px;
+        height: 44px;
+
+        border-radius: 13px;
+
+        background: rgba(79, 70, 229, 0.10);
+        color: var(--primary);
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        font-size: 19px;
+
+        flex-shrink: 0;
+    }
+
+
+    .tickets-header h2 {
+        font-size: 16px;
+        font-weight: 800;
+
+        color: var(--text);
+
+        margin: 0;
+    }
+
+
+    .tickets-header-description {
+        margin: 4px 0 0;
+
+        color: var(--muted);
+
+        font-size: 11px;
+    }
+
+
+    .tickets-count {
+        background: rgba(79, 70, 229, 0.10);
+        color: var(--primary);
+
+        padding: 6px 11px;
+
+        border-radius: 10px;
+
+        font-size: 10px;
+        font-weight: 800;
+
+        white-space: nowrap;
+    }
+
+
+    /* =========================================================
+       Ticket
+    ========================================================= */
+
+    .ticket-item {
+        padding: 25px 26px;
+
+        border-bottom: 1px solid var(--border);
+
+        transition: var(--transition);
+    }
+
+
+    .ticket-item:last-child {
+        border-bottom: none;
+    }
+
+
+    .ticket-item:hover {
+        background: rgba(79, 70, 229, 0.012);
+    }
+
+
+    /* =========================================================
+       Ticket Top
+    ========================================================= */
+
+    .ticket-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+
+        gap: 25px;
+
+        margin-bottom: 18px;
+    }
+
+
+    .ticket-main-info {
+        min-width: 0;
+        flex: 1;
+    }
+
+
+    .ticket-title {
+        font-size: 15px;
+        font-weight: 800;
+
+        color: var(--text);
+
+        margin: 0 0 8px;
+
+        line-height: 1.7;
+
+        word-break: break-word;
+    }
+
+
+    .ticket-user {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+
+        gap: 7px;
+
+        color: var(--muted);
+
+        font-size: 11px;
+    }
+
+
+    .ticket-user i {
+        font-size: 12px;
+    }
+
+
+    .ticket-user-separator {
+        color: var(--border);
+    }
+
+
+    .ticket-meta {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+
+        gap: 8px;
+
+        flex-shrink: 0;
+    }
+
+
+    .ticket-date {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+
+        color: var(--muted);
+
+        font-size: 10px;
+
+        white-space: nowrap;
+    }
+
+
+    .ticket-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+
+        font-size: 10px;
+        font-weight: 800;
+
+        padding: 6px 10px;
+
+        border-radius: 999px;
+
+        white-space: nowrap;
+    }
+
+
+    .status-answered {
+        background: #dcfce7;
+        color: #15803d;
+    }
+
+
+    .status-pending {
+        background: #fef3c7;
+        color: #b45309;
+    }
+
+
+    /* =========================================================
+       Ticket Content
+    ========================================================= */
+
+    .ticket-content-wrapper {
+        margin-bottom: 18px;
+    }
+
+
+    .content-label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+
+        color: var(--muted);
+
+        font-size: 11px;
+        font-weight: 800;
+
+        margin-bottom: 8px;
+    }
+
+
+    .ticket-content {
+        background: var(--background-secondary);
+
+        border: 1px solid var(--border);
+
+        border-radius: 13px;
+
+        padding: 16px;
+
+        color: var(--text);
+
+        font-size: 12px;
+
+        line-height: 2;
+
+        white-space: pre-wrap;
+
+        word-break: break-word;
+    }
+
+
+    /* =========================================================
+       Answer
+    ========================================================= */
+
+    .ticket-answer-box {
+        background: rgba(79, 70, 229, 0.035);
+
+        border: 1px solid rgba(79, 70, 229, 0.13);
+
+        border-radius: 15px;
+
+        padding: 18px;
+    }
+
+
+    .ticket-answer-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 10px;
+
+        margin-bottom: 10px;
+    }
+
+
+    .ticket-answer-title {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+
+        font-size: 12px;
+        font-weight: 800;
+
+        color: var(--primary);
+    }
+
+
+    .ticket-answer-title i {
+        font-size: 15px;
+    }
+
+
+    .ticket-answer-hint {
+        color: var(--muted);
+        font-size: 10px;
+    }
+
+
+    .ticket-answer-input {
+        min-height: 120px;
+
+        resize: vertical;
+
+        border-radius: 11px;
+
+        font-family: "Vazirmatn", sans-serif;
+
+        font-size: 12px;
+
+        line-height: 1.9;
+
+        background: var(--card);
+        color: var(--text);
+
+        border-color: var(--border);
+    }
+
+
+    .ticket-answer-input:focus {
+        border-color: var(--primary);
+
+        box-shadow:
+            0 0 0 3px
+            rgba(79, 70, 229, 0.08);
+    }
+
+
+    /* =========================================================
+       Actions
+    ========================================================= */
+
+    .ticket-actions {
+        display: flex;
+
+        align-items: center;
+
+        justify-content: space-between;
+
+        gap: 12px;
+
+        margin-top: 12px;
+    }
+
+
+    .ticket-actions-right {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+
+    .answer-button {
+        min-height: 40px;
+
+        border-radius: 10px;
+
+        font-family: "Vazirmatn", sans-serif;
+
+        font-size: 11px;
+        font-weight: 700;
+
+        padding: 8px 15px;
+
+        transition: var(--transition);
+    }
+
+
+    .answer-button:hover:not(:disabled) {
+        transform: translateY(-1px);
+    }
+
+
+    .delete-button {
+        width: 40px;
+        height: 40px;
+
+        border: 1px solid #fecaca;
+
+        background: #fef2f2;
+
+        color: #dc2626;
+
+        border-radius: 10px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        cursor: pointer;
+
+        transition: var(--transition);
+    }
+
+
+    .delete-button:hover:not(:disabled) {
+        background: #dc2626;
+        border-color: #dc2626;
+
+        color: #ffffff;
+
+        transform: translateY(-1px);
+    }
+
+
+    .delete-button:disabled,
+    .answer-button:disabled {
+        opacity: 0.65;
+        cursor: not-allowed;
+    }
+
+
+    /* =========================================================
+       Empty
+    ========================================================= */
+
+    .empty-state {
+        padding: 65px 20px;
+
+        text-align: center;
+
+        color: var(--muted);
+    }
+
+
+    .empty-state-icon {
+        width: 60px;
+        height: 60px;
+
+        margin: 0 auto 15px;
+
+        border-radius: 18px;
+
+        background: rgba(79, 70, 229, 0.08);
+
+        color: var(--primary);
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        font-size: 25px;
+    }
+
+
+    .empty-state p {
+        margin: 0;
+
+        font-size: 12px;
+    }
+
+
+    /* =========================================================
+       Loading
+    ========================================================= */
+
+    .loading-state {
+        padding: 65px 20px;
+
+        text-align: center;
+
+        color: var(--muted);
+
+        font-size: 12px;
+    }
+
+
+    /* =========================================================
+       Error
+    ========================================================= */
+
+    .error-state {
+        padding: 60px 20px;
+
+        text-align: center;
+
+        color: #dc2626;
+    }
+
+
+    .error-state-icon {
+        width: 58px;
+        height: 58px;
+
+        margin: 0 auto;
+
+        border-radius: 17px;
+
+        background: #fef2f2;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        font-size: 24px;
+    }
+
+
+    .error-message {
+        margin-top: 13px;
+
+        font-size: 12px;
+    }
+
+
+    /* =========================================================
+       Toast
+    ========================================================= */
+
+    .ticket-toast {
+        position: fixed;
+
+        left: 24px;
+        bottom: 24px;
+
+        min-width: 280px;
+        max-width: 420px;
+
+        padding: 13px 16px;
+
+        border-radius: 12px;
+
+        background: var(--card);
+
+        border: 1px solid var(--border);
+
+        box-shadow: var(--shadow);
+
+        display: flex;
+        align-items: center;
+
+        gap: 10px;
+
+        opacity: 0;
+        visibility: hidden;
+
+        transform: translateY(15px);
+
+        transition: 0.25s ease;
+
+        z-index: 9999;
+
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+
+    .ticket-toast.show {
+        opacity: 1;
+        visibility: visible;
+
+        transform: translateY(0);
+    }
+
+
+    .ticket-toast.success {
+        color: #15803d;
+    }
+
+
+    .ticket-toast.error {
+        color: #dc2626;
+    }
+
+
+    .ticket-toast i {
+        font-size: 17px;
+    }
+
+
+    /* =========================================================
+       Delete Modal
+    ========================================================= */
+
+    .delete-modal-overlay {
+        position: fixed;
+
+        inset: 0;
+
+        background: rgba(15, 23, 42, 0.45);
+
+        backdrop-filter: blur(4px);
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        padding: 20px;
+
+        opacity: 0;
+        visibility: hidden;
+
+        transition: 0.2s ease;
+
+        z-index: 10000;
+    }
+
+
+    .delete-modal-overlay.show {
+        opacity: 1;
+        visibility: visible;
+    }
+
+
+    .delete-modal {
+        width: 100%;
+        max-width: 420px;
+
+        background: var(--card);
+
+        border: 1px solid var(--border);
+
+        border-radius: 18px;
+
+        box-shadow: var(--shadow);
+
+        padding: 24px;
+
+        transform: translateY(10px) scale(0.98);
+
+        transition: 0.2s ease;
+    }
+
+
+    .delete-modal-overlay.show .delete-modal {
+        transform: translateY(0) scale(1);
+    }
+
+
+    .delete-modal-icon {
+        width: 52px;
+        height: 52px;
+
+        border-radius: 15px;
+
+        background: #fef2f2;
+
+        color: #dc2626;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        font-size: 23px;
+
+        margin-bottom: 15px;
+    }
+
+
+    .delete-modal-title {
+        color: var(--text);
+
+        font-size: 15px;
+        font-weight: 800;
+
+        margin-bottom: 8px;
+    }
+
+
+    .delete-modal-text {
+        color: var(--muted);
+
+        font-size: 11px;
+
+        line-height: 1.9;
+
+        margin-bottom: 20px;
+    }
+
+
+    .delete-modal-ticket {
+        color: var(--text);
+        font-weight: 800;
+    }
+
+
+    .delete-modal-actions {
+        display: flex;
+
+        gap: 9px;
+    }
+
+
+    .delete-modal-actions button {
+        flex: 1;
+
+        min-height: 42px;
+
+        border-radius: 10px;
+
+        font-family: "Vazirmatn", sans-serif;
+
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+
+    /* =========================================================
+       Responsive
+    ========================================================= */
+
+    @media (max-width: 767.98px) {
+
+        .tickets-header {
+            padding: 19px;
+        }
+
+
+        .ticket-item {
+            padding: 20px 19px;
+        }
+
+
+        .ticket-top {
+            gap: 15px;
+        }
+
+    }
+
+
+    @media (max-width: 575px) {
+
+        .tickets-header {
+            align-items: flex-start;
+        }
+
+
+        .tickets-header-icon {
+            width: 39px;
+            height: 39px;
+        }
+
+
+        .tickets-header h2 {
+            font-size: 14px;
+        }
+
+
+        .tickets-header-description {
+            display: none;
+        }
+
+
+        .ticket-top {
+            flex-direction: column;
+        }
+
+
+        .ticket-meta {
+            width: 100%;
+
+            align-items: flex-start;
+        }
+
+
+        .ticket-date {
+            white-space: normal;
+        }
+
+
+        .ticket-answer-box {
+            padding: 14px;
+        }
+
+
+        .ticket-answer-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+
+        .ticket-actions {
+            flex-direction: column-reverse;
+
+            align-items: stretch;
+        }
+
+
+        .ticket-actions-right {
+            width: 100%;
+        }
+
+
+        .answer-button {
+            flex: 1;
+        }
+
+
+        .delete-button {
+            flex-shrink: 0;
+        }
+
+
+        .ticket-toast {
+            left: 15px;
+            right: 15px;
+
+            bottom: 15px;
+
+            min-width: auto;
+        }
+
+    }
+
+</style>
+
+{% endblock %}
+
+{% block content %}
+
+<div class="tickets-wrapper">
+
+
+<div class="tickets-card">
+
+
+    <!-- =====================================================
+         Header
+    ====================================================== -->
+
+    <div class="tickets-header">
+
+        <div class="tickets-header-content">
+
+            <div class="tickets-header-icon">
+
+                <i class="bi bi-headset"></i>
+
+            </div>
+
+
+            <div>
+
+                <h2>
+                    تیکت‌های کاربران
+                </h2>
+
+                <p class="tickets-header-description">
+                    مشاهده، پاسخ و مدیریت درخواست‌های کاربران
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <span
+            class="tickets-count"
+            id="ticketsCount"
+        >
+            در حال دریافت...
+        </span>
+
+    </div>
+
+
+    <!-- =====================================================
+         Tickets
+    ====================================================== -->
+
+    <div id="ticketsContainer">
+
+        <div class="loading-state">
+
+            <div
+                class="spinner-border text-primary"
+                role="status"
+            ></div>
+
+            <div class="mt-3">
+                در حال دریافت تیکت‌ها...
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+</div>
+
+<!-- =========================================================
+     Toast
+========================================================= -->
+
+<div
+    class="ticket-toast"
+    id="ticketToast"
+>
+
+
+<i id="toastIcon"></i>
+
+<span id="toastMessage"></span>
+
+
+</div>
+
+<!-- =========================================================
+     Delete Modal
+========================================================= -->
+
+<div
+    class="delete-modal-overlay"
+    id="deleteModal"
+>
+
+
+<div
+    class="delete-modal"
+    role="dialog"
+    aria-modal="true"
+>
+
+    <div class="delete-modal-icon">
+
+        <i class="bi bi-trash3"></i>
+
+    </div>
+
+
+    <div class="delete-modal-title">
+        حذف تیکت
+    </div>
+
+
+    <div class="delete-modal-text">
+
+        آیا از حذف این تیکت مطمئن هستید؟
+
+        <br>
+
+        این عملیات قابل بازگشت نیست.
+
+        <div
+            class="delete-modal-ticket mt-2"
+            id="deleteTicketTitle"
+        ></div>
+
+    </div>
+
+
+    <div class="delete-modal-actions">
+
+        <button
+            type="button"
+            class="btn btn-light"
+            id="cancelDeleteBtn"
+        >
+            انصراف
+        </button>
+
+
+        <button
+            type="button"
+            class="btn btn-danger"
+            id="confirmDeleteBtn"
+        >
+            <i class="bi bi-trash3 ms-1"></i>
+            حذف تیکت
+        </button>
+
+    </div>
+
+</div>
+
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+
+<script>
+
+
+/* =========================================================
+   API
+========================================================= */
+
+const TICKETS_API =
+    "/admin-panel/api/tickets";
+
+
+/* =========================================================
+   State
+========================================================= */
+
+let ticketToDelete = null;
+
+
+/* =========================================================
+   DOM
+========================================================= */
+
+const ticketsContainer =
+    document.getElementById(
+        "ticketsContainer"
+    );
+
+
+const ticketsCount =
+    document.getElementById(
+        "ticketsCount"
+    );
+
+
+const deleteModal =
+    document.getElementById(
+        "deleteModal"
+    );
+
+
+const deleteTicketTitle =
+    document.getElementById(
+        "deleteTicketTitle"
+    );
+
+
+const cancelDeleteBtn =
+    document.getElementById(
+        "cancelDeleteBtn"
+    );
+
+
+const confirmDeleteBtn =
+    document.getElementById(
+        "confirmDeleteBtn"
+    );
+
+
+const ticketToast =
+    document.getElementById(
+        "ticketToast"
+    );
+
+
+const toastIcon =
+    document.getElementById(
+        "toastIcon"
+    );
+
+
+const toastMessage =
+    document.getElementById(
+        "toastMessage"
+    );
+
+
+/* =========================================================
+   GET TOKEN
+========================================================= */
+
+function getAccessToken() {
+
+    return localStorage.getItem(
+        "access_token"
+    );
+
+}
+
+
+/* =========================================================
+   SHOW TOAST
+========================================================= */
+
+let toastTimeout = null;
+
+
+function showToast(
+    message,
+    type = "success"
+) {
+
+    clearTimeout(
+        toastTimeout
+    );
+
+
+    toastMessage.textContent =
+        message;
+
+
+    ticketToast.className =
+        `ticket-toast ${type} show`;
+
+
+    toastIcon.className =
+        type === "success"
+            ? "bi bi-check-circle-fill"
+            : "bi bi-exclamation-circle-fill";
+
+
+    toastTimeout =
+        setTimeout(
+            function() {
+
+                ticketToast.classList.remove(
+                    "show"
+                );
+
+            },
+            3500
+        );
+
+}
+
+
+/* =========================================================
+   LOAD TICKETS
+========================================================= */
+
+async function loadTickets() {
+
+    ticketsContainer.innerHTML = `
+
+        <div class="loading-state">
+
+            <div
+                class="spinner-border text-primary"
+                role="status"
+            ></div>
+
+            <div class="mt-3">
+                در حال دریافت تیکت‌ها...
+            </div>
+
+        </div>
+
+    `;
+
+
+    ticketsCount.textContent =
+        "در حال دریافت...";
+
+
+    const token =
+        getAccessToken();
+
+
+    if (!token) {
+
+        ticketsContainer.innerHTML = `
+
+            <div class="error-state">
+
+                <div class="error-state-icon">
+
+                    <i class="bi bi-shield-lock"></i>
+
+                </div>
+
+                <div class="error-message">
+
+                    توکن احراز هویت پیدا نشد.
+
+                </div>
+
+            </div>
+
+        `;
+
+        ticketsCount.textContent = "";
+
+        return;
+
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                TICKETS_API,
+                {
+                    method: "GET",
+
+                    headers: {
+
+                        "Authorization":
+                            `Bearer ${token}`,
+
+                        "Content-Type":
+                            "application/json"
+
+                    }
+                }
+            );
+
+
+        /* -------------------------------------------------
+           Unauthorized
+        ------------------------------------------------- */
+
+        if (
+            response.status === 401
+        ) {
+
+            localStorage.removeItem(
+                "access_token"
+            );
+
+            localStorage.removeItem(
+                "refresh_token"
+            );
+
+
+            window.location.href =
+                "/login/";
+
+            return;
+
+        }
+
+
+        /* -------------------------------------------------
+           Forbidden
+        ------------------------------------------------- */
+
+        if (
+            response.status === 403
+        ) {
+
+            throw new Error(
+                "شما دسترسی لازم برای مشاهده تیکت‌ها را ندارید."
+            );
+
+        }
+
+
+        /* -------------------------------------------------
+           Other errors
+        ------------------------------------------------- */
+
+        if (!response.ok) {
+
+            let errorMessage =
+                "دریافت تیکت‌ها با خطا مواجه شد.";
+
+
+            try {
+
+                const errorData =
+                    await response.json();
+
+
+                if (
+                    errorData.detail
+                ) {
+
+                    errorMessage =
+                        errorData.detail;
+
+                }
+
+            }
+            catch (error) {
+
+                // Ignore JSON parsing error
+
+            }
+
+
+            throw new Error(
+                errorMessage
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        /* -------------------------------------------------
+           Pagination
+        ------------------------------------------------- */
+
+        const tickets =
+            Array.isArray(data)
+                ? data
+                : (
+                    data.results || []
+                );
+
+
+        ticketsCount.textContent =
+            `${toPersianNumber(tickets.length)} تیکت`;
+
+
+        /* -------------------------------------------------
+           Empty
+        ------------------------------------------------- */
+
+        if (
+            tickets.length === 0
+        ) {
+
+            ticketsContainer.innerHTML = `
+
+                <div class="empty-state">
+
+                    <div class="empty-state-icon">
+
+                        <i class="bi bi-inbox"></i>
+
+                    </div>
+
+                    <p>
+                        هنوز هیچ تیکتی ثبت نشده است.
+                    </p>
+
+                </div>
+
+            `;
+
+            return;
+
+        }
+
+
+        /* -------------------------------------------------
+           Render
+        ------------------------------------------------- */
+
+        ticketsContainer.innerHTML = "";
+
+
+        tickets.forEach(
+            function(ticket) {
+
+                renderTicket(
+                    ticket
+                );
+
+            }
+        );
+
+    }
+
+
+    catch (error) {
+
+        console.error(
+            "Tickets error:",
+            error
+        );
+
+
+        ticketsCount.textContent =
+            "";
+
+
+        ticketsContainer.innerHTML = `
+
+            <div class="error-state">
+
+                <div class="error-state-icon">
+
+                    <i class="bi bi-exclamation-circle"></i>
+
+                </div>
+
+
+                <div class="error-message">
+
+                    ${escapeHtml(
+                        error.message ||
+                        "دریافت تیکت‌ها با خطا مواجه شد."
+                    )}
+
+                </div>
+
+
+                <button
+                    type="button"
+                    class="btn btn-outline-danger mt-3"
+                    onclick="loadTickets()"
+                >
+
+                    <i class="bi bi-arrow-clockwise ms-1"></i>
+
+                    تلاش مجدد
+
+                </button>
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+/* =========================================================
+   RENDER TICKET
+========================================================= */
+
+function renderTicket(
+    ticket
+) {
+
+    const item =
+        document.createElement(
+            "div"
+        );
+
+
+    item.className =
+        "ticket-item";
+
+
+    /* -----------------------------------------------------
+       Status
+    ----------------------------------------------------- */
+
+    let statusHtml;
+
+
+    if (
+        ticket.is_answered
+    ) {
+
+        statusHtml = `
+
+            <span
+                class="ticket-status status-answered"
+            >
+
+                <i class="bi bi-check-circle-fill"></i>
+
+                پاسخ داده شده
+
+            </span>
+
+        `;
+
+    }
+
+    else {
+
+        statusHtml = `
+
+            <span
+                class="ticket-status status-pending"
+            >
+
+                <i class="bi bi-clock-fill"></i>
+
+                در انتظار پاسخ
+
+            </span>
+
+        `;
+
+    }
+
+
+    /* -----------------------------------------------------
+       HTML
+    ----------------------------------------------------- */
+
+    item.innerHTML = `
+
+        <div class="ticket-top">
+
+
+            <div class="ticket-main-info">
+
+                <h3 class="ticket-title">
+
+                    ${escapeHtml(
+                        ticket.title
+                    )}
+
+                </h3>
+
+
+                <div class="ticket-user">
+
+                    <i class="bi bi-person"></i>
+
+                    <span>
+                        ${escapeHtml(
+                            ticket.first_name
+                        )}
+
+                        ${escapeHtml(
+                            ticket.last_name
+                        )}
+                    </span>
+
+
+                    <span class="ticket-user-separator">
+                        |
+                    </span>
+
+
+                    <i class="bi bi-telephone"></i>
+
+                    <span>
+                        ${escapeHtml(
+                            ticket.phone_number
+                        )}
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="ticket-meta">
+
+                ${statusHtml}
+
+
+                <div class="ticket-date">
+
+                    <i class="bi bi-calendar3"></i>
+
+                    ${formatDate(
+                        ticket.created_at
+                    )}
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Ticket content -->
+
+        <div class="ticket-content-wrapper">
+
+            <div class="content-label">
+
+                <i class="bi bi-chat-left-text"></i>
+
+                متن درخواست
+
+            </div>
+
+
+            <div class="ticket-content">
+
+                ${escapeHtml(
+                    ticket.content
+                )}
+
+            </div>
+
+        </div>
+
+
+        <!-- Answer -->
+
+        <div class="ticket-answer-box">
+
+            <div class="ticket-answer-header">
+
+                <div class="ticket-answer-title">
+
+                    <i class="bi bi-reply-fill"></i>
+
+                    پاسخ به تیکت
+
+                </div>
+
+
+                <span class="ticket-answer-hint">
+
+                    پاسخ برای کاربر ارسال خواهد شد
+
+                </span>
+
+            </div>
+
+
+            <textarea
+                class="form-control ticket-answer-input"
+                id="answer-${ticket.id}"
+                placeholder="پاسخ خود را بنویسید..."
+            >${escapeHtml(
+                ticket.answer || ""
+            )}</textarea>
+
+
+        <div class="ticket-actions">
+
+
+            <div></div>
+
+
+            <div class="ticket-actions-right">
+
+
+                <button
+                    type="button"
+                    class="delete-button"
+                    title="حذف تیکت"
+                    onclick="openDeleteModal(
+                        ${ticket.id},
+                        '${escapeJs(
+                            ticket.title
+                        )}'
+                    )"
+                >
+
+                    <i class="bi bi-trash3"></i>
+
+                </button>
+
+
+                <button
+                    type="button"
+                    class="btn btn-primary answer-button"
+                    onclick="answerTicket(
+                        ${ticket.id}
+                    )"
+                >
+
+                    <i class="bi bi-send ms-1"></i>
+
+                    ${
+                        ticket.is_answered
+                            ? "ویرایش پاسخ"
+                            : "ثبت پاسخ"
+                    }
+
+                </button>
+
+
+            </div>
+
+        </div>
+
+    </div>
+
+`;
+
+
+ticketsContainer.appendChild(
+    item
+);
+
+
+}
+
+/* =========================================================
+ANSWER TICKET
+========================================================= */
+
+async function answerTicket(
+ticketId
+) {
+
+
+const textarea =
+    document.getElementById(
+        `answer-${ticketId}`
+    );
+
+
+if (!textarea) {
+    return;
+}
+
+
+const answer =
+    textarea.value.trim();
+
+
+if (!answer) {
+
+    showToast(
+        "لطفاً پاسخ تیکت را وارد کنید.",
+        "error"
+    );
+
+    textarea.focus();
+
+    return;
+
+}
+
+
+const token =
+    getAccessToken();
+
+
+if (!token) {
+
+    window.location.href =
+        "/login/";
+
+    return;
+
+}
+
+
+const button =
+    textarea
+        .closest(
+            ".ticket-answer-box"
+        )
+        .querySelector(
+            ".answer-button"
+        );
+
+
+const originalButtonHtml =
+    button.innerHTML;
+
+
+button.disabled = true;
+
+
+button.innerHTML = `
+
+    <span
+        class="spinner-border spinner-border-sm ms-1"
+    ></span>
+
+    در حال ثبت...
+
+`;
+
+
+try {
+
+    const response =
+        await fetch(
+            `${TICKETS_API}${ticketId}/`,
+            {
+                method: "PATCH",
+
+                headers: {
+
+                    "Authorization":
+                        `Bearer ${token}`,
+
+                    "Content-Type":
+                        "application/json"
+
+                },
+
+                body: JSON.stringify({
+
+                    answer: answer
+
+                })
+
+            }
+        );
+
+
+    /* -------------------------------------------------
+       Unauthorized
+    ------------------------------------------------- */
+
+    if (
+        response.status === 401
+    ) {
+
+        localStorage.removeItem(
+            "access_token"
+        );
+
+        localStorage.removeItem(
+            "refresh_token"
+        );
+
+
+        window.location.href =
+            "/login/";
+
+        return;
+
+    }
+
+
+    /* -------------------------------------------------
+       Forbidden
+    ------------------------------------------------- */
+
+    if (
+        response.status === 403
+    ) {
+
+        throw new Error(
+            "شما دسترسی لازم برای پاسخ دادن به تیکت را ندارید."
+        );
+
+    }
+
+
+    /* -------------------------------------------------
+       Other errors
+    ------------------------------------------------- */
+
+    if (!response.ok) {
+
+        let errorMessage =
+            "ثبت پاسخ با خطا مواجه شد.";
+
+
+        try {
+
+            const errorData =
+                await response.json();
+
+
+            if (
+                errorData.detail
+            ) {
+
+                errorMessage =
+                    errorData.detail;
+
+            }
+
+        }
+
+        catch (error) {
+
+            // Ignore JSON parsing error
+
+        }
+
+
+        throw new Error(
+            errorMessage
+        );
+
+    }
+
+
+    showToast(
+        "پاسخ با موفقیت ثبت شد.",
+        "success"
+    );
+
+
+    await loadTickets();
+
+}
+
+
+catch (error) {
+
+    console.error(
+        "Answer ticket error:",
+        error
+    );
+
+
+    showToast(
+        error.message ||
+        "ثبت پاسخ با خطا مواجه شد.",
+        "error"
+    );
+
+
+    button.disabled = false;
+
+    button.innerHTML =
+        originalButtonHtml;
+
+}
+
+
+}
+
+/* =========================================================
+OPEN DELETE MODAL
+========================================================= */
+
+function openDeleteModal(
+ticketId,
+ticketTitle
+) {
+
+
+ticketToDelete =
+    ticketId;
+
+
+deleteTicketTitle.textContent =
+    ticketTitle;
+
+
+deleteModal.classList.add(
+    "show"
+);
+
+
+document.body.style.overflow =
+    "hidden";
+
+
+}
+
+/* =========================================================
+CLOSE DELETE MODAL
+========================================================= */
+
+function closeDeleteModal() {
+
+
+ticketToDelete =
+    null;
+
+
+deleteModal.classList.remove(
+    "show"
+);
+
+
+document.body.style.overflow =
+    "";
+
+
+}
+
+/* =========================================================
+CANCEL DELETE
+========================================================= */
+
+cancelDeleteBtn.addEventListener(
+"click",
+function() {
+
+
+    closeDeleteModal();
+
+}
+
+
+);
+
+/* =========================================================
+Close modal on overlay click
+========================================================= */
+
+deleteModal.addEventListener(
+"click",
+function(event) {
+
+
+    if (
+        event.target ===
+        deleteModal
+    ) {
+
+        closeDeleteModal();
+
+    }
+
+}
+
+
+);
+
+/* =========================================================
+Close modal with ESC
+========================================================= */
+
+document.addEventListener(
+"keydown",
+function(event) {
+
+
+    if (
+        event.key === "Escape" &&
+        deleteModal.classList.contains(
+            "show"
+        )
+    ) {
+
+        closeDeleteModal();
+
+    }
+
+}
+
+
+);
+
+/* =========================================================
+DELETE TICKET
+========================================================= */
+
+confirmDeleteBtn.addEventListener(
+"click",
+async function() {
+
+
+    if (
+        !ticketToDelete
+    ) {
+
+        return;
+
+    }
+
+
+    const token =
+        getAccessToken();
+
+
+    if (!token) {
+
+        window.location.href =
+            "/login/";
+
+        return;
+
+    }
+
+
+    const ticketId =
+        ticketToDelete;
+
+
+    const originalButtonHtml =
+        confirmDeleteBtn.innerHTML;
+
+
+    confirmDeleteBtn.disabled =
+        true;
+
+
+    cancelDeleteBtn.disabled =
+        true;
+
+
+    confirmDeleteBtn.innerHTML = `
+
+        <span
+            class="spinner-border spinner-border-sm ms-1"
+        ></span>
+
+        در حال حذف...
+
+    `;
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${TICKETS_API}/${ticketId}/`,
+                {
+                    method: "DELETE",
+
+                    headers: {
+
+                        "Authorization":
+                            `Bearer ${token}`
+
+                    }
+
+                }
+            );
+
+
+        /* -------------------------------------------------
+           Unauthorized
+        ------------------------------------------------- */
+
+        if (
+            response.status === 401
+        ) {
+
+            localStorage.removeItem(
+                "access_token"
+            );
+
+            localStorage.removeItem(
+                "refresh_token"
+            );
+
+
+            window.location.href =
+                "/login/";
+
+            return;
+
+        }
+
+
+        /* -------------------------------------------------
+           Forbidden
+        ------------------------------------------------- */
+
+        if (
+            response.status === 403
+        ) {
+
+            throw new Error(
+                "شما دسترسی لازم برای حذف این تیکت را ندارید."
+            );
+
+        }
+
+
+        /* -------------------------------------------------
+           Not Found
+        ------------------------------------------------- */
+
+        if (
+            response.status === 404
+        ) {
+
+            throw new Error(
+                "تیکت موردنظر پیدا نشد."
+            );
+
+        }
+
+
+        /* -------------------------------------------------
+           Other errors
+        ------------------------------------------------- */
+
+        if (!response.ok) {
+
+            let errorMessage =
+                "حذف تیکت با خطا مواجه شد.";
+
+
+            try {
+
+                const errorData =
+                    await response.json();
+
+
+                if (
+                    errorData.detail
+                ) {
+
+                    errorMessage =
+                        errorData.detail;
+
+                }
+
+            }
+
+            catch (error) {
+
+                // Ignore JSON parsing error
+
+            }
+
+
+            throw new Error(
+                errorMessage
+            );
+
+        }
+
+
+        closeDeleteModal();
+
+
+        showToast(
+            "تیکت با موفقیت حذف شد.",
+            "success"
+        );
+
+
+        await loadTickets();
+
+    }
+
+
+    catch (error) {
+
+        console.error(
+            "Delete ticket error:",
+            error
+        );
+
+
+        showToast(
+            error.message ||
+            "حذف تیکت با خطا مواجه شد.",
+            "error"
+        );
+
+
+        confirmDeleteBtn.disabled =
+            false;
+
+        cancelDeleteBtn.disabled =
+            false;
+
+        confirmDeleteBtn.innerHTML =
+            originalButtonHtml;
+
+    }
+
+}
+
+
+);
+
+/* =========================================================
+ESCAPE HTML
+========================================================= */
+
+function escapeHtml(
+text
+) {
+
+
+const div =
+    document.createElement(
+        "div"
+    );
+
+
+div.textContent =
+    text ?? "";
+
+
+return div.innerHTML;
+
+
+}
+
+/* =========================================================
+ESCAPE JS STRING
+========================================================= */
+
+function escapeJs(
+text
+) {
+
+
+return String(
+    text ?? ""
+)
+    .replace(
+        /\\/g,
+        "\\\\"
+    )
+    .replace(
+        /'/g,
+        "\\'"
+    )
+    .replace(
+        /\r/g,
+        "\\r"
+    )
+    .replace(
+        /\n/g,
+        "\\n"
+    );
+
+
+}
+
+/* =========================================================
+PERSIAN NUMBERS
+========================================================= */
+
+function toPersianNumber(
+value
+) {
+
+
+return String(value)
+    .replace(
+        /\d/g,
+        function(digit) {
+
+            return "۰۱۲۳۴۵۶۷۸۹"[digit];
+
+        }
+    );
+
+
+}
+
+/* =========================================================
+DATE
+========================================================= */
+
+function formatDate(
+dateString
+) {
+
+
+if (!dateString) {
+
+    return "";
+
+}
+
+
+const date =
+    new Date(
+        dateString
+    );
+
+
+if (
+    Number.isNaN(
+        date.getTime()
+    )
+) {
+
+    return "";
+
+}
+
+
+return date.toLocaleDateString(
+    "fa-IR",
+    {
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+    }
+);
+
+
+}
+
+/* =========================================================
+START
+========================================================= */
+
+document.addEventListener(
+"DOMContentLoaded",
+function() {
+
+
+    loadTickets();
+
+}
+
+
+);
+
+</script>
+
+{% endblock %}

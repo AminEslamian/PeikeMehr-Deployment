@@ -1,0 +1,3556 @@
+{% extends "admin_panel/base.html" %}
+{% load static %}
+
+{% block title %}جزئیات نظرسنجی{% endblock %}
+
+{% block extra_css %}
+
+<style>
+    /* ================================
+       Page
+    ================================= */
+
+    .survey-page {
+        max-width: 1500px;
+        margin: 0 auto;
+    }
+
+    /* ================================
+       Loading / Error
+    ================================= */
+
+    .survey-loading {
+        min-height: 360px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 14px;
+        color: var(--muted);
+    }
+
+    .survey-error {
+        border: 1px solid rgba(220, 53, 69, .18);
+        background: rgba(220, 53, 69, .06);
+        color: var(--text);
+    }
+
+    /* ================================
+       Header
+    ================================= */
+
+    .survey-hero {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-sm);
+        padding: 24px;
+        margin-bottom: 20px;
+    }
+
+    .survey-back-btn {
+        width: 42px;
+        height: 42px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: var(--background-secondary);
+        color: var(--text);
+        text-decoration: none;
+        transition: var(--transition);
+    }
+
+    .survey-back-btn:hover {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: #fff;
+        transform: translateX(2px);
+    }
+
+    .survey-hero-title {
+        font-size: 1.35rem;
+        font-weight: 800;
+        color: var(--text);
+        margin: 0;
+        line-height: 1.7;
+    }
+
+    .survey-hero-description {
+        color: var(--muted);
+        margin: 5px 0 0;
+        line-height: 1.8;
+        max-width: 800px;
+    }
+
+    .survey-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    /* ================================
+       Buttons
+    ================================= */
+
+    .survey-btn {
+        min-height: 42px;
+        border-radius: 11px !important;
+        font-weight: 600;
+        transition: var(--transition);
+    }
+
+    .survey-btn:hover {
+        transform: translateY(-1px);
+    }
+
+    /* ================================
+       Cards
+    ================================= */
+
+    .survey-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-sm);
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
+
+    .survey-card-header {
+        padding: 20px 22px;
+        border-bottom: 1px solid var(--border);
+        background: var(--card);
+    }
+
+    .survey-card-body {
+        padding: 22px;
+    }
+
+    .section-title {
+        color: var(--text);
+        font-size: 1rem;
+        font-weight: 800;
+        margin: 0;
+    }
+
+    .section-description {
+        color: var(--muted);
+        font-size: .82rem;
+        margin-top: 4px;
+    }
+
+    /* ================================
+       Form
+    ================================= */
+
+    .survey-form-label {
+        color: var(--text);
+        font-size: .86rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .survey-input,
+    .survey-select,
+    .survey-textarea {
+        background: var(--background-secondary) !important;
+        color: var(--text) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: 11px !important;
+        min-height: 44px;
+        transition: var(--transition);
+    }
+
+    .survey-textarea {
+        min-height: 110px;
+        resize: vertical;
+    }
+
+    .survey-input::placeholder,
+    .survey-textarea::placeholder {
+        color: var(--muted);
+    }
+
+    .survey-input:focus,
+    .survey-select:focus,
+    .survey-textarea:focus {
+        border-color: var(--primary) !important;
+        box-shadow: 0 0 0 3px rgba(13, 110, 253, .10) !important;
+    }
+
+    .status-box {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        padding: 0 13px;
+        background: var(--background-secondary);
+        border: 1px solid var(--border);
+        border-radius: 11px;
+    }
+
+    /* ================================
+       Statistics
+    ================================= */
+
+    .stat-card {
+        height: 100%;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-sm);
+        padding: 20px;
+        position: relative;
+        overflow: hidden;
+        transition: var(--transition);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow);
+    }
+
+    .stat-icon {
+        width: 46px;
+        height: 46px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(13, 110, 253, .10);
+        color: var(--primary);
+        font-size: 1.25rem;
+    }
+
+    .stat-label {
+        color: var(--muted);
+        font-size: .8rem;
+        font-weight: 600;
+        margin-bottom: 6px;
+    }
+
+    .stat-value {
+        color: var(--text);
+        font-size: 1.45rem;
+        font-weight: 800;
+    }
+
+    .stat-card.last-submission .stat-value {
+        font-size: .95rem;
+        line-height: 1.7;
+    }
+
+    /* ================================
+       Questions
+    ================================= */
+
+    .question-card {
+        background: var(--background-secondary);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 18px;
+        margin-bottom: 12px;
+        transition: var(--transition);
+    }
+
+    .question-card:hover {
+        border-color: rgba(13, 110, 253, .28);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .question-number {
+        width: 42px;
+        height: 42px;
+        min-width: 42px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(13, 110, 253, .10);
+        color: var(--primary);
+        font-weight: 800;
+    }
+
+    .question-title {
+        color: var(--text);
+        font-weight: 750;
+        line-height: 1.8;
+        margin: 0 0 8px;
+    }
+
+    .question-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 7px;
+    }
+
+    .question-type-badge {
+        background: var(--card);
+        color: var(--muted);
+        border: 1px solid var(--border);
+    }
+
+    .question-option {
+        background: var(--card);
+        color: var(--text);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 10px 13px;
+        font-size: .88rem;
+    }
+
+    .question-option-index {
+        width: 24px;
+        height: 24px;
+        border-radius: 7px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(13, 110, 253, .09);
+        color: var(--primary);
+        font-size: .72rem;
+        font-weight: 700;
+        margin-left: 8px;
+    }
+
+    .question-actions {
+        display: flex;
+        gap: 6px;
+    }
+
+    .question-action {
+        width: 36px;
+        height: 36px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px !important;
+    }
+
+    /* ================================
+       Responses
+    ================================= */
+
+    .response-card {
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        background: var(--card);
+        overflow: hidden;
+        margin-bottom: 14px;
+    }
+
+    .response-header {
+        padding: 16px 18px;
+        background: var(--background-secondary);
+        border-bottom: 1px solid var(--border);
+    }
+
+    .response-user {
+        color: var(--text);
+        font-weight: 750;
+    }
+
+    .response-phone,
+    .response-date {
+        color: var(--muted);
+        font-size: .78rem;
+    }
+
+    .response-question {
+        background: var(--background-secondary);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 13px;
+        margin-bottom: 9px;
+    }
+
+    .response-question:last-child {
+        margin-bottom: 0;
+    }
+
+    .response-question-number {
+        color: var(--primary);
+        font-size: .75rem;
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+
+    .response-question-text {
+        color: var(--text);
+        font-size: .88rem;
+        font-weight: 700;
+        line-height: 1.7;
+        margin-bottom: 9px;
+    }
+
+    .response-answer {
+        color: var(--text);
+        font-size: .86rem;
+        line-height: 1.8;
+    }
+
+    .response-empty {
+        padding: 55px 20px;
+        color: var(--muted);
+        text-align: center;
+    }
+
+    .response-empty-icon {
+        width: 58px;
+        height: 58px;
+        border-radius: 18px;
+        margin: 0 auto 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--background-secondary);
+        border: 1px solid var(--border);
+        font-size: 1.4rem;
+    }
+
+    /* ================================
+       Modals
+    ================================= */
+
+    .survey-modal-content {
+        background: var(--card);
+        color: var(--text);
+        border: 1px solid var(--border) !important;
+        border-radius: 18px !important;
+        box-shadow: var(--shadow);
+    }
+
+    .survey-modal-header,
+    .survey-modal-footer {
+        border-color: var(--border) !important;
+    }
+
+    .survey-modal-title {
+        color: var(--text);
+        font-weight: 800;
+    }
+
+    .option-row {
+        margin-bottom: 9px;
+    }
+
+    .option-row .form-control {
+        background: var(--background-secondary);
+        color: var(--text);
+        border-color: var(--border);
+    }
+
+    /* ================================
+       Excel button
+    ================================= */
+
+    .excel-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+    /* ================================
+       Responsive
+    ================================= */
+
+    @media (max-width: 768px) {
+
+        .survey-hero {
+            padding: 18px;
+        }
+
+        .survey-card-body {
+            padding: 16px;
+        }
+
+        .survey-card-header {
+            padding: 17px;
+        }
+
+        .survey-hero-title {
+            font-size: 1.1rem;
+        }
+
+        .survey-actions {
+            width: 100%;
+        }
+
+        .survey-actions .btn {
+            flex: 1;
+        }
+
+        .question-card {
+            padding: 14px;
+        }
+    }
+</style>
+
+<!-- SheetJS -->
+
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid py-4">
+
+
+<div class="survey-page">
+
+    <!-- Loading -->
+    <div id="loadingState" class="survey-loading">
+
+        <div class="spinner-border text-primary"></div>
+
+        <div>
+            در حال دریافت اطلاعات نظرسنجی...
+        </div>
+
+    </div>
+
+
+    <!-- Error -->
+    <div id="errorState" class="d-none">
+
+        <div class="alert survey-error rounded-4 py-3">
+
+            <i class="bi bi-exclamation-triangle me-2"></i>
+
+            <span id="errorMessage"></span>
+
+        </div>
+
+    </div>
+
+
+    <div id="pageContent" class="d-none">
+
+        <!-- =========================
+             Hero
+        ========================== -->
+
+        <div class="survey-hero">
+
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-4">
+
+                <div class="d-flex align-items-start gap-3">
+
+                    <a
+                        href="/admin-panel/surveys/"
+                        class="survey-back-btn"
+                        title="بازگشت"
+                    >
+                        <i class="bi bi-arrow-right"></i>
+                    </a>
+
+                    <div>
+
+                        <h1
+                            id="surveyTitle"
+                            class="survey-hero-title"
+                        >
+                            -
+                        </h1>
+
+                        <p
+                            id="surveyDescription"
+                            class="survey-hero-description"
+                        >
+                            -
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="survey-actions">
+
+                    <button
+                        type="button"
+                        id="toggleSurveyButton"
+                        class="btn survey-btn"
+                    ></button>
+
+                    <button
+                        type="button"
+                        id="saveSurveyButton"
+                        class="btn btn-primary survey-btn px-3"
+                    >
+                        <i class="bi bi-check2-circle me-1"></i>
+                        ذخیره تغییرات
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =========================
+             Survey Information
+        ========================== -->
+
+        <div class="survey-card">
+
+            <div class="survey-card-header">
+
+                <h5 class="section-title">
+                    اطلاعات نظرسنجی
+                </h5>
+
+                <div class="section-description">
+                    اطلاعات اصلی این نظرسنجی را مدیریت کنید.
+                </div>
+
+            </div>
+
+            <div class="survey-card-body">
+
+                <div class="row g-4">
+
+                    <div class="col-12 col-lg-8">
+
+                        <label class="survey-form-label">
+                            عنوان نظرسنجی
+                        </label>
+
+                        <input
+                            type="text"
+                            id="surveyTitleInput"
+                            class="form-control survey-input"
+                            placeholder="عنوان نظرسنجی"
+                        >
+
+                    </div>
+
+
+                    <div class="col-12 col-lg-4">
+
+                        <label class="survey-form-label">
+                            وضعیت
+                        </label>
+
+                        <div
+                            id="surveyStatus"
+                            class="status-box"
+                        ></div>
+
+                    </div>
+
+
+                    <div class="col-12">
+
+                        <label class="survey-form-label">
+                            توضیحات
+                        </label>
+
+                        <textarea
+                            id="surveyDescriptionInput"
+                            class="form-control survey-textarea"
+                            rows="4"
+                            placeholder="توضیحات نظرسنجی"
+                        ></textarea>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =========================
+             Statistics
+        ========================== -->
+
+        <div class="row g-3 mb-4">
+
+            <div class="col-12 col-md-4">
+
+                <div class="stat-card">
+
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <div>
+
+                            <div class="stat-label">
+                                تعداد سؤالات
+                            </div>
+
+                            <div
+                                id="questionCount"
+                                class="stat-value"
+                            >
+                                ۰
+                            </div>
+
+                        </div>
+
+                        <div class="stat-icon">
+                            <i class="bi bi-question-circle"></i>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-12 col-md-4">
+
+                <div class="stat-card">
+
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <div>
+
+                            <div class="stat-label">
+                                تعداد پاسخ‌ها
+                            </div>
+
+                            <div
+                                id="submissionCount"
+                                class="stat-value"
+                            >
+                                ۰
+                            </div>
+
+                        </div>
+
+                        <div class="stat-icon">
+                            <i class="bi bi-people"></i>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-12 col-md-4">
+
+                <div class="stat-card last-submission">
+
+                    <div class="d-flex justify-content-between align-items-center gap-3">
+
+                        <div>
+
+                            <div class="stat-label">
+                                آخرین پاسخ
+                            </div>
+
+                            <div
+                                id="lastSubmission"
+                                class="stat-value"
+                            >
+                                -
+                            </div>
+
+                        </div>
+
+                        <div class="stat-icon">
+                            <i class="bi bi-clock-history"></i>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =========================
+             Questions
+        ========================== -->
+
+        <div class="survey-card">
+
+            <div class="survey-card-header">
+
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+
+                    <div>
+
+                        <h5 class="section-title">
+                            سؤالات نظرسنجی
+                        </h5>
+
+                        <div class="section-description">
+                            سؤالات و گزینه‌های نظرسنجی را مدیریت کنید.
+                        </div>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        id="addQuestionButton"
+                        class="btn btn-primary survey-btn px-3"
+                    >
+                        <i class="bi bi-plus-lg me-1"></i>
+                        افزودن سؤال
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div class="survey-card-body">
+
+                <div id="questionsContainer"></div>
+
+
+                <div
+                    id="questionsEmpty"
+                    class="response-empty d-none"
+                >
+
+                    <div class="response-empty-icon">
+                        <i class="bi bi-question-circle"></i>
+                    </div>
+
+                    <div class="fw-bold mb-1">
+                        هنوز سؤالی ثبت نشده است
+                    </div>
+
+                    <div class="small">
+                        برای شروع، اولین سؤال را اضافه کنید.
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =========================
+             Responses
+        ========================== -->
+
+        <div class="survey-card">
+
+            <div class="survey-card-header">
+
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+
+                    <div>
+
+                        <h5 class="section-title">
+                            پاسخ‌های ثبت‌شده
+                        </h5>
+
+                        <div class="section-description">
+                            پاسخ تمام شرکت‌کنندگان این نظرسنجی
+                        </div>
+
+                    </div>
+
+
+                    <div class="d-flex align-items-center gap-2">
+
+                        <span
+                            id="responsesBadge"
+                            class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2"
+                        >
+                            ۰ پاسخ
+                        </span>
+
+                        <button
+                            type="button"
+                            id="exportExcelButton"
+                            class="btn btn-success survey-btn excel-btn px-3"
+                        >
+                            <i class="bi bi-file-earmark-excel"></i>
+                            خروجی Excel
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="survey-card-body">
+
+                <div
+                    id="responsesLoading"
+                    class="text-center py-4 text-muted"
+                >
+
+                    <div class="spinner-border spinner-border-sm text-primary me-2"></div>
+
+                    در حال دریافت پاسخ‌ها...
+
+                </div>
+
+
+                <div
+                    id="responsesEmpty"
+                    class="response-empty d-none"
+                >
+
+                    <div class="response-empty-icon">
+                        <i class="bi bi-chat-square-text"></i>
+                    </div>
+
+                    <div class="fw-bold mb-1">
+                        هنوز پاسخی ثبت نشده است
+                    </div>
+
+                    <div class="small">
+                        پس از ثبت پاسخ توسط کاربران، نتایج اینجا نمایش داده می‌شود.
+                    </div>
+
+                </div>
+
+
+                <div id="responsesContainer"></div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+</div>
+
+<!-- =========================
+     Question Modal
+========================== -->
+
+<div
+    class="modal fade"
+    id="questionModal"
+    tabindex="-1"
+    aria-hidden="true"
+>
+
+
+<div class="modal-dialog modal-lg modal-dialog-centered">
+
+    <div class="modal-content survey-modal-content">
+
+        <div class="modal-header survey-modal-header">
+
+            <h5
+                id="questionModalTitle"
+                class="survey-modal-title"
+            >
+                افزودن سؤال
+            </h5>
+
+            <button
+                type="button"
+                class="btn-close ms-0 me-auto"
+                data-bs-dismiss="modal"
+            ></button>
+
+        </div>
+
+
+        <div class="modal-body">
+
+            <input
+                type="hidden"
+                id="editingQuestionId"
+            >
+
+
+            <div class="mb-4">
+
+                <label class="survey-form-label">
+                    متن سؤال
+                </label>
+
+                <textarea
+                    id="questionTextInput"
+                    class="form-control survey-textarea"
+                    rows="3"
+                    placeholder="متن سؤال را وارد کنید"
+                ></textarea>
+
+            </div>
+
+
+            <div class="mb-4">
+
+                <label class="survey-form-label">
+                    نوع سؤال
+                </label>
+
+                <select
+                    id="questionTypeInput"
+                    class="form-select survey-select"
+                >
+
+                    <option value="text">
+                        تشریحی
+                    </option>
+
+                    <option value="single_choice">
+                        تک گزینه‌ای
+                    </option>
+
+                    <option value="multiple_choice">
+                        چند گزینه‌ای
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-check form-switch mb-4">
+
+                <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="questionRequiredInput"
+                    checked
+                >
+
+                <label
+                    class="form-check-label"
+                    for="questionRequiredInput"
+                >
+                    پاسخ به این سؤال الزامی باشد
+                </label>
+
+            </div>
+
+
+            <div
+                id="optionsSection"
+                class="d-none"
+            >
+
+                <div class="d-flex justify-content-between align-items-center mb-3">
+
+                    <label class="survey-form-label mb-0">
+                        گزینه‌ها
+                    </label>
+
+                    <button
+                        type="button"
+                        id="addOptionButton"
+                        class="btn btn-sm btn-outline-primary rounded-3"
+                    >
+                        <i class="bi bi-plus-lg me-1"></i>
+                        افزودن گزینه
+                    </button>
+
+                </div>
+
+                <div id="optionsContainer"></div>
+
+            </div>
+
+        </div>
+
+
+        <div class="modal-footer survey-modal-footer">
+
+            <button
+                type="button"
+                class="btn btn-light rounded-3"
+                data-bs-dismiss="modal"
+            >
+                انصراف
+            </button>
+
+            <button
+                type="button"
+                id="saveQuestionButton"
+                class="btn btn-primary rounded-3"
+            >
+                <i class="bi bi-check2 me-1"></i>
+                ذخیره سؤال
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+</div>
+
+<!-- =========================
+     Delete Question Modal
+========================== -->
+
+<div
+    class="modal fade"
+    id="deleteQuestionModal"
+    tabindex="-1"
+    aria-hidden="true"
+>
+
+
+<div class="modal-dialog modal-dialog-centered">
+
+    <div class="modal-content survey-modal-content">
+
+        <div class="modal-header survey-modal-header">
+
+            <h5 class="survey-modal-title">
+                حذف سؤال
+            </h5>
+
+            <button
+                type="button"
+                class="btn-close ms-0 me-auto"
+                data-bs-dismiss="modal"
+            ></button>
+
+        </div>
+
+
+        <div class="modal-body">
+
+            <p class="mb-0">
+                آیا از حذف این سؤال مطمئن هستید؟
+            </p>
+
+            <div class="alert alert-warning mt-3 mb-0 rounded-3">
+
+                <i class="bi bi-exclamation-triangle me-1"></i>
+
+                با حذف سؤال، گزینه‌های مربوط به آن نیز حذف خواهند شد.
+
+            </div>
+
+        </div>
+
+
+        <div class="modal-footer survey-modal-footer">
+
+            <button
+                type="button"
+                class="btn btn-light rounded-3"
+                data-bs-dismiss="modal"
+            >
+                انصراف
+            </button>
+
+            <button
+                type="button"
+                id="confirmDeleteQuestionButton"
+                class="btn btn-danger rounded-3"
+            >
+                حذف سؤال
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+</div>
+
+<!-- =========================
+     Toggle Survey Modal
+========================== -->
+
+<div
+    class="modal fade"
+    id="toggleSurveyModal"
+    tabindex="-1"
+    aria-hidden="true"
+>
+
+
+<div class="modal-dialog modal-dialog-centered">
+
+    <div class="modal-content survey-modal-content">
+
+        <div class="modal-header survey-modal-header">
+
+            <h5
+                id="toggleModalTitle"
+                class="survey-modal-title"
+            ></h5>
+
+            <button
+                type="button"
+                class="btn-close ms-0 me-auto"
+                data-bs-dismiss="modal"
+            ></button>
+
+        </div>
+
+
+        <div class="modal-body">
+
+            <p
+                id="toggleModalText"
+                class="mb-0"
+            ></p>
+
+        </div>
+
+
+        <div class="modal-footer survey-modal-footer">
+
+            <button
+                type="button"
+                class="btn btn-light rounded-3"
+                data-bs-dismiss="modal"
+            >
+                انصراف
+            </button>
+
+            <button
+                type="button"
+                id="confirmToggleButton"
+                class="btn rounded-3"
+            >
+                تأیید
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+
+<script>
+
+const API_BASE = "/admin-panel/api";
+
+const surveyId = Number(
+    window.location.pathname
+        .split("/")
+        .filter(Boolean)
+        .pop()
+);
+
+let survey = null;
+let questions = [];
+let submissions = [];
+let answers = [];
+
+let questionModal;
+let deleteQuestionModal;
+let toggleSurveyModal;
+
+let questionToDelete = null;
+
+
+/* =====================================
+   Utilities
+===================================== */
+
+function toPersianNumber(value) {
+
+    return String(value).replace(
+        /\d/g,
+        digit => "۰۱۲۳۴۵۶۷۸۹"[digit]
+    );
+}
+
+
+function escapeHtml(value) {
+
+    if (
+        value === null ||
+        value === undefined
+    ) {
+        return "";
+    }
+
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+function formatDate(dateString) {
+
+    if (!dateString) {
+        return "-";
+    }
+
+    const date = new Date(dateString);
+
+    if (Number.isNaN(date.getTime())) {
+        return dateString;
+    }
+
+    return new Intl.DateTimeFormat(
+        "fa-IR",
+        {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit"
+        }
+    ).format(date);
+}
+
+
+function getResults(data) {
+
+    if (Array.isArray(data)) {
+        return data;
+    }
+
+    if (
+        data &&
+        Array.isArray(data.results)
+    ) {
+        return data.results;
+    }
+
+    return [];
+}
+
+
+/*
+    دریافت تمام صفحات یک endpoint.
+    برای Excel مهم است تا اگر API pagination داشت،
+    فقط صفحه اول خروجی گرفته نشود.
+*/
+async function fetchAllPages(url) {
+
+    let results = [];
+    let nextUrl = url;
+
+    while (nextUrl) {
+
+        const response = await apiRequest(
+            nextUrl
+        );
+
+        results.push(
+            ...getResults(response)
+        );
+
+        if (
+            response &&
+            response.next
+        ) {
+            nextUrl = response.next;
+        } else {
+            nextUrl = null;
+        }
+    }
+
+    return results;
+}
+
+
+async function apiRequest(
+    url,
+    method = "GET",
+    body = null
+) {
+
+    const accessToken =
+        localStorage.getItem("access_token");
+
+    const options = {
+        method,
+        headers: {
+            "Accept": "application/json"
+        }
+    };
+
+    /*
+        اگر API با JWT محافظت می‌شود،
+        توکن را در Authorization قرار می‌دهیم.
+    */
+    if (accessToken) {
+        options.headers["Authorization"] =
+            `Bearer ${accessToken}`;
+    }
+
+    /*
+        فقط وقتی body داریم Content-Type را تنظیم می‌کنیم.
+        برای GET و DELETE نیازی به آن نیست.
+    */
+    if (body !== null) {
+
+        options.headers["Content-Type"] =
+            "application/json";
+
+        options.body =
+            JSON.stringify(body);
+    }
+
+    const response =
+        await fetch(
+            url,
+            options
+        );
+
+    if (!response.ok) {
+
+        let message =
+            `خطا در درخواست: ${response.status}`;
+
+        try {
+
+            const data =
+                await response.json();
+
+            if (data) {
+
+                if (typeof data === "string") {
+                    message = data;
+                } else {
+                    message =
+                        data.detail ||
+                        data.message ||
+                        JSON.stringify(data);
+                }
+            }
+
+        } catch (error) {
+            // Response body JSON نبود.
+        }
+
+        throw new Error(message);
+    }
+
+    /*
+        DELETE معمولاً 204 برمی‌گرداند
+        و body ندارد.
+    */
+    if (response.status === 204) {
+        return null;
+    }
+
+    /*
+        بعضی endpointها ممکن است response بدون body برگردانند.
+    */
+    const contentType =
+        response.headers.get("content-type") || "";
+
+    if (!contentType.includes("application/json")) {
+        return null;
+    }
+
+    return await response.json();
+}
+
+
+function showError(message) {
+
+    document
+        .getElementById("loadingState")
+        .classList.add("d-none");
+
+    document
+        .getElementById("pageContent")
+        .classList.add("d-none");
+
+    document
+        .getElementById("errorState")
+        .classList.remove("d-none");
+
+    document
+        .getElementById("errorMessage")
+        .textContent = message;
+}
+
+
+/* =====================================
+   Survey
+===================================== */
+
+async function loadSurvey() {
+
+    try {
+
+        survey =
+            await apiRequest(
+                `${API_BASE}/surveys/${surveyId}/`
+            );
+
+        renderSurvey();
+
+    } catch (error) {
+
+        console.error(error);
+
+        showError(
+            "دریافت اطلاعات نظرسنجی با خطا مواجه شد."
+        );
+
+        return;
+    }
+
+
+    try {
+
+        questions =
+            await fetchAllPages(
+                `${API_BASE}/questions/?survey=${surveyId}`
+            );
+
+        for (
+            const question
+            of questions
+        ) {
+
+            if (
+                question.question_type ===
+                    "single_choice" ||
+                question.question_type ===
+                    "multiple_choice"
+            ) {
+
+                question.options =
+                    await fetchAllPages(
+                        `${API_BASE}/options/?question=${question.id}`
+                    );
+
+            } else {
+
+                question.options = [];
+            }
+        }
+
+        renderQuestions();
+
+    } catch (error) {
+
+        console.error(error);
+
+        document
+            .getElementById(
+                "questionsContainer"
+            )
+            .innerHTML = `
+                <div class="alert alert-danger rounded-3">
+                    دریافت سؤالات با خطا مواجه شد.
+                </div>
+            `;
+    }
+
+
+    await loadResponses();
+
+
+    document
+        .getElementById("loadingState")
+        .classList.add("d-none");
+
+    document
+        .getElementById("pageContent")
+        .classList.remove("d-none");
+}
+
+
+function renderSurvey() {
+
+    document
+        .getElementById("surveyTitle")
+        .textContent =
+        survey.title || "بدون عنوان";
+
+    document
+        .getElementById("surveyDescription")
+        .textContent =
+        survey.description ||
+        "بدون توضیحات";
+
+    document
+        .getElementById("surveyTitleInput")
+        .value =
+        survey.title || "";
+
+    document
+        .getElementById("surveyDescriptionInput")
+        .value =
+        survey.description || "";
+
+    renderSurveyStatus();
+}
+
+
+function renderSurveyStatus() {
+
+    const statusContainer =
+        document.getElementById(
+            "surveyStatus"
+        );
+
+    const toggleButton =
+        document.getElementById(
+            "toggleSurveyButton"
+        );
+
+
+    if (survey.is_active) {
+
+        statusContainer.innerHTML = `
+            <span class="badge bg-success-subtle text-success rounded-pill px-3 py-2">
+                <i class="bi bi-circle-fill me-1"
+                   style="font-size:6px;"></i>
+                فعال
+            </span>
+        `;
+
+        toggleButton.className =
+            "btn btn-outline-danger survey-btn";
+
+        toggleButton.innerHTML = `
+            <i class="bi bi-pause-circle me-1"></i>
+            غیرفعال کردن
+        `;
+
+    } else {
+
+        statusContainer.innerHTML = `
+            <span class="badge bg-secondary-subtle text-secondary rounded-pill px-3 py-2">
+                <i class="bi bi-circle-fill me-1"
+                   style="font-size:6px;"></i>
+                غیرفعال
+            </span>
+        `;
+
+        toggleButton.className =
+            "btn btn-outline-success survey-btn";
+
+        toggleButton.innerHTML = `
+            <i class="bi bi-play-circle me-1"></i>
+            فعال کردن
+        `;
+    }
+}
+
+
+/* =====================================
+   Questions
+===================================== */
+
+function renderQuestions() {
+
+    const container =
+        document.getElementById(
+            "questionsContainer"
+        );
+
+    const empty =
+        document.getElementById(
+            "questionsEmpty"
+        );
+
+
+    document
+        .getElementById("questionCount")
+        .textContent =
+        toPersianNumber(
+            questions.length
+        );
+
+
+    if (
+        questions.length === 0
+    ) {
+
+        container.innerHTML = "";
+
+        empty.classList.remove(
+            "d-none"
+        );
+
+        return;
+    }
+
+
+    empty.classList.add(
+        "d-none"
+    );
+
+
+    container.innerHTML =
+        questions.map(
+            (question, index) => {
+
+                const typeText =
+                    getQuestionTypeText(
+                        question.question_type
+                    );
+
+
+                const requiredBadge =
+                    question.is_required
+                        ? `
+                            <span class="badge bg-danger-subtle text-danger rounded-pill px-2 py-1">
+                                الزامی
+                            </span>
+                        `
+                        : `
+                            <span class="badge bg-secondary-subtle text-secondary rounded-pill px-2 py-1">
+                                اختیاری
+                            </span>
+                        `;
+
+
+                let optionsHtml = "";
+
+
+                if (
+                    question.question_type ===
+                        "single_choice" ||
+                    question.question_type ===
+                        "multiple_choice"
+                ) {
+
+                    optionsHtml = `
+                        <div class="mt-4">
+
+                            <div class="small text-muted mb-2">
+                                گزینه‌ها
+                            </div>
+
+                            <div class="d-flex flex-column gap-2">
+
+                                ${
+                                    (question.options || [])
+                                        .map(
+                                            (option, optionIndex) => `
+                                                <div class="question-option">
+
+                                                    <span class="question-option-index">
+                                                        ${toPersianNumber(optionIndex + 1)}
+                                                    </span>
+
+                                                    ${escapeHtml(option.text)}
+
+                                                </div>
+                                            `
+                                        )
+                                        .join("")
+                                }
+
+                            </div>
+
+                        </div>
+                    `;
+                }
+
+
+                return `
+                    <div
+                        class="question-card"
+                        data-question-id="${question.id}"
+                    >
+
+                        <div class="d-flex justify-content-between align-items-start gap-3">
+
+                            <div class="d-flex gap-3 flex-grow-1">
+
+                                <div class="question-number">
+                                    ${toPersianNumber(index + 1)}
+                                </div>
+
+                                <div class="flex-grow-1">
+
+                                    <div class="question-title">
+                                        ${escapeHtml(question.text)}
+                                    </div>
+
+                                    <div class="question-meta">
+
+                                        <span class="badge question-type-badge rounded-pill px-2 py-1">
+                                            ${typeText}
+                                        </span>
+
+                                        ${requiredBadge}
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="question-actions">
+
+                                <button
+                                    type="button"
+                                    class="btn btn-sm btn-light border question-action"
+                                    onclick="editQuestion(${question.id})"
+                                    title="ویرایش"
+                                >
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+
+
+                                <button
+                                    type="button"
+                                    class="btn btn-sm btn-light border text-danger question-action"
+                                    onclick="openDeleteQuestion(${question.id})"
+                                    title="حذف"
+                                >
+                                    <i class="bi bi-trash"></i>
+                                </button>
+
+                            </div>
+
+                        </div>
+
+
+                        ${optionsHtml}
+
+                    </div>
+                `;
+            }
+        ).join("");
+}
+
+
+function getQuestionTypeText(type) {
+
+    const types = {
+        text: "تشریحی",
+        single_choice: "تک گزینه‌ای",
+        multiple_choice: "چند گزینه‌ای"
+    };
+
+    return types[type] || type;
+}
+
+
+/* =====================================
+   Responses
+===================================== */
+
+async function loadResponses() {
+
+    const loading =
+        document.getElementById(
+            "responsesLoading"
+        );
+
+    const empty =
+        document.getElementById(
+            "responsesEmpty"
+        );
+
+    const container =
+        document.getElementById(
+            "responsesContainer"
+        );
+
+
+    loading.classList.remove(
+        "d-none"
+    );
+
+    empty.classList.add(
+        "d-none"
+    );
+
+    container.innerHTML = "";
+
+
+    try {
+
+        submissions =
+            await fetchAllPages(
+                `${API_BASE}/submissions/?survey=${surveyId}`
+            );
+
+
+        answers = [];
+
+
+        for (
+            const submission
+            of submissions
+        ) {
+
+            try {
+
+                const submissionAnswers =
+                    await fetchAllPages(
+                        `${API_BASE}/answers/?submission=${submission.id}`
+                    );
+
+
+                answers.push(
+                    ...submissionAnswers.map(
+                        answer => ({
+                            ...answer,
+                            submission_id:
+                                submission.id
+                        })
+                    )
+                );
+
+            } catch (error) {
+
+                console.error(
+                    `Error loading answers for submission ${submission.id}`,
+                    error
+                );
+            }
+        }
+
+
+        renderResponses();
+
+    } catch (error) {
+
+        console.error(error);
+
+        loading.classList.add(
+            "d-none"
+        );
+
+        container.innerHTML = `
+            <div class="alert alert-danger rounded-3">
+                دریافت پاسخ‌های نظرسنجی با خطا مواجه شد.
+            </div>
+        `;
+    }
+}
+
+
+function getSubmissionUser(
+    submission
+) {
+
+    if (submission.user) {
+
+        if (
+            typeof submission.user ===
+            "object"
+        ) {
+
+            return (
+                submission.user.full_name ||
+                submission.user.name ||
+                submission.user.phone_number ||
+                submission.user.username ||
+                `کاربر ${submission.user.id || ""}`
+            );
+        }
+
+        return String(
+            submission.user
+        );
+    }
+
+
+    if (submission.user_phone) {
+        return submission.user_phone;
+    }
+
+
+    if (submission.teacher_name) {
+        return submission.teacher_name;
+    }
+
+
+    if (submission.phone_number) {
+        return submission.phone_number;
+    }
+
+
+    return "کاربر ناشناس";
+}
+
+
+function findQuestionForAnswer(
+    answer
+) {
+
+    const questionId =
+        typeof answer.question ===
+        "object"
+            ? answer.question.id
+            : answer.question;
+
+
+    return questions.find(
+        question =>
+            Number(question.id) ===
+            Number(questionId)
+    );
+}
+
+
+function getSelectedOptionIds(
+    answer
+) {
+
+    if (
+        !answer.selected_options
+    ) {
+        return [];
+    }
+
+
+    if (
+        Array.isArray(
+            answer.selected_options
+        )
+    ) {
+
+        return answer.selected_options.map(
+            option => {
+
+                if (
+                    typeof option ===
+                    "object"
+                ) {
+                    return Number(option.id);
+                }
+
+                return Number(option);
+            }
+        );
+    }
+
+
+    return [];
+}
+
+
+function getAnswerText(
+    answer,
+    question
+) {
+
+    if (
+        answer.text_answer !== null &&
+        answer.text_answer !== undefined &&
+        String(answer.text_answer).trim() !== ""
+    ) {
+
+        return escapeHtml(
+            answer.text_answer
+        );
+    }
+
+
+    const selectedIds =
+        getSelectedOptionIds(
+            answer
+        );
+
+
+    if (
+        selectedIds.length > 0 &&
+        question
+    ) {
+
+        const selectedOptions =
+            (question.options || [])
+                .filter(
+                    option =>
+                        selectedIds.includes(
+                            Number(option.id)
+                        )
+                );
+
+
+        if (
+            selectedOptions.length > 0
+        ) {
+
+            return selectedOptions
+                .map(
+                    option =>
+                        `<span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2 me-1 mb-1">
+                            ${escapeHtml(option.text)}
+                        </span>`
+                )
+                .join("");
+        }
+    }
+
+
+    return `
+        <span class="text-muted">
+            بدون پاسخ
+        </span>
+    `;
+}
+
+
+function renderResponses() {
+
+    const loading =
+        document.getElementById(
+            "responsesLoading"
+        );
+
+    const empty =
+        document.getElementById(
+            "responsesEmpty"
+        );
+
+    const container =
+        document.getElementById(
+            "responsesContainer"
+        );
+
+    const badge =
+        document.getElementById(
+            "responsesBadge"
+        );
+
+
+    loading.classList.add(
+        "d-none"
+    );
+
+
+    badge.textContent =
+        `${toPersianNumber(submissions.length)} پاسخ`;
+
+
+    document
+        .getElementById(
+            "submissionCount"
+        )
+        .textContent =
+        toPersianNumber(
+            submissions.length
+        );
+
+
+    if (
+        submissions.length === 0
+    ) {
+
+        container.innerHTML = "";
+
+        empty.classList.remove(
+            "d-none"
+        );
+
+        document
+            .getElementById(
+                "lastSubmission"
+            )
+            .textContent = "-";
+
+        return;
+    }
+
+
+    empty.classList.add(
+        "d-none"
+    );
+
+
+    const sortedSubmissions =
+        [...submissions].sort(
+            (a, b) =>
+                new Date(
+                    b.created_at || 0
+                ) -
+                new Date(
+                    a.created_at || 0
+                )
+        );
+
+
+    document
+        .getElementById(
+            "lastSubmission"
+        )
+        .textContent =
+        formatDate(
+            sortedSubmissions[0].created_at
+        );
+
+
+    container.innerHTML =
+        sortedSubmissions
+            .map(
+                (submission, index) => {
+
+                    const submissionAnswers =
+                        answers.filter(
+                            answer =>
+                                Number(
+                                    answer.submission_id
+                                ) ===
+                                Number(
+                                    submission.id
+                                )
+                        );
+
+
+                    const answerMap = {};
+
+
+                    submissionAnswers.forEach(
+                        answer => {
+
+                            const questionId =
+                                typeof answer.question ===
+                                "object"
+                                    ? answer.question.id
+                                    : answer.question;
+
+
+                            answerMap[
+                                Number(questionId)
+                            ] = answer;
+                        }
+                    );
+
+
+                    const userName =
+                        getSubmissionUser(
+                            submission
+                        );
+
+
+                    const questionsHtml =
+                        questions
+                            .map(
+                                (
+                                    question,
+                                    questionIndex
+                                ) => {
+
+                                    const answer =
+                                        answerMap[
+                                            Number(
+                                                question.id
+                                            )
+                                        ];
+
+
+                                    return `
+                                        <div class="response-question">
+
+                                            <div class="response-question-number">
+                                                سؤال ${toPersianNumber(questionIndex + 1)}
+                                            </div>
+
+                                            <div class="response-question-text">
+                                                ${escapeHtml(question.text)}
+                                            </div>
+
+                                            <div class="response-answer">
+
+                                                ${
+                                                    answer
+                                                        ? getAnswerText(
+                                                              answer,
+                                                              question
+                                                          )
+                                                        : `
+                                                            <span class="text-muted">
+                                                                بدون پاسخ
+                                                            </span>
+                                                        `
+                                                }
+
+                                            </div>
+
+                                        </div>
+                                    `;
+                                }
+                            )
+                            .join("");
+
+
+                    return `
+                        <div class="response-card">
+
+                            <div class="response-header">
+
+                                <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+
+                                    <div>
+
+                                        <div class="response-user">
+                                            ${escapeHtml(userName)}
+                                        </div>
+
+                                        ${
+                                            submission.user_phone
+                                                ? `
+                                                    <div class="response-phone mt-1">
+                                                        <i class="bi bi-telephone me-1"></i>
+                                                        ${escapeHtml(submission.user_phone)}
+                                                    </div>
+                                                `
+                                                : ""
+                                        }
+
+                                    </div>
+
+
+                                    <div class="response-date">
+
+                                        <i class="bi bi-clock me-1"></i>
+
+                                        ${formatDate(
+                                            submission.created_at
+                                        )}
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="p-3">
+
+                                ${questionsHtml}
+
+                            </div>
+
+                        </div>
+                    `;
+                }
+            )
+            .join("");
+}
+
+
+/* =====================================
+   Question Modal
+===================================== */
+
+function resetQuestionModal() {
+
+    document
+        .getElementById(
+            "editingQuestionId"
+        )
+        .value = "";
+
+
+    document
+        .getElementById(
+            "questionTextInput"
+        )
+        .value = "";
+
+
+    document
+        .getElementById(
+            "questionTypeInput"
+        )
+        .value = "text";
+
+
+    document
+        .getElementById(
+            "questionRequiredInput"
+        )
+        .checked = true;
+
+
+    document
+        .getElementById(
+            "optionsContainer"
+        )
+        .innerHTML = "";
+
+
+    updateOptionsVisibility();
+}
+
+
+function updateOptionsVisibility() {
+
+    const type =
+        document.getElementById(
+            "questionTypeInput"
+        ).value;
+
+
+    const section =
+        document.getElementById(
+            "optionsSection"
+        );
+
+
+    if (
+        type === "single_choice" ||
+        type === "multiple_choice"
+    ) {
+
+        section.classList.remove(
+            "d-none"
+        );
+
+    } else {
+
+        section.classList.add(
+            "d-none"
+        );
+    }
+}
+
+
+function addOptionRow(
+    option = null
+) {
+
+    const container =
+        document.getElementById(
+            "optionsContainer"
+        );
+
+
+    const optionId =
+        option?.id || "";
+
+
+    const optionText =
+        option?.text || "";
+
+
+    const row =
+        document.createElement(
+            "div"
+        );
+
+
+    row.className =
+        "input-group option-row";
+
+
+    row.dataset.optionId =
+        optionId;
+
+
+    row.innerHTML = `
+
+        <input
+            type="text"
+            class="form-control option-text"
+            placeholder="متن گزینه"
+            value="${escapeHtml(optionText)}"
+        >
+
+        <button
+            type="button"
+            class="btn btn-outline-danger remove-option"
+        >
+            <i class="bi bi-trash"></i>
+        </button>
+
+    `;
+
+
+    row
+        .querySelector(
+            ".remove-option"
+        )
+        .addEventListener(
+            "click",
+            () => row.remove()
+        );
+
+
+    container.appendChild(
+        row
+    );
+}
+
+
+function openAddQuestion() {
+
+    resetQuestionModal();
+
+
+    document
+        .getElementById(
+            "questionModalTitle"
+        )
+        .textContent =
+        "افزودن سؤال";
+
+
+    questionModal.show();
+}
+
+
+function editQuestion(id) {
+
+    const question =
+        questions.find(
+            item =>
+                Number(item.id) ===
+                Number(id)
+        );
+
+
+    if (!question) {
+        return;
+    }
+
+
+    resetQuestionModal();
+
+
+    document
+        .getElementById(
+            "questionModalTitle"
+        )
+        .textContent =
+        "ویرایش سؤال";
+
+
+    document
+        .getElementById(
+            "editingQuestionId"
+        )
+        .value =
+        question.id;
+
+
+    document
+        .getElementById(
+            "questionTextInput"
+        )
+        .value =
+        question.text || "";
+
+
+    document
+        .getElementById(
+            "questionTypeInput"
+        )
+        .value =
+        question.question_type;
+
+
+    document
+        .getElementById(
+            "questionRequiredInput"
+        )
+        .checked =
+        question.is_required !== false;
+
+
+    updateOptionsVisibility();
+
+
+    (
+        question.options || []
+    ).forEach(
+        option =>
+            addOptionRow(option)
+    );
+
+
+    questionModal.show();
+}
+
+
+async function saveQuestion() {
+
+    const text =
+        document
+            .getElementById(
+                "questionTextInput"
+            )
+            .value
+            .trim();
+
+
+    const type =
+        document
+            .getElementById(
+                "questionTypeInput"
+            )
+            .value;
+
+
+    const required =
+        document
+            .getElementById(
+                "questionRequiredInput"
+            )
+            .checked;
+
+
+    const editingId =
+        document
+            .getElementById(
+                "editingQuestionId"
+            )
+            .value;
+
+
+    if (!text) {
+
+        alert(
+            "متن سؤال را وارد کنید."
+        );
+
+        return;
+    }
+
+
+    const saveButton =
+        document.getElementById(
+            "saveQuestionButton"
+        );
+
+
+    saveButton.disabled = true;
+
+
+    try {
+
+        const questionData = {
+            survey: surveyId,
+            text: text,
+            question_type: type,
+            is_required: required
+        };
+
+
+        let question;
+
+
+        if (editingId) {
+
+            question =
+                await apiRequest(
+                    `${API_BASE}/questions/${editingId}/`,
+                    "PATCH",
+                    questionData
+                );
+
+        } else {
+
+            question =
+                await apiRequest(
+                    `${API_BASE}/questions/`,
+                    "POST",
+                    questionData
+                );
+        }
+
+
+        const optionRows =
+            [
+                ...document.querySelectorAll(
+                    "#optionsContainer .option-row"
+                )
+            ];
+
+
+        if (
+            type === "single_choice" ||
+            type === "multiple_choice"
+        ) {
+
+            for (
+                const row
+                of optionRows
+            ) {
+
+                const input =
+                    row.querySelector(
+                        ".option-text"
+                    );
+
+
+                const optionText =
+                    input.value.trim();
+
+
+                const existingId =
+                    row.dataset.optionId;
+
+
+                if (!optionText) {
+
+                    if (existingId) {
+
+                        await apiRequest(
+                            `${API_BASE}/options/${existingId}/`,
+                            "DELETE"
+                        );
+                    }
+
+                    continue;
+                }
+
+
+                const optionData = {
+                    question: question.id,
+                    text: optionText
+                };
+
+
+                if (existingId) {
+
+                    await apiRequest(
+                        `${API_BASE}/options/${existingId}/`,
+                        "PATCH",
+                        optionData
+                    );
+
+                } else {
+
+                    await apiRequest(
+                        `${API_BASE}/options/`,
+                        "POST",
+                        optionData
+                    );
+                }
+            }
+        }
+
+
+        await refreshQuestions();
+
+
+        questionModal.hide();
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert(
+            "ذخیره سؤال با خطا مواجه شد."
+        );
+
+    } finally {
+
+        saveButton.disabled = false;
+    }
+}
+
+
+async function refreshQuestions() {
+
+    questions =
+        await fetchAllPages(
+            `${API_BASE}/questions/?survey=${surveyId}`
+        );
+
+
+    for (
+        const question
+        of questions
+    ) {
+
+        if (
+            question.question_type ===
+                "single_choice" ||
+            question.question_type ===
+                "multiple_choice"
+        ) {
+
+            question.options =
+                await fetchAllPages(
+                    `${API_BASE}/options/?question=${question.id}`
+                );
+
+        } else {
+
+            question.options = [];
+        }
+    }
+
+
+    renderQuestions();
+}
+
+
+function openDeleteQuestion(id) {
+
+    questionToDelete = id;
+
+    deleteQuestionModal.show();
+}
+
+
+async function deleteQuestion() {
+
+    if (!questionToDelete) {
+        return;
+    }
+
+
+    try {
+
+        await apiRequest(
+            `${API_BASE}/questions/${questionToDelete}/`,
+            "DELETE"
+        );
+
+
+        questionToDelete = null;
+
+        deleteQuestionModal.hide();
+
+
+        await refreshQuestions();
+
+        await loadResponses();
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert(
+            "حذف سؤال با خطا مواجه شد."
+        );
+    }
+}
+
+
+/* =====================================
+   Survey Save
+===================================== */
+
+async function saveSurvey() {
+
+    const title =
+        document
+            .getElementById(
+                "surveyTitleInput"
+            )
+            .value
+            .trim();
+
+
+    const description =
+        document
+            .getElementById(
+                "surveyDescriptionInput"
+            )
+            .value
+            .trim();
+
+
+    if (!title) {
+
+        alert(
+            "عنوان نظرسنجی را وارد کنید."
+        );
+
+        return;
+    }
+
+
+    const button =
+        document.getElementById(
+            "saveSurveyButton"
+        );
+
+
+    button.disabled = true;
+
+
+    try {
+
+        survey =
+            await apiRequest(
+                `${API_BASE}/surveys/${surveyId}/`,
+                "PATCH",
+                {
+                    title: title,
+                    description: description
+                }
+            );
+
+
+        renderSurvey();
+
+
+        alert(
+            "تغییرات با موفقیت ذخیره شد."
+        );
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert(
+            "ذخیره تغییرات با خطا مواجه شد."
+        );
+
+    } finally {
+
+        button.disabled = false;
+    }
+}
+
+
+/* =====================================
+   Toggle Survey
+===================================== */
+
+function openToggleSurvey() {
+
+    const title =
+        document.getElementById(
+            "toggleModalTitle"
+        );
+
+
+    const text =
+        document.getElementById(
+            "toggleModalText"
+        );
+
+
+    const button =
+        document.getElementById(
+            "confirmToggleButton"
+        );
+
+
+    if (survey.is_active) {
+
+        title.textContent =
+            "غیرفعال کردن نظرسنجی";
+
+
+        text.textContent =
+            "آیا مطمئن هستید که می‌خواهید این نظرسنجی را غیرفعال کنید؟";
+
+
+        button.className =
+            "btn btn-danger rounded-3";
+
+
+        button.textContent =
+            "غیرفعال کردن";
+
+    } else {
+
+        title.textContent =
+            "فعال کردن نظرسنجی";
+
+
+        text.textContent =
+            "آیا می‌خواهید این نظرسنجی دوباره فعال شود؟";
+
+
+        button.className =
+            "btn btn-success rounded-3";
+
+
+        button.textContent =
+            "فعال کردن";
+    }
+
+
+    toggleSurveyModal.show();
+}
+
+
+async function toggleSurvey() {
+
+    const button =
+        document.getElementById(
+            "confirmToggleButton"
+        );
+
+
+    button.disabled = true;
+
+
+    try {
+
+        survey =
+            await apiRequest(
+                `${API_BASE}/surveys/${surveyId}/`,
+                "PATCH",
+                {
+                    is_active:
+                        !survey.is_active
+                }
+            );
+
+
+        renderSurvey();
+
+
+        toggleSurveyModal.hide();
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert(
+            "تغییر وضعیت نظرسنجی با خطا مواجه شد."
+        );
+
+    } finally {
+
+        button.disabled = false;
+    }
+}
+
+
+/* =====================================
+   Excel Export
+===================================== */
+
+/*
+    خروجی Excel مستقل از داده‌های فعلی صفحه است.
+    تمام submissionها و answerها دوباره از API دریافت می‌شوند
+    تا pagination باعث محدود شدن خروجی به آخرین پاسخ‌ها نشود.
+*/
+
+async function fetchAllPagesForExport(url) {
+
+    let results = [];
+    let nextUrl = url;
+
+    while (nextUrl) {
+
+        const response = await apiRequest(nextUrl);
+
+        results.push(
+            ...getResults(response)
+        );
+
+        if (response && response.next) {
+            nextUrl = response.next;
+        } else {
+            nextUrl = null;
+        }
+    }
+
+    return results;
+}
+
+
+function getRawAnswerValue(
+    answer,
+    question
+) {
+
+    if (!answer) {
+        return "";
+    }
+
+
+    if (
+        answer.text_answer !== null &&
+        answer.text_answer !== undefined &&
+        String(answer.text_answer).trim() !== ""
+    ) {
+
+        return String(
+            answer.text_answer
+        );
+    }
+
+
+    const selectedIds =
+        getSelectedOptionIds(answer);
+
+
+    if (
+        selectedIds.length &&
+        question
+    ) {
+
+        return (
+            question.options || []
+        )
+            .filter(
+                option =>
+                    selectedIds.includes(
+                        Number(option.id)
+                    )
+            )
+            .map(
+                option =>
+                    String(option.text)
+            )
+            .join("، ");
+    }
+
+
+    return "";
+}
+
+
+async function buildExcelRows() {
+
+    /*
+        مهم:
+        اینجا submissions را دوباره از API می‌گیریم.
+        بنابراین اگر API pagination داشته باشد،
+        فقط page فعلی وارد Excel نمی‌شود.
+    */
+
+    const allSubmissions =
+        await fetchAllPagesForExport(
+            `${API_BASE}/submissions/?survey=${surveyId}`
+        );
+
+
+    /*
+        تمام پاسخ‌های هر submission را نیز دریافت می‌کنیم.
+    */
+
+    const answerMapBySubmission = {};
+
+
+    for (
+        const submission
+        of allSubmissions
+    ) {
+
+        const submissionAnswers =
+            await fetchAllPagesForExport(
+                `${API_BASE}/answers/?submission=${submission.id}`
+            );
+
+
+        submissionAnswers.forEach(
+            answer => {
+
+                const submissionId =
+                    Number(
+                        submission.id
+                    );
+
+
+                if (
+                    !answerMapBySubmission[
+                        submissionId
+                    ]
+                ) {
+
+                    answerMapBySubmission[
+                        submissionId
+                    ] = {};
+                }
+
+
+                const questionId =
+                    typeof answer.question ===
+                    "object"
+                        ? answer.question.id
+                        : answer.question;
+
+
+                answerMapBySubmission[
+                    submissionId
+                ][
+                    Number(questionId)
+                ] = answer;
+            }
+        );
+    }
+
+
+    /*
+        ساخت ردیف‌های Excel از تمام submissionها
+    */
+
+    return allSubmissions.map(
+        (submission, index) => {
+
+            const row = {};
+
+
+            row["ردیف"] =
+                index + 1;
+
+
+            row["پاسخ‌دهنده"] =
+                getSubmissionUser(
+                    submission
+                );
+
+
+            row["شماره تماس"] =
+                submission.user_phone ||
+                submission.phone_number ||
+                "";
+
+
+            row["تاریخ ثبت پاسخ"] =
+                submission.created_at
+                    ? formatDate(
+                          submission.created_at
+                      )
+                    : "";
+
+
+            const submissionAnswers =
+                answerMapBySubmission[
+                    Number(
+                        submission.id
+                    )
+                ] || {};
+
+
+            questions.forEach(
+                (question, questionIndex) => {
+
+                    const answer =
+                        submissionAnswers[
+                            Number(
+                                question.id
+                            )
+                        ];
+
+
+                    const columnName =
+                        `سؤال ${toPersianNumber(
+                            questionIndex + 1
+                        )}: ${String(
+                            question.text
+                        )}`;
+
+
+                    row[columnName] =
+                        getRawAnswerValue(
+                            answer,
+                            question
+                        );
+                }
+            );
+
+
+            return row;
+        }
+    );
+}
+
+
+async function exportResponsesToExcel() {
+
+    if (
+        typeof XLSX ===
+        "undefined"
+    ) {
+
+        alert(
+            "کتابخانه Excel بارگذاری نشده است. صفحه را دوباره باز کنید."
+        );
+
+        return;
+    }
+
+
+    const button =
+        document.getElementById(
+            "exportExcelButton"
+        );
+
+
+    const originalButtonHtml =
+        button.innerHTML;
+
+
+    button.disabled = true;
+
+
+    button.innerHTML = `
+        <span
+            class="spinner-border spinner-border-sm"
+            role="status"
+            aria-hidden="true"
+        ></span>
+        در حال آماده‌سازی...
+    `;
+
+
+    try {
+
+        /*
+            تمام پاسخ‌ها مستقیماً از API دریافت می‌شوند.
+        */
+
+        const rows =
+            await buildExcelRows();
+
+
+        if (
+            rows.length === 0
+        ) {
+
+            alert(
+                "برای این نظرسنجی هنوز پاسخی ثبت نشده است."
+            );
+
+            return;
+        }
+
+
+        const worksheet =
+            XLSX.utils.json_to_sheet(
+                rows
+            );
+
+
+        worksheet["!rtl"] = true;
+
+
+        const columnWidths = [];
+
+
+        const firstRow =
+            rows[0] || {};
+
+
+        Object.keys(firstRow)
+            .forEach(
+                key => {
+
+                    let maxLength =
+                        String(key).length;
+
+
+                    rows.forEach(
+                        row => {
+
+                            const value =
+                                row[key] ?? "";
+
+
+                            maxLength =
+                                Math.max(
+                                    maxLength,
+                                    String(
+                                        value
+                                    ).length
+                                );
+                        }
+                    );
+
+
+                    columnWidths.push({
+                        wch: Math.min(
+                            Math.max(
+                                maxLength + 2,
+                                12
+                            ),
+                            55
+                        )
+                    });
+                }
+            );
+
+
+        worksheet["!cols"] =
+            columnWidths;
+
+
+        const workbook =
+            XLSX.utils.book_new();
+
+
+        XLSX.utils.book_append_sheet(
+            workbook,
+            worksheet,
+            "پاسخ‌ها"
+        );
+
+
+        const safeTitle =
+            String(
+                survey?.title ||
+                "نظرسنجی"
+            )
+                .replace(
+                    /[\\/:*?"<>|]/g,
+                    "_"
+                )
+                .trim();
+
+
+        const fileName =
+            `${safeTitle || "survey"}-responses.xlsx`;
+
+
+        XLSX.writeFile(
+            workbook,
+            fileName
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Excel export error:",
+            error
+        );
+
+        alert(
+            "دریافت اطلاعات کامل پاسخ‌ها برای خروجی Excel با خطا مواجه شد."
+        );
+
+    } finally {
+
+        button.disabled = false;
+
+        button.innerHTML =
+            originalButtonHtml;
+    }
+}
+/* =====================================
+   Events
+===================================== */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+        questionModal =
+            new bootstrap.Modal(
+                document.getElementById(
+                    "questionModal"
+                )
+            );
+
+
+        deleteQuestionModal =
+            new bootstrap.Modal(
+                document.getElementById(
+                    "deleteQuestionModal"
+                )
+            );
+
+
+        toggleSurveyModal =
+            new bootstrap.Modal(
+                document.getElementById(
+                    "toggleSurveyModal"
+                )
+            );
+
+
+        document
+            .getElementById(
+                "addQuestionButton"
+            )
+            .addEventListener(
+                "click",
+                openAddQuestion
+            );
+
+
+        document
+            .getElementById(
+                "questionTypeInput"
+            )
+            .addEventListener(
+                "change",
+                updateOptionsVisibility
+            );
+
+
+        document
+            .getElementById(
+                "addOptionButton"
+            )
+            .addEventListener(
+                "click",
+                () => addOptionRow()
+            );
+
+
+        document
+            .getElementById(
+                "saveQuestionButton"
+            )
+            .addEventListener(
+                "click",
+                saveQuestion
+            );
+
+
+        document
+            .getElementById(
+                "confirmDeleteQuestionButton"
+            )
+            .addEventListener(
+                "click",
+                deleteQuestion
+            );
+
+
+        document
+            .getElementById(
+                "saveSurveyButton"
+            )
+            .addEventListener(
+                "click",
+                saveSurvey
+            );
+
+
+        document
+            .getElementById(
+                "toggleSurveyButton"
+            )
+            .addEventListener(
+                "click",
+                openToggleSurvey
+            );
+
+
+        document
+            .getElementById(
+                "confirmToggleButton"
+            )
+            .addEventListener(
+                "click",
+                toggleSurvey
+            );
+
+
+        document
+            .getElementById(
+                "exportExcelButton"
+            )
+            .addEventListener(
+                "click",
+                exportResponsesToExcel
+            );
+
+
+        loadSurvey();
+    }
+);
+</script>
+
+{% endblock %}

@@ -1,0 +1,451 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>سامانه گزارش معلمان</title>
+
+    <!-- Bootstrap -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css"
+        rel="stylesheet"
+    >
+
+    <!-- Bootstrap Icons -->
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    >
+
+    <!-- Vazirmatn -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <!-- Custom CSS -->
+    <link
+        rel="stylesheet"
+        href="{% static 'css/home.css' %}"
+    >
+
+    <style>
+
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --background: #f5f7fb;
+            --card: #ffffff;
+            --text: #171923;
+            --muted: #6b7280;
+            --border: #e5e7eb;
+            --shadow: 0 20px 50px rgba(15, 23, 42, 0.10);
+            --radius: 22px;
+        }
+
+
+        * {
+            box-sizing: border-box;
+        }
+
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+
+            font-family: "Vazirmatn", sans-serif;
+
+            background:
+                radial-gradient(
+                    circle at 10% 10%,
+                    rgba(79, 70, 229, 0.10),
+                    transparent 30%
+                ),
+                radial-gradient(
+                    circle at 90% 90%,
+                    rgba(67, 56, 202, 0.08),
+                    transparent 30%
+                ),
+                var(--background);
+
+            color: var(--text);
+        }
+
+
+        .home-page {
+            min-height: 100vh;
+
+            display: flex;
+            align-items: center;
+
+            padding: 50px 0;
+        }
+
+
+        .home-wrapper {
+            width: 100%;
+            max-width: 520px;
+
+            margin: 0 auto;
+        }
+
+
+        /* =========================
+           Main Card
+        ========================= */
+
+        .home-card {
+            position: relative;
+
+            background: var(--card);
+
+            border: 1px solid rgba(229, 231, 235, 0.9);
+
+            border-radius: var(--radius);
+
+            padding: 42px 38px;
+
+            text-align: center;
+
+            box-shadow: var(--shadow);
+
+            overflow: hidden;
+        }
+
+
+        .home-card::before {
+            content: "";
+
+            position: absolute;
+
+            top: 0;
+            right: 0;
+            left: 0;
+
+            height: 4px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    var(--primary),
+                    #6366f1,
+                    var(--primary-dark)
+                );
+        }
+
+
+        /* =========================
+           Icon
+        ========================= */
+
+        .icon-wrapper {
+            width: 72px;
+            height: 72px;
+
+            margin: 0 auto 24px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 20px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--primary),
+                    var(--primary-dark)
+                );
+
+            color: #fff;
+
+            box-shadow:
+                0 12px 25px rgba(79, 70, 229, 0.25);
+        }
+
+
+        .icon-wrapper i {
+            font-size: 30px;
+        }
+
+
+        /* =========================
+           Title
+        ========================= */
+
+        .title {
+            margin: 0;
+
+            font-size: 27px;
+            font-weight: 800;
+
+            line-height: 1.5;
+
+            color: var(--text);
+        }
+
+
+        .description {
+            margin: 12px auto 0;
+
+            max-width: 390px;
+
+            font-size: 14px;
+            line-height: 1.9;
+
+            color: var(--muted);
+        }
+
+
+        /* =========================
+           Buttons
+        ========================= */
+
+        .buttons {
+            display: flex;
+            flex-direction: column;
+
+            gap: 12px;
+
+            margin-top: 30px;
+        }
+
+
+        .home-button {
+            min-height: 52px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            gap: 9px;
+
+            border-radius: 12px;
+
+            font-size: 14px;
+            font-weight: 700;
+
+            transition:
+                transform 0.2s ease,
+                box-shadow 0.2s ease,
+                background-color 0.2s ease;
+        }
+
+
+        .home-button:hover {
+            transform: translateY(-2px);
+        }
+
+
+        .login-button {
+            color: #fff;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--primary),
+                    var(--primary-dark)
+                );
+
+            border: none;
+
+            box-shadow:
+                0 8px 18px rgba(79, 70, 229, 0.20);
+        }
+
+
+        .login-button:hover {
+            color: #fff;
+
+            box-shadow:
+                0 12px 24px rgba(79, 70, 229, 0.28);
+        }
+
+
+        .register-button {
+            color: var(--primary);
+
+            background: #fff;
+
+            border: 1px solid #c7d2fe;
+        }
+
+
+        .register-button:hover {
+            color: var(--primary-dark);
+
+            background: #f5f7ff;
+
+            border-color: var(--primary);
+        }
+
+
+        /* =========================
+           Bottom Text
+        ========================= */
+
+        .info-box {
+            margin-top: 18px;
+
+            padding: 20px 22px;
+
+            background: rgba(255, 255, 255, 0.72);
+
+            border: 1px solid var(--border);
+
+            border-radius: 16px;
+
+            text-align: center;
+
+            box-shadow:
+                0 8px 25px rgba(15, 23, 42, 0.04);
+        }
+
+
+        .info-box-title {
+            margin: 0 0 7px;
+
+            font-size: 14px;
+            font-weight: 700;
+
+            color: var(--text);
+        }
+
+
+        .info-box-text {
+            margin: 0;
+
+            font-size: 12px;
+
+            line-height: 1.9;
+
+            color: var(--muted);
+        }
+
+
+        /* =========================
+           Responsive
+        ========================= */
+
+        @media (max-width: 576px) {
+
+            .home-page {
+                padding: 25px 15px;
+            }
+
+
+            .home-card {
+                padding: 35px 22px;
+                border-radius: 18px;
+            }
+
+
+            .title {
+                font-size: 23px;
+            }
+
+
+            .description {
+                font-size: 13px;
+            }
+
+
+            .icon-wrapper {
+                width: 64px;
+                height: 64px;
+            }
+
+
+            .info-box {
+                padding: 17px;
+            }
+
+        }
+
+    </style>
+</head>
+
+
+<body>
+
+<main class="home-page">
+
+    <div class="container">
+
+        <div class="home-wrapper">
+
+            <!-- =========================
+                 Main Card
+            ========================= -->
+
+            <div class="home-card">
+
+                <div class="icon-wrapper">
+                    <i class="bi bi-mortarboard-fill"></i>
+                </div>
+
+
+                <h1 class="title">
+                    سامانه گزارش معلمان
+                </h1>
+
+
+                <p class="description">
+                    گزارش‌های خود را به آسانی ثبت و مدیریت کنید.
+                </p>
+
+
+                <div class="buttons">
+
+                    <a
+                        href="/login/"
+                        class="btn home-button login-button"
+                    >
+                        <i class="bi bi-box-arrow-in-left"></i>
+                        <span>ورود به حساب</span>
+                    </a>
+
+
+                    <a
+                        href="/register/"
+                        class="btn home-button register-button"
+                    >
+                        <i class="bi bi-person-plus"></i>
+                        <span>ایجاد حساب جدید</span>
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================
+                 Temporary Information
+            ========================= -->
+
+            <div class="info-box">
+
+                <h2 class="info-box-title">
+                    درباره سامانه
+                </h2>
+
+                <p class="info-box-text">
+                    این بخش فعلاً یک متن آزمایشی است و می‌توانید
+                    در آینده توضیحات موردنظر خود را در این قسمت قرار دهید.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</main>
+
+</body>
+
+</html>

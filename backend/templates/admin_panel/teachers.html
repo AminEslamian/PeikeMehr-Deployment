@@ -1,0 +1,717 @@
+{% extends "admin_panel/base.html" %}
+
+{% block title %}مدیریت معلم‌ها | پنل مدیریت{% endblock %}
+{% block teachers_active %}active{% endblock %}
+{% block page_title %}مدیریت معلم‌ها{% endblock %}
+{% block page_description %}مشاهده، جستجو و بررسی اطلاعات معلمین{% endblock %}
+
+{% block extra_css %}
+<style>
+.teachers-page{display:flex;flex-direction:column;gap:22px}
+.teacher-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.teacher-stat{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow-sm);display:flex;align-items:center;gap:15px}
+.teacher-stat-icon{width:46px;height:46px;flex-shrink:0;border-radius:13px;display:flex;align-items:center;justify-content:center;background:var(--background-secondary);color:var(--primary);font-size:20px}
+.teacher-stat-label{color:var(--muted);font-size:12px;margin-bottom:4px}
+.teacher-stat-value{color:var(--text);font-size:20px;font-weight:800}
+.filters-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);padding:22px}
+.filters-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.filters-title{display:flex;align-items:center;gap:10px;color:var(--text);font-size:15px;font-weight:800}
+.filters-title-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:var(--background-secondary);color:var(--primary)}
+.filters-grid{display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:14px;align-items:end}
+.filter-group label{display:block;color:var(--text);font-size:12px;font-weight:700;margin-bottom:7px}
+.filter-group .form-control{min-height:44px;border-radius:11px;border:1px solid var(--border);background:var(--background-secondary);color:var(--text);font-family:inherit;font-size:13px}
+.filter-group .form-control::placeholder{color:var(--muted)}
+.filter-group .form-control:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.10)}
+.search-button{min-height:44px;border:0;border-radius:11px;padding:0 20px;background:var(--primary);color:#fff;font-family:inherit;font-size:12px;font-weight:700;transition:var(--transition)}
+.search-button:hover{background:var(--primary-dark);transform:translateY(-1px)}
+.clear-button{min-height:44px;border-radius:11px;font-family:inherit;font-size:12px;font-weight:700}
+.teachers-table-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);overflow:hidden}
+.table-header{padding:20px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap}
+.table-header-title{color:var(--text);font-size:15px;font-weight:800}
+.table-header-description{color:var(--muted);font-size:11px;margin-top:4px}
+.table-header-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.export-excel-btn{display:inline-flex;align-items:center;gap:7px;min-height:40px;padding:0 15px;border:0;border-radius:10px;background:#16a34a;color:#fff;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;transition:var(--transition)}
+.export-excel-btn:hover:not(:disabled){background:#15803d;transform:translateY(-1px)}
+.export-excel-btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.export-excel-btn .spinner-border{width:14px;height:14px;border-width:2px}
+.teacher-table{margin:0;color:var(--text)}
+.teacher-table thead th{background:var(--background-secondary);border-bottom:1px solid var(--border);color:var(--muted);font-size:11px;font-weight:700;padding:14px 16px;white-space:nowrap}
+.teacher-table tbody td{padding:15px 16px;border-color:var(--border);color:var(--text);font-size:12px;vertical-align:middle}
+.teacher-table tbody tr{transition:var(--transition)}
+.teacher-table tbody tr:hover{background:var(--background-secondary)}
+.teacher-name{display:flex;align-items:center;gap:11px;min-width:190px}
+.teacher-avatar{width:38px;height:38px;flex-shrink:0;border-radius:11px;display:flex;align-items:center;justify-content:center;background:var(--background-secondary);color:var(--primary);font-size:14px;font-weight:800}
+.teacher-name-text{min-width:0}
+.teacher-name-link{display:block;color:var(--text);text-decoration:none;font-size:13px;font-weight:800;margin-bottom:3px}
+.teacher-name-link:hover{color:var(--primary)}
+.teacher-subtext{color:var(--muted);font-size:10px}
+.teacher-location{display:flex;align-items:center;gap:5px;white-space:nowrap}
+.teacher-location i{color:var(--muted)}
+.teacher-school{max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.teacher-grade{display:flex;flex-wrap:wrap;gap:4px;max-width:170px}
+.grade-badge{display:inline-flex;align-items:center;padding:4px 7px;border-radius:6px;background:var(--background-secondary);border:1px solid var(--border);color:var(--text);font-size:9px;white-space:nowrap}
+.position-badge{display:inline-flex;align-items:center;padding:5px 8px;border-radius:7px;background:var(--background-secondary);color:var(--text);font-size:10px;white-space:nowrap}
+.points-badge{display:inline-flex;align-items:center;gap:5px;padding:6px 9px;border-radius:8px;background:var(--background-secondary);color:var(--text);font-size:11px;font-weight:800;white-space:nowrap}
+.points-badge i{color:#f59e0b}
+.teacher-action{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:34px;padding:0 11px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--primary);text-decoration:none;font-size:10px;font-weight:700;transition:var(--transition);white-space:nowrap}
+.teacher-action:hover{border-color:var(--primary);background:var(--background-secondary);color:var(--primary)}
+.table-state{padding:65px 20px!important;text-align:center;color:var(--muted)!important}
+.table-state-icon{width:52px;height:52px;margin:0 auto 12px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:var(--background-secondary);font-size:22px}
+.table-state-title{color:var(--text);font-weight:800;font-size:14px;margin-bottom:5px}
+.table-state-text{font-size:11px}
+
+/* ===== Load More ===== */
+.load-more-wrap{display:flex;flex-direction:column;align-items:center;gap:12px;padding:20px;border-top:1px solid var(--border)}
+.load-more-info{color:var(--muted);font-size:12px}
+.btn-load-more{min-height:44px;padding:0 28px;border:1px solid var(--border);border-radius:12px;background:var(--card);color:var(--text);font-family:inherit;font-size:13px;font-weight:700;display:inline-flex;align-items:center;gap:8px;cursor:pointer;transition:var(--transition);box-shadow:var(--shadow-sm)}
+.btn-load-more:hover:not(:disabled){border-color:var(--primary);color:var(--primary);transform:translateY(-1px);box-shadow:var(--shadow)}
+.btn-load-more:disabled{opacity:.6;cursor:not-allowed}
+.btn-load-more .spinner-border{width:16px;height:16px;border-width:2px}
+
+@media(max-width:1200px){.filters-grid{grid-template-columns:1fr 1fr}.filters-grid .search-field{grid-column:span 2}.teacher-stats{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:900px){.teacher-stats{grid-template-columns:1fr}.filters-grid{grid-template-columns:1fr}.filters-grid .search-field{grid-column:auto}}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="teachers-page">
+    <div class="teacher-stats">
+        <div class="teacher-stat">
+            <div class="teacher-stat-icon"><i class="bi bi-people"></i></div>
+            <div><div class="teacher-stat-label">تعداد معلم‌ها</div><div id="teachersCount" class="teacher-stat-value">۰</div></div>
+        </div>
+        <div class="teacher-stat">
+            <div class="teacher-stat-icon"><i class="bi bi-star"></i></div>
+            <div><div class="teacher-stat-label">مجموع امتیازات</div><div id="pointsCount" class="teacher-stat-value">۰</div></div>
+        </div>
+        <div class="teacher-stat">
+            <div class="teacher-stat-icon"><i class="bi bi-eye"></i></div>
+            <div><div class="teacher-stat-label">معلم‌های نمایش‌داده‌شده</div><div id="visibleTeachersCount" class="teacher-stat-value">۰</div></div>
+        </div>
+    </div>
+
+    <div class="filters-card">
+        <div class="filters-header">
+            <div class="filters-title">
+                <span class="filters-title-icon"><i class="bi bi-sliders"></i></span>
+                جستجو و فیلتر معلم‌ها
+            </div>
+        </div>
+        <form id="teacherSearchForm">
+            <div class="filters-grid">
+                <div class="filter-group search-field">
+                    <label for="teacherQuery">جستجو</label>
+                    <input type="text" id="teacherQuery" class="form-control" placeholder="نام، کد ملی یا شماره تماس..." name="search">
+                </div>
+                <div class="filter-group">
+                    <label for="teacherProvince">استان</label>
+                    <input type="text" id="teacherProvince" class="form-control" placeholder="مثلاً قم" name="province">
+                </div>
+                <div class="filter-group">
+                    <label for="teacherCity">شهر</label>
+                    <input type="text" id="teacherCity" class="form-control" placeholder="مثلاً قم" name="city">
+                </div>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="search-button flex-grow-1"><i class="bi bi-search me-1"></i>جستجو</button>
+                    <button type="button" id="clearFilters" class="btn btn-outline-secondary clear-button"><i class="bi bi-arrow-counterclockwise"></i></button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="teachers-table-card">
+        <div class="table-header">
+            <div>
+                <div class="table-header-title">لیست معلم‌ها</div>
+                <div class="table-header-description">برای مشاهده جزئیات کامل، روی نام معلم کلیک کنید.</div>
+            </div>
+            <div class="table-header-actions">
+                <span id="tableResultCount" class="badge rounded-pill bg-primary">۰ مورد</span>
+                <button id="exportExcelBtn" type="button" class="export-excel-btn">
+                    <i class="bi bi-file-earmark-excel"></i>
+                    <span>خروجی اکسل</span>
+                </button>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table teacher-table mb-0">
+                <thead>
+                    <tr>
+                        <th>معلم</th><th>تماس</th><th>محل</th><th>مدرسه</th>
+                        <th>پایه‌های تدریس</th><th>سمت</th><th>امتیاز</th><th>عملیات</th>
+                    </tr>
+                </thead>
+                <tbody id="teachersTableBody">
+                    <tr><td colspan="8" class="table-state">
+                        <div class="table-state-icon"><div class="spinner-border spinner-border-sm" role="status"></div></div>
+                        <div class="table-state-title">در حال دریافت اطلاعات</div>
+                        <div class="table-state-text">لطفاً چند لحظه صبر کنید...</div>
+                    </td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Load More -->
+        <div id="loadMoreWrap" class="load-more-wrap d-none">
+            <div id="loadMoreInfo" class="load-more-info"></div>
+            <button id="loadMoreBtn" type="button" class="btn-load-more">
+                <i class="bi bi-arrow-down-circle"></i>
+                <span>بارگذاری بیشتر</span>
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+const TEACHERS_API_URL = "/admin-panel/api/teachers/";
+const POINTS_API_URL = "/admin-panel/api/points/";
+const TEACHER_DETAIL_URL = "/admin-panel/teachers/";
+
+/* تعداد آیتم برای خروجی اکسل (همه) */
+const PAGE_SIZE_EXPORT = 10000;
+
+/* ====== State ====== */
+let allTeachers = [];
+let nextTeachersUrl = null;
+let totalTeachersCount = 0;
+let pointsMap = {};
+let isLoadingTeachers = false;
+let isExporting = false;
+
+/* ====== Refs ====== */
+const teachersTableBody = document.getElementById("teachersTableBody");
+const loadMoreWrap = document.getElementById("loadMoreWrap");
+const loadMoreBtn = document.getElementById("loadMoreBtn");
+const loadMoreInfo = document.getElementById("loadMoreInfo");
+const exportExcelBtn = document.getElementById("exportExcelBtn");
+const teacherSearchForm = document.getElementById("teacherSearchForm");
+
+/* =========================
+   AUTH
+========================= */
+
+function getAccessToken() {
+    return localStorage.getItem("access_token");
+}
+
+function logoutAdmin() {
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+    window.location.href = "/login/";
+}
+
+async function fetchAPI(url, options = {}) {
+    const token = getAccessToken();
+
+    if (!token) {
+        logoutAdmin();
+        throw new Error("Access token not found.");
+    }
+
+    const headers = new Headers(options.headers || {});
+    headers.set("Authorization", `Bearer ${token}`);
+    headers.set("Accept", "application/json");
+
+    const response = await fetch(url, { ...options, headers });
+
+    if (response.status === 401 || response.status === 403) {
+        logoutAdmin();
+        throw new Error(response.status === 401 ? "Unauthorized." : "Forbidden.");
+    }
+
+    if (!response.ok) {
+        let message = `خطا در دریافت اطلاعات (${response.status})`;
+        try {
+            const errorData = await response.json();
+            if (errorData && errorData.detail) message = errorData.detail;
+        } catch (_) {}
+        throw new Error(message);
+    }
+
+    return response;
+}
+
+/* =========================
+   HELPERS
+========================= */
+
+function escapeHtml(value) {
+    if (value === null || value === undefined) return "";
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+function getResults(data) {
+    if (Array.isArray(data)) return data;
+    if (data && Array.isArray(data.results)) return data.results;
+    return [];
+}
+
+function getFullName(teacher) {
+    return (
+        teacher.full_name ||
+        `${teacher.first_name || ""} ${teacher.last_name || ""}`.trim() ||
+        "بدون نام"
+    );
+}
+
+/* =========================
+   POINTS
+========================= */
+
+async function loadAllPoints() {
+    /*
+     * برای اطمینان از گرفتن همه امتیازها،
+     * از page_size بالا استفاده می‌کنیم.
+     */
+    const url = `${POINTS_API_URL}`;
+    const response = await fetchAPI(url);
+    return getResults(await response.json());
+}
+
+function getTeacherId(point) {
+    if (point.teacher !== undefined && point.teacher !== null) {
+        if (typeof point.teacher === "object") return point.teacher.id;
+        return point.teacher;
+    }
+    return point.teacher_id ?? null;
+}
+
+function getPointValue(point) {
+    const fields = ["score", "points", "point", "value", "amount"];
+    for (const field of fields) {
+        if (point[field] !== undefined && point[field] !== null) {
+            return Number(point[field]) || 0;
+        }
+    }
+    return 0;
+}
+
+function buildPointsMap(points) {
+    const map = {};
+    points.forEach(point => {
+        const teacherId = getTeacherId(point);
+        if (teacherId === null || teacherId === undefined) return;
+        const key = String(teacherId);
+        map[key] = (map[key] || 0) + getPointValue(point);
+    });
+    return map;
+}
+
+/* =========================
+   TEACHER RENDERING
+========================= */
+
+function getInitials(teacher) {
+    const first = (teacher.first_name || "").trim();
+    const last = (teacher.last_name || "").trim();
+    if (first && last) return first.charAt(0) + last.charAt(0);
+    if (first) return first.charAt(0);
+    if (last) return last.charAt(0);
+    return "م";
+}
+
+function renderGrades(teacher) {
+    const grades = Array.isArray(teacher.grade) ? teacher.grade : [];
+    if (!grades.length) return `<span class="text-muted small">ثبت نشده</span>`;
+    return `
+        <div class="teacher-grade">
+            ${grades.map(grade => `
+                <span class="grade-badge">${escapeHtml(grade)}</span>
+            `).join("")}
+        </div>
+    `;
+}
+
+function renderTeacherRow(teacher) {
+    const fullName = getFullName(teacher);
+    const teacherId = teacher.id;
+    const totalPoints = pointsMap[String(teacherId)] || 0;
+    const location = [teacher.province, teacher.city].filter(Boolean).join("، ");
+
+    return `
+        <tr>
+            <td>
+                <div class="teacher-name">
+                    <div class="teacher-avatar">${escapeHtml(getInitials(teacher))}</div>
+                    <div class="teacher-name-text">
+                        <a href="${TEACHER_DETAIL_URL}${encodeURIComponent(teacherId)}/" class="teacher-name-link">
+                            ${escapeHtml(fullName)}
+                        </a>
+                        <div class="teacher-subtext">
+                            کد ملی: ${escapeHtml(teacher.national_id || "-")}
+                        </div>
+                    </div>
+                </div>
+            </td>
+            <td>${escapeHtml(teacher.phone_number || "-")}</td>
+            <td>
+                <div class="teacher-location">
+                    <i class="bi bi-geo-alt"></i>
+                    <span>${escapeHtml(location || "-")}</span>
+                </div>
+            </td>
+            <td><div class="teacher-school">${escapeHtml(teacher.school || "-")}</div></td>
+            <td>${renderGrades(teacher)}</td>
+            <td><span class="position-badge">${escapeHtml(teacher.position || "-")}</span></td>
+            <td>
+                <span class="points-badge">
+                    <i class="bi bi-star-fill"></i>
+                    ${totalPoints.toLocaleString("fa-IR")}
+                </span>
+            </td>
+            <td>
+                <a href="${TEACHER_DETAIL_URL}${encodeURIComponent(teacherId)}/" class="teacher-action">
+                    <i class="bi bi-eye"></i>
+                    مشاهده
+                </a>
+            </td>
+        </tr>
+    `;
+}
+
+/* =========================
+   QUERY PARAMS
+========================= */
+
+function buildQueryParams() {
+    const formData = new FormData(teacherSearchForm);
+    const params = new URLSearchParams();
+
+    for (const [key, value] of formData.entries()) {
+        const normalized = String(value || "").trim();
+        if (normalized) params.set(key, normalized);
+    }
+
+    return params;
+}
+
+/* =========================
+   LOAD TEACHERS (UI)
+========================= */
+
+async function loadTeachers(reset = true) {
+    if (isLoadingTeachers) return;
+    isLoadingTeachers = true;
+
+    if (reset) {
+        allTeachers = [];
+        nextTeachersUrl = null;
+        totalTeachersCount = 0;
+        loadMoreWrap.classList.add("d-none");
+    }
+
+    if (reset) {
+        teachersTableBody.innerHTML = `
+            <tr><td colspan="8" class="table-state">
+                <div class="table-state-icon">
+                    <div class="spinner-border spinner-border-sm" role="status"></div>
+                </div>
+                <div class="table-state-title">در حال دریافت اطلاعات</div>
+                <div class="table-state-text">در حال بارگذاری معلم‌ها...</div>
+            </td></tr>
+        `;
+    }
+
+    try {
+        /* نقاط فقط یک بار لود می‌شود */
+        if (reset || !Object.keys(pointsMap).length) {
+            const points = await loadAllPoints();
+            pointsMap = buildPointsMap(points);
+
+            const totalPoints = points.reduce(
+                (total, point) => total + getPointValue(point), 0
+            );
+            document.getElementById("pointsCount").textContent =
+                totalPoints.toLocaleString("fa-IR");
+        }
+
+        let url;
+        if (reset) {
+            const params = buildQueryParams();
+            params.set("page", "1");
+            url = `${TEACHERS_API_URL}?${params.toString()}`;
+        } else {
+            if (!nextTeachersUrl) {
+                isLoadingTeachers = false;
+                return;
+            }
+            url = nextTeachersUrl;
+        }
+
+        const response = await fetchAPI(url);
+        const data = await response.json();
+
+        handleTeachersResponse(data, reset);
+
+    } catch (error) {
+        console.error("Teacher loading error:", error);
+
+        if (reset) {
+            teachersTableBody.innerHTML = `
+                <tr><td colspan="8" class="table-state">
+                    <div class="table-state-icon text-danger">
+                        <i class="bi bi-exclamation-triangle"></i>
+                    </div>
+                    <div class="table-state-title">دریافت اطلاعات ناموفق بود</div>
+                    <div class="table-state-text">
+                        ${escapeHtml(error.message || "خطای نامشخص")}
+                    </div>
+                </td></tr>
+            `;
+        }
+    } finally {
+        isLoadingTeachers = false;
+    }
+}
+
+/* =========================
+   HANDLE RESPONSE
+========================= */
+
+function handleTeachersResponse(data, reset) {
+    const hasPagination =
+        data &&
+        !Array.isArray(data) &&
+        (Array.isArray(data.results) ||
+            Object.prototype.hasOwnProperty.call(data, "next"));
+
+    let pageResults = [];
+    let nextUrl = null;
+    let totalCount = null;
+
+    if (hasPagination) {
+        pageResults = Array.isArray(data.results) ? data.results : [];
+        nextUrl = data.next || null;
+        if (typeof data.count === "number") totalCount = data.count;
+    } else {
+        pageResults = getResults(data);
+        nextUrl = null;
+        totalCount = pageResults.length;
+    }
+
+    if (reset) {
+        allTeachers = pageResults;
+    } else {
+        allTeachers = allTeachers.concat(pageResults);
+    }
+
+    nextTeachersUrl = nextUrl;
+
+    totalTeachersCount = totalCount !== null
+        ? totalCount
+        : allTeachers.length;
+
+    document.getElementById("teachersCount").textContent =
+        totalTeachersCount.toLocaleString("fa-IR");
+
+    document.getElementById("visibleTeachersCount").textContent =
+        allTeachers.length.toLocaleString("fa-IR");
+
+    document.getElementById("tableResultCount").textContent =
+        `${allTeachers.length.toLocaleString("fa-IR")} مورد`;
+
+    if (!allTeachers.length) {
+        teachersTableBody.innerHTML = `
+            <tr><td colspan="8" class="table-state">
+                <div class="table-state-icon"><i class="bi bi-person-x"></i></div>
+                <div class="table-state-title">معلمی پیدا نشد</div>
+                <div class="table-state-text">
+                    فیلترهای جستجو را تغییر دهید و دوباره امتحان کنید.
+                </div>
+            </td></tr>
+        `;
+        loadMoreWrap.classList.add("d-none");
+        return;
+    }
+
+    teachersTableBody.innerHTML = allTeachers
+        .map(renderTeacherRow)
+        .join("");
+
+    updateLoadMoreUI();
+}
+
+/* =========================
+   LOAD MORE
+========================= */
+
+function updateLoadMoreUI() {
+    if (!allTeachers.length) {
+        loadMoreWrap.classList.add("d-none");
+        return;
+    }
+
+    if (nextTeachersUrl) {
+        loadMoreWrap.classList.remove("d-none");
+
+        const shownTotal = totalTeachersCount > 0
+            ? totalTeachersCount
+            : allTeachers.length;
+
+        loadMoreInfo.textContent =
+            `${allTeachers.length.toLocaleString("fa-IR")} از ${shownTotal.toLocaleString("fa-IR")} معلم نمایش داده شده`;
+
+        loadMoreBtn.disabled = false;
+    } else {
+        loadMoreWrap.classList.add("d-none");
+    }
+}
+
+async function onLoadMoreClick() {
+    if (!nextTeachersUrl || isLoadingTeachers) return;
+
+    isLoadingTeachers = true;
+    loadMoreBtn.disabled = true;
+
+    const originalHtml = loadMoreBtn.innerHTML;
+
+    loadMoreBtn.innerHTML = `
+        <span class="spinner-border" role="status"></span>
+        <span>در حال بارگذاری...</span>
+    `;
+
+    try {
+        const response = await fetchAPI(nextTeachersUrl);
+        const data = await response.json();
+        handleTeachersResponse(data, false);
+    } catch (error) {
+        console.error("Load more error:", error);
+        alert("بارگذاری صفحه بعد با مشکل مواجه شد.");
+    } finally {
+        isLoadingTeachers = false;
+        loadMoreBtn.disabled = false;
+        loadMoreBtn.innerHTML = originalHtml;
+    }
+}
+
+/* =========================
+   EXPORT EXCEL
+========================= */
+
+async function fetchAllTeachersForExport() {
+    /*
+     * همه معلم‌ها را با فیلترهای فعلی و با page_size
+     * بالا در یک درخواست می‌گیریم.
+     */
+    const params = buildQueryParams();
+    params.set("page_size", String(PAGE_SIZE_EXPORT));
+
+    const url = `${TEACHERS_API_URL}?${params.toString()}`;
+    const response = await fetchAPI(url);
+    const data = await response.json();
+
+    return getResults(data);
+}
+
+function buildExcelRows(teachers) {
+    return teachers.map((t, index) => ({
+        "ردیف": index + 1,
+        "نام": t.first_name || "",
+        "نام خانوادگی": t.last_name || "",
+        "نام کامل": getFullName(t),
+        "کد ملی": t.national_id || "",
+        "شماره تماس": t.phone_number || "",
+        "استان": t.province || "",
+        "شهر": t.city || "",
+        "مدرسه": t.school || "",
+        "پایه‌های تدریس": Array.isArray(t.grade) ? t.grade.join("، ") : "",
+        "سمت": t.position || "",
+        "مجموع امتیازات": pointsMap[String(t.id)] || 0
+    }));
+}
+
+async function exportToExcel() {
+    if (isExporting) return;
+    isExporting = true;
+
+    const originalHtml = exportExcelBtn.innerHTML;
+    exportExcelBtn.disabled = true;
+    exportExcelBtn.innerHTML = `
+        <span class="spinner-border" role="status"></span>
+        <span>در حال آماده‌سازی...</span>
+    `;
+
+    try {
+        if (typeof XLSX === "undefined") {
+            alert("کتابخانه اکسل بارگذاری نشده است.");
+            return;
+        }
+
+        /* امتیازها را تازه می‌گیریم */
+        const points = await loadAllPoints();
+        pointsMap = buildPointsMap(points);
+
+        /* همه معلم‌ها با page_size بالا */
+        const teachers = await fetchAllTeachersForExport();
+
+        if (!teachers.length) {
+            alert("معلمی برای خروجی وجود ندارد.");
+            return;
+        }
+
+        const rows = buildExcelRows(teachers);
+
+        const worksheet = XLSX.utils.json_to_sheet(rows);
+
+        worksheet["!cols"] = [
+            { wch: 6 },   // ردیف
+            { wch: 15 },  // نام
+            { wch: 20 },  // نام خانوادگی
+            { wch: 25 },  // نام کامل
+            { wch: 12 },  // کد ملی
+            { wch: 15 },  // تماس
+            { wch: 15 },  // استان
+            { wch: 15 },  // شهر
+            { wch: 25 },  // مدرسه
+            { wch: 25 },  // پایه‌ها
+            { wch: 15 },  // سمت
+            { wch: 15 }   // امتیاز
+        ];
+
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "معلم‌ها");
+
+        const today = new Date().toISOString().slice(0, 10);
+        XLSX.writeFile(workbook, `teachers_${today}.xlsx`);
+
+    } catch (error) {
+        console.error("Excel export error:", error);
+        alert("ساخت فایل اکسل با مشکل مواجه شد.");
+    } finally {
+        isExporting = false;
+        exportExcelBtn.disabled = false;
+        exportExcelBtn.innerHTML = originalHtml;
+    }
+}
+
+/* =========================
+   EVENTS
+========================= */
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    teacherSearchForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+        loadTeachers(true);
+    });
+
+    document.getElementById("clearFilters").addEventListener("click", function () {
+        teacherSearchForm.reset();
+        loadTeachers(true);
+    });
+
+    loadMoreBtn.addEventListener("click", onLoadMoreClick);
+    exportExcelBtn.addEventListener("click", exportToExcel);
+
+    loadTeachers(true);
+});
+</script>
+{% endblock %}

@@ -1,0 +1,288 @@
+* {
+    box-sizing: border-box;
+}
+
+
+body {
+    margin: 0;
+    font-family: "Vazirmatn", sans-serif;
+    background: #f4f7fb;
+    color: #1f2937;
+}
+
+
+/* ================================
+   Navbar
+================================ */
+
+.navbar-brand {
+    font-weight: 800;
+}
+
+
+/* ================================
+   Dashboard
+================================ */
+
+.dashboard-page {
+    min-height: calc(100vh - 57px);
+    padding: 35px 0;
+}
+
+
+.welcome-card,
+.dashboard-card {
+    background: #ffffff;
+    border-radius: 18px;
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.06);
+}
+
+
+.welcome-card {
+    padding: 25px 30px;
+}
+
+
+.welcome-card h2 {
+    font-size: 22px;
+    font-weight: 800;
+    margin-bottom: 8px;
+}
+
+
+.welcome-card p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+
+.dashboard-card {
+    padding: 28px;
+    height: 100%;
+}
+
+
+.card-title {
+    font-size: 20px;
+    font-weight: 800;
+    margin-bottom: 25px;
+}
+
+
+/* ================================
+   Form
+================================ */
+
+.form-label {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+
+.form-control,
+.form-select {
+    font-family: "Vazirmatn", sans-serif;
+    border-radius: 10px;
+}
+
+
+textarea {
+    resize: vertical;
+}
+
+
+.btn {
+    font-family: "Vazirmatn", sans-serif;
+    border-radius: 10px;
+}
+
+
+/* ================================
+   Tags
+================================ */
+
+.tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+
+.tag-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 12px;
+    background: #f3f6fa;
+    border-radius: 8px;
+    font-size: 13px;
+}
+
+
+.tag-checkbox label {
+    cursor: pointer;
+}
+
+
+.tag-checkbox input {
+    cursor: pointer;
+}
+
+
+/* ================================
+   Reports
+================================ */
+
+.report-item {
+    padding: 20px 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+
+.report-item:first-child {
+    padding-top: 0;
+}
+
+
+.report-item:last-child {
+    border-bottom: none;
+}
+
+
+.report-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    gap: 10px;
+}
+
+
+.report-date {
+    color: #9ca3af;
+    font-size: 12px;
+}
+
+
+.delete-report-button {
+    font-family: "Vazirmatn", sans-serif;
+    font-size: 12px;
+}
+
+
+.report-text {
+    font-size: 14px;
+    line-height: 2;
+    margin-bottom: 12px;
+    white-space: pre-wrap;
+}
+
+
+.report-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 15px;
+}
+
+
+.report-tag {
+    background: #eaf2ff;
+    color: #0d6efd;
+    border-radius: 7px;
+    padding: 4px 9px;
+    font-size: 12px;
+}
+
+
+/* ================================
+   Media
+================================ */
+
+.report-media {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+
+.report-image,
+.report-video {
+    width: 130px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+
+.media-clickable {
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+
+.media-clickable:hover {
+    transform: scale(1.03);
+}
+
+
+/* ================================
+   Modal Media
+================================ */
+
+.modal-media {
+    max-width: 100%;
+    max-height: 75vh;
+    object-fit: contain;
+    border-radius: 10px;
+    margin: auto;
+}
+
+
+#modalVideo {
+    width: 100%;
+}
+
+
+/* ================================
+   Loading / Empty
+================================ */
+
+.loading,
+.empty-state {
+    text-align: center;
+    padding: 35px 10px;
+    color: #9ca3af;
+    font-size: 14px;
+}
+
+
+/* ================================
+   Mobile
+================================ */
+
+@media (max-width: 768px) {
+
+    .dashboard-page {
+        padding: 20px 0;
+    }
+
+
+    .dashboard-card {
+        padding: 22px;
+    }
+
+
+    .welcome-card {
+        padding: 20px;
+    }
+
+
+    .report-image,
+    .report-video {
+        width: 100px;
+        height: 80px;
+    }
+
+}

@@ -1,0 +1,3095 @@
+{% extends "base.html" %}
+
+{% block title %}
+داشبورد | سامانه گزارش معلمان
+{% endblock %}
+
+
+{% block extra_css %}
+
+<style>
+
+    /* =====================================================
+       Dashboard
+    ===================================================== */
+
+    .dashboard-container {
+        max-width: 1250px;
+        margin: 0 auto;
+    }
+
+
+    /* =====================================================
+       Welcome
+    ===================================================== */
+
+    .dashboard-welcome {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+
+        padding: 26px 28px;
+
+        margin-bottom: 24px;
+
+        background: var(--card);
+
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+
+        box-shadow: var(--shadow-sm);
+    }
+
+
+    .welcome-content h1 {
+        margin: 0 0 7px;
+
+        font-size: 22px;
+        font-weight: 800;
+
+        color: var(--text);
+    }
+
+
+    .welcome-content p {
+        margin: 0;
+
+        color: var(--muted);
+
+        font-size: 13px;
+        line-height: 1.8;
+    }
+
+
+    .welcome-icon {
+        width: 54px;
+        height: 54px;
+
+        flex-shrink: 0;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 15px;
+
+        background:
+            linear-gradient(
+                135deg,
+                var(--primary),
+                var(--primary-dark)
+            );
+
+        color: #fff;
+
+        font-size: 23px;
+    }
+
+
+    /* =====================================================
+       Dashboard Grid
+    ===================================================== */
+
+    .dashboard-grid {
+        display: grid;
+
+        grid-template-columns:
+            minmax(0, 0.85fr)
+            minmax(0, 1.15fr);
+
+        gap: 24px;
+
+        align-items: start;
+    }
+
+
+    /* =====================================================
+       Card
+    ===================================================== */
+
+    .dashboard-card {
+        background: var(--card);
+
+        border: 1px solid var(--border);
+
+        border-radius: var(--radius-lg);
+
+        box-shadow: var(--shadow-sm);
+
+        overflow: hidden;
+    }
+
+
+    .dashboard-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 15px;
+
+        padding: 20px 22px;
+
+        border-bottom:
+            1px solid var(--border);
+    }
+
+
+    .dashboard-card-title {
+        display: flex;
+        align-items: center;
+
+        gap: 10px;
+
+        margin: 0;
+
+        font-size: 16px;
+        font-weight: 800;
+
+        color: var(--text);
+    }
+
+
+    .dashboard-card-title-icon {
+        width: 34px;
+        height: 34px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 9px;
+
+        background:
+            rgba(79, 70, 229, 0.10);
+
+        color: var(--primary);
+
+        font-size: 16px;
+    }
+
+
+    .dashboard-card-body {
+        padding: 22px;
+    }
+
+
+    /* =====================================================
+       Form
+    ===================================================== */
+
+    .form-label {
+        color: var(--text);
+
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+
+    .form-control {
+        background: var(--card);
+
+        color: var(--text);
+
+        border-color: var(--border);
+
+        border-radius: 10px;
+    }
+
+
+    .form-control::placeholder {
+        color: var(--muted);
+    }
+
+
+    .form-control:focus {
+        background: var(--card);
+
+        color: var(--text);
+
+        border-color: var(--primary);
+
+        box-shadow:
+            0 0 0 3px
+            rgba(79, 70, 229, 0.10);
+    }
+
+
+    .form-text {
+        color: var(--muted);
+
+        font-size: 11px;
+    }
+
+
+    /* =====================================================
+       Media Upload
+    ===================================================== */
+
+    .media-upload-box {
+        width: 100%;
+        min-height: 185px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        padding: 25px;
+
+        border:
+            2px dashed var(--border);
+
+        border-radius: 14px;
+
+        background:
+            var(--background-secondary);
+
+        cursor: pointer;
+
+        transition:
+            all var(--transition);
+    }
+
+
+    .media-upload-box:hover {
+        border-color: var(--primary);
+
+        background:
+            rgba(79, 70, 229, 0.04);
+    }
+
+
+    .media-upload-box.dragover {
+        border-color: var(--primary);
+
+        background:
+            rgba(79, 70, 229, 0.08);
+
+        transform:
+            scale(1.01);
+    }
+
+
+    .media-upload-content {
+        text-align: center;
+
+        color: var(--muted);
+    }
+
+
+    .media-upload-plus {
+        width: 54px;
+        height: 54px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        margin: 0 auto 12px;
+
+        border-radius: 50%;
+
+        background:
+            var(--card);
+
+        border:
+            1px solid var(--border);
+
+        color:
+            var(--primary);
+
+        font-size: 29px;
+        font-weight: 300;
+
+        box-shadow:
+            var(--shadow-sm);
+    }
+
+
+    .media-upload-title {
+        margin-bottom: 5px;
+
+        color: var(--text);
+
+        font-size: 14px;
+        font-weight: 800;
+    }
+
+
+    .media-upload-hint {
+        font-size: 11px;
+
+        line-height: 1.7;
+    }
+
+
+    #media {
+        display: none;
+    }
+
+
+    /* =====================================================
+       Selected Files
+    ===================================================== */
+
+    .selected-files {
+        display: grid;
+
+        gap: 7px;
+
+        margin-top: 10px;
+    }
+
+
+    .selected-file {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 10px;
+
+        padding:
+            9px 11px;
+
+        background:
+            var(--background-secondary);
+
+        border:
+            1px solid var(--border);
+
+        border-radius:
+            9px;
+
+        font-size: 12px;
+    }
+
+
+    .selected-file-info {
+        min-width: 0;
+
+        display: flex;
+        align-items: center;
+
+        gap: 8px;
+    }
+
+
+    .selected-file-icon {
+        flex-shrink: 0;
+
+        color:
+            var(--primary);
+
+        font-size: 15px;
+    }
+
+
+    .selected-file-name {
+        overflow: hidden;
+
+        text-overflow: ellipsis;
+
+        white-space: nowrap;
+
+        color:
+            var(--text);
+    }
+
+
+    .selected-file-remove {
+        flex-shrink: 0;
+
+        width: 27px;
+        height: 27px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        border: none;
+
+        border-radius: 7px;
+
+        background:
+            transparent;
+
+        color:
+            #dc2626;
+
+        cursor: pointer;
+
+        transition:
+            all var(--transition);
+    }
+
+
+    .selected-file-remove:hover {
+        background:
+            rgba(220, 38, 38, 0.10);
+    }
+
+
+    /* =====================================================
+       Tags
+    ===================================================== */
+
+    .tags-container {
+        display: flex;
+
+        flex-wrap: wrap;
+
+        gap: 8px;
+
+        min-height: 40px;
+    }
+
+
+    .tag-checkbox {
+        position: relative;
+    }
+
+
+    .tag-checkbox input {
+        position: absolute;
+
+        opacity: 0;
+
+        pointer-events: none;
+    }
+
+
+    .tag-checkbox label {
+        display: inline-flex;
+        align-items: center;
+
+        padding:
+            7px 12px;
+
+        border:
+            1px solid var(--border);
+
+        border-radius:
+            999px;
+
+        background:
+            var(--card);
+
+        color:
+            var(--muted);
+
+        font-size:
+            12px;
+
+        font-weight:
+            600;
+
+        cursor:
+            pointer;
+
+        transition:
+            all var(--transition);
+    }
+
+
+    .tag-checkbox label:hover {
+        border-color:
+            var(--primary);
+
+        color:
+            var(--primary);
+    }
+
+
+    .tag-checkbox input:checked + label {
+        background:
+            rgba(79, 70, 229, 0.10);
+
+        border-color:
+            var(--primary);
+
+        color:
+            var(--primary);
+    }
+
+
+    /* =====================================================
+       Form Messages
+    ===================================================== */
+
+    .form-message {
+        display: none;
+
+        padding:
+            10px 12px;
+
+        margin-bottom:
+            14px;
+
+        border-radius:
+            9px;
+
+        font-size:
+            12px;
+
+        line-height:
+            1.7;
+    }
+
+
+    .form-message:not(:empty) {
+        display: block;
+    }
+
+
+    .form-error {
+        color:
+            #dc2626;
+
+        background:
+            rgba(220, 38, 38, 0.07);
+
+        border:
+            1px solid
+            rgba(220, 38, 38, 0.15);
+    }
+
+
+    .form-success {
+        color:
+            #15803d;
+
+        background:
+            rgba(22, 163, 74, 0.07);
+
+        border:
+            1px solid
+            rgba(22, 163, 74, 0.15);
+    }
+
+
+    /* =====================================================
+       Submit
+    ===================================================== */
+
+    .submit-button {
+        height:
+            46px;
+
+        border-radius:
+            10px;
+
+        font-size:
+            13px;
+
+        font-weight:
+            700;
+    }
+
+
+    /* =====================================================
+       Reports
+    ===================================================== */
+
+    .reports-list {
+        display:
+            grid;
+
+        gap:
+            14px;
+    }
+
+
+    .report-item {
+        padding:
+            17px;
+
+        background:
+            var(--background-secondary);
+
+        border:
+            1px solid var(--border);
+
+        border-radius:
+            14px;
+
+        transition:
+            all var(--transition);
+    }
+
+
+    .report-item:hover {
+        border-color:
+            color-mix(
+                in srgb,
+                var(--primary) 35%,
+                var(--border)
+            );
+    }
+
+
+    .report-header {
+        display:
+            flex;
+
+        align-items:
+            center;
+
+        justify-content:
+            space-between;
+
+        gap:
+            10px;
+
+        margin-bottom:
+            13px;
+    }
+
+
+    .report-date {
+        display:
+            inline-flex;
+
+        align-items:
+            center;
+
+        gap:
+            6px;
+
+        color:
+            var(--muted);
+
+        font-size:
+            11px;
+    }
+
+
+    .report-date i {
+        color:
+            var(--primary);
+    }
+
+
+    .delete-report-button {
+        display:
+            inline-flex;
+
+        align-items:
+            center;
+
+        gap:
+            5px;
+
+        border-radius:
+            8px;
+
+        font-size:
+            11px;
+    }
+
+
+    .report-text {
+        color:
+            var(--text);
+
+        font-size:
+            13px;
+
+        line-height:
+            2;
+
+        white-space:
+            pre-wrap;
+
+        margin-bottom:
+            12px;
+    }
+
+
+    .report-text:empty {
+        display:
+            none;
+    }
+
+
+    /* =====================================================
+       Report Tags
+    ===================================================== */
+
+    .report-tags {
+        display:
+            flex;
+
+        flex-wrap:
+            wrap;
+
+        gap:
+            6px;
+
+        margin-bottom:
+            13px;
+    }
+
+
+    .report-tag {
+        display:
+            inline-flex;
+
+        align-items:
+            center;
+
+        padding:
+            4px 9px;
+
+        border-radius:
+            999px;
+
+        background:
+            rgba(79, 70, 229, 0.09);
+
+        color:
+            var(--primary);
+
+        font-size:
+            10px;
+
+        font-weight:
+            600;
+    }
+
+
+    /* =====================================================
+       Report Media
+    ===================================================== */
+
+    .report-media {
+        display:
+            grid;
+
+        grid-template-columns:
+            repeat(
+                auto-fill,
+                minmax(100px, 1fr)
+            );
+
+        gap:
+            8px;
+
+        margin-top:
+            10px;
+    }
+
+
+    .report-image,
+    .report-video {
+        width:
+            100%;
+
+        height:
+            110px;
+
+        object-fit:
+            cover;
+
+        border:
+            1px solid var(--border);
+
+        border-radius:
+            9px;
+
+        background:
+            #000;
+
+        cursor:
+            pointer;
+
+        transition:
+            transform var(--transition),
+            opacity var(--transition);
+    }
+
+
+    .report-image:hover,
+    .report-video:hover {
+        transform:
+            scale(1.02);
+
+        opacity:
+            0.9;
+    }
+
+
+    /* =====================================================
+       Loading / Empty
+    ===================================================== */
+
+    .loading,
+    .empty-state {
+        padding:
+            45px 20px;
+
+        text-align:
+            center;
+
+        color:
+            var(--muted);
+
+        font-size:
+            13px;
+    }
+
+
+    .loading::before {
+        content:
+            "";
+
+        display:
+            block;
+
+        width:
+            24px;
+
+        height:
+            24px;
+
+        margin:
+            0 auto 12px;
+
+        border:
+            2px solid var(--border);
+
+        border-top-color:
+            var(--primary);
+
+        border-radius:
+            50%;
+
+        animation:
+            dashboard-spin 0.7s linear infinite;
+    }
+
+
+    @keyframes dashboard-spin {
+
+        to {
+            transform:
+                rotate(360deg);
+        }
+
+    }
+
+
+    /* =====================================================
+       Media Modal
+    ===================================================== */
+
+    .modal-content {
+        background:
+            var(--card);
+
+        border:
+            1px solid var(--border);
+
+        border-radius:
+            var(--radius-lg);
+    }
+
+
+    .modal-header {
+        border-bottom:
+            1px solid var(--border);
+    }
+
+
+    .modal-media {
+        max-width:
+            100%;
+
+        max-height:
+            75vh;
+
+        margin:
+            auto;
+
+        border-radius:
+            10px;
+    }
+
+
+    [data-theme="dark"] .btn-close {
+        filter:
+            invert(1)
+            grayscale(1)
+            brightness(2);
+    }
+
+
+    /* =====================================================
+       Delete Modal
+    ===================================================== */
+
+    .delete-modal-icon {
+        width:
+            58px;
+
+        height:
+            58px;
+
+        display:
+            flex;
+
+        align-items:
+            center;
+
+        justify-content:
+            center;
+
+        margin:
+            0 auto 15px;
+
+        border-radius:
+            50%;
+
+        background:
+            rgba(220, 38, 38, 0.10);
+
+        color:
+            #dc2626;
+
+        font-size:
+            24px;
+    }
+
+
+    .delete-modal-title {
+        margin:
+            0 0 8px;
+
+        color:
+            var(--text);
+
+        font-size:
+            17px;
+
+        font-weight:
+            800;
+    }
+
+
+    .delete-modal-text {
+        margin:
+            0;
+
+        color:
+            var(--muted);
+
+        font-size:
+            13px;
+
+        line-height:
+            1.9;
+    }
+
+
+    /* =====================================================
+       Responsive
+    ===================================================== */
+
+    @media (max-width: 991px) {
+
+        .dashboard-grid {
+            grid-template-columns:
+                1fr;
+        }
+
+    }
+
+
+    @media (max-width: 575px) {
+
+        .dashboard-welcome {
+            padding:
+                20px;
+
+        }
+
+
+        .welcome-content h1 {
+            font-size:
+                19px;
+        }
+
+
+        .dashboard-card-header {
+            padding:
+                17px;
+        }
+
+
+        .dashboard-card-body {
+            padding:
+                17px;
+        }
+
+
+        .report-media {
+            grid-template-columns:
+                repeat(2, 1fr);
+        }
+
+
+        .report-image,
+        .report-video {
+            height:
+                130px;
+        }
+
+    }
+
+</style>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container dashboard-container">
+
+
+    <!-- =================================================
+         Welcome
+    ================================================= -->
+
+    <section class="dashboard-welcome">
+
+        <div class="welcome-content">
+
+            <h1 id="welcomeMessage">
+                در حال دریافت اطلاعات...
+            </h1>
+
+            <p>
+                رسانه‌های خود را ثبت و مدیریت کنید.
+            </p>
+
+        </div>
+
+
+        <div class="welcome-icon">
+
+            <i class="bi bi-images"></i>
+
+        </div>
+
+    </section>
+
+
+    <!-- =================================================
+         Main Grid
+    ================================================= -->
+
+    <div class="dashboard-grid">
+
+
+        <!-- =================================================
+             Create Report
+        ================================================= -->
+
+        <section class="dashboard-card">
+
+
+            <div class="dashboard-card-header">
+
+                <h2 class="dashboard-card-title">
+
+                    <span class="dashboard-card-title-icon">
+
+                        <i class="bi bi-cloud-arrow-up"></i>
+
+                    </span>
+
+                    ثبت رسانه جدید
+
+                </h2>
+
+            </div>
+
+
+            <div class="dashboard-card-body">
+
+                <form id="reportForm">
+
+
+                    <!-- Media -->
+
+                    <div class="mb-4">
+
+                        <label class="form-label">
+                            تصاویر و ویدئوها
+                        </label>
+
+
+                        <input
+                            type="file"
+                            id="media"
+                            name="media"
+                            accept="image/*,video/*"
+                            multiple
+                        >
+
+
+                        <label
+                            for="media"
+                            class="media-upload-box"
+                            id="mediaUploadBox"
+                        >
+
+                            <div class="media-upload-content">
+
+                                <div class="media-upload-plus">
+                                    <i class="bi bi-plus-lg"></i>
+                                </div>
+
+
+                                <div class="media-upload-title">
+                                    افزودن تصویر یا ویدئو
+                                </div>
+
+
+                                <div class="media-upload-hint">
+                                    برای انتخاب فایل کلیک کنید
+                                    یا فایل‌ها را اینجا بکشید
+                                </div>
+
+                            </div>
+
+                        </label>
+
+
+                        <div class="form-text mt-2">
+
+                            حداکثر حجم هر فایل ۳۰۰ مگابایت است.
+
+                        </div>
+
+
+                        <div
+                            id="selectedFiles"
+                            class="selected-files"
+                        ></div>
+
+                    </div>
+
+
+                    <!-- Tags -->
+
+                    <div class="mb-4">
+
+                        <label class="form-label mb-2">
+                            تگ‌ها
+                        </label>
+
+
+                        <div
+                            id="tagsContainer"
+                            class="tags-container"
+                        >
+
+                            <span class="text-muted small">
+                                در حال دریافت تگ‌ها...
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Text -->
+
+                    <div class="mb-4">
+
+                        <label
+                            for="text"
+                            class="form-label"
+                        >
+                            توضیحات
+                            <span class="text-muted fw-normal">
+                                (اختیاری)
+                            </span>
+                        </label>
+
+
+                        <textarea
+                            id="text"
+                            name="text"
+                            class="form-control"
+                            rows="5"
+                            placeholder="توضیحات خود را وارد کنید..."
+                        ></textarea>
+
+                    </div>
+
+
+                    <!-- Messages -->
+
+                    <div
+                        id="formError"
+                        class="form-message form-error"
+                    ></div>
+
+
+                    <div
+                        id="formSuccess"
+                        class="form-message form-success"
+                    ></div>
+
+
+                    <!-- Submit -->
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary
+                               submit-button w-100"
+                        id="submitButton"
+                    >
+
+                        <i class="bi bi-send me-1"></i>
+
+                        ارسال رسانه
+
+                    </button>
+
+                </form>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             Previous Reports
+        ================================================= -->
+
+        <section class="dashboard-card">
+
+
+            <div class="dashboard-card-header">
+
+                <h2 class="dashboard-card-title">
+
+                    <span class="dashboard-card-title-icon">
+
+                        <i class="bi bi-collection"></i>
+
+                    </span>
+
+                    رسانه‌های ارسالی من
+
+                </h2>
+
+
+                <button
+                    type="button"
+                    class="btn btn-sm btn-outline-primary"
+                    id="refreshButton"
+                >
+
+                    <i class="bi bi-arrow-clockwise"></i>
+
+                    بروزرسانی
+
+                </button>
+
+            </div>
+
+
+            <div class="dashboard-card-body">
+
+                <div id="reportsContainer">
+
+                    <div class="loading">
+                        در حال دریافت گزارش‌ها...
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+    </div>
+
+</div>
+
+
+<!-- =================================================
+     Media Modal
+================================================= -->
+
+<div
+    class="modal fade"
+    id="mediaModal"
+    tabindex="-1"
+    aria-hidden="true"
+>
+
+    <div
+        class="modal-dialog
+               modal-xl
+               modal-dialog-centered"
+    >
+
+        <div class="modal-content">
+
+
+            <div class="modal-header">
+
+                <h5 class="modal-title">
+                    مشاهده رسانه
+                </h5>
+
+
+                <button
+                    type="button"
+                    class="btn-close ms-0"
+                    data-bs-dismiss="modal"
+                    aria-label="بستن"
+                ></button>
+
+            </div>
+
+
+            <div class="modal-body text-center">
+
+                <img
+                    id="modalImage"
+                    class="modal-media"
+                    style="display: none;"
+                    alt="تصویر گزارش"
+                >
+
+
+                <video
+                    id="modalVideo"
+                    class="modal-media"
+                    style="display: none;"
+                    controls
+                ></video>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =================================================
+     Delete Modal
+================================================= -->
+
+<div
+    class="modal fade"
+    id="deleteModal"
+    tabindex="-1"
+    aria-hidden="true"
+>
+
+    <div
+        class="modal-dialog
+               modal-dialog-centered
+               modal-sm"
+    >
+
+        <div class="modal-content">
+
+            <div class="modal-body text-center p-4">
+
+                <div class="delete-modal-icon">
+
+                    <i class="bi bi-trash3"></i>
+
+                </div>
+
+
+                <h5 class="delete-modal-title">
+                    حذف گزارش
+                </h5>
+
+
+                <p class="delete-modal-text">
+
+                    آیا از حذف این گزارش مطمئن هستید؟
+                    این عملیات قابل بازگشت نیست.
+
+                </p>
+
+
+                <div
+                    class="d-flex gap-2 mt-4"
+                >
+
+                    <button
+                        type="button"
+                        class="btn btn-light flex-fill"
+                        data-bs-dismiss="modal"
+                    >
+                        انصراف
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="btn btn-danger flex-fill"
+                        id="confirmDeleteButton"
+                    >
+                        حذف گزارش
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+<script>
+
+    /* =====================================================
+       Authentication
+    ===================================================== */
+
+    const accessToken =
+        localStorage.getItem("access_token");
+
+
+    if (!accessToken) {
+
+        window.location.href =
+            "/login/";
+
+    }
+
+
+    /* =====================================================
+       Logout
+    ===================================================== */
+
+    function logout() {
+
+        localStorage.removeItem(
+            "access_token"
+        );
+
+        localStorage.removeItem(
+            "refresh_token"
+        );
+
+        window.location.href =
+            "/login/";
+
+    }
+
+
+    /* =====================================================
+       Profile
+    ===================================================== */
+
+    async function loadProfile() {
+
+        const welcomeMessage =
+            document.getElementById(
+                "welcomeMessage"
+            );
+
+
+        try {
+
+            const response =
+                await fetch(
+                    "/api/auth/profile/",
+                    {
+                        method: "GET",
+
+                        headers: {
+                            "Authorization":
+                                `Bearer ${accessToken}`
+                        }
+                    }
+                );
+
+
+            if (response.status === 401) {
+
+                logout();
+
+                return;
+
+            }
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "دریافت اطلاعات کاربر ناموفق بود."
+                );
+
+            }
+
+
+            const profile =
+                await response.json();
+
+
+            const firstName =
+                profile.first_name || "";
+
+
+            const lastName =
+                profile.last_name || "";
+
+
+            let title = "";
+
+
+            if (
+                profile.gender === "woman"
+            ) {
+
+                title = "خانم";
+
+            } else if (
+                profile.gender === "man"
+            ) {
+
+                title = "آقای";
+
+            }
+
+
+            const fullName =
+                `${firstName} ${lastName}`.trim();
+
+
+            if (title && fullName) {
+
+                welcomeMessage.textContent =
+                    `سلام ${title} ${fullName} 👋`;
+
+            } else if (fullName) {
+
+                welcomeMessage.textContent =
+                    `سلام ${fullName} 👋`;
+
+            } else {
+
+                welcomeMessage.textContent =
+                    "سلام، معلم عزیز 👋";
+
+            }
+
+
+        } catch (error) {
+
+            console.error(error);
+
+            welcomeMessage.textContent =
+                "سلام، معلم عزیز 👋";
+
+        }
+
+    }
+
+
+    /* =====================================================
+       Media Selection
+    ===================================================== */
+
+    const mediaInput =
+        document.getElementById("media");
+
+
+    const mediaUploadBox =
+        document.getElementById(
+            "mediaUploadBox"
+        );
+
+
+    const selectedFilesContainer =
+        document.getElementById(
+            "selectedFiles"
+        );
+
+
+    let selectedFiles = [];
+
+
+    const MAX_FILE_SIZE =
+        300 * 1024 * 1024;
+
+
+    const ALLOWED_IMAGE_TYPES = [
+        "image/jpeg",
+        "image/png",
+        "image/webp"
+    ];
+
+
+    const ALLOWED_VIDEO_TYPES = [
+        "video/mp4",
+        "video/webm",
+        "video/quicktime"
+    ];
+
+
+    function isAllowedFile(file) {
+
+        return (
+            ALLOWED_IMAGE_TYPES
+                .includes(file.type) ||
+            ALLOWED_VIDEO_TYPES
+                .includes(file.type)
+        );
+
+    }
+
+
+    function renderSelectedFiles() {
+
+        selectedFilesContainer.replaceChildren();
+
+
+        selectedFiles.forEach(
+            (file, index) => {
+
+                const item =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                item.className =
+                    "selected-file";
+
+
+                const info =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                info.className =
+                    "selected-file-info";
+
+
+                const icon =
+                    document.createElement(
+                        "i"
+                    );
+
+
+                icon.className =
+                    file.type.startsWith(
+                        "video/"
+                    )
+                        ? "bi bi-camera-video selected-file-icon"
+                        : "bi bi-image selected-file-icon";
+
+
+                const name =
+                    document.createElement(
+                        "span"
+                    );
+
+
+                name.className =
+                    "selected-file-name";
+
+
+                name.textContent =
+                    file.name;
+
+
+                const removeButton =
+                    document.createElement(
+                        "button"
+                    );
+
+
+                removeButton.type =
+                    "button";
+
+
+                removeButton.className =
+                    "selected-file-remove";
+
+
+                removeButton.innerHTML =
+                    '<i class="bi bi-x-lg"></i>';
+
+
+                removeButton.setAttribute(
+                    "aria-label",
+                    `حذف ${file.name}`
+                );
+
+
+                removeButton.addEventListener(
+                    "click",
+                    () => {
+
+                        selectedFiles.splice(
+                            index,
+                            1
+                        );
+
+
+                        renderSelectedFiles();
+
+                    }
+                );
+
+
+                info.appendChild(icon);
+
+                info.appendChild(name);
+
+
+                item.appendChild(info);
+
+                item.appendChild(
+                    removeButton
+                );
+
+
+                selectedFilesContainer
+                    .appendChild(item);
+
+            }
+        );
+
+    }
+
+
+    function handleSelectedFiles(files) {
+
+        const formError =
+            document.getElementById(
+                "formError"
+            );
+
+
+        formError.textContent = "";
+
+
+        const newFiles =
+            Array.from(files);
+
+
+        for (const file of newFiles) {
+
+
+            if (!isAllowedFile(file)) {
+
+                formError.textContent =
+                    `نوع فایل «${file.name}» مجاز نیست.`;
+
+                continue;
+
+            }
+
+
+            if (
+                file.size >
+                MAX_FILE_SIZE
+            ) {
+
+                formError.textContent =
+                    `حجم فایل «${file.name}» بیشتر از ۳۰۰ مگابایت است.`;
+
+                continue;
+
+            }
+
+
+            const duplicate =
+                selectedFiles.some(
+                    existingFile =>
+                        existingFile.name ===
+                            file.name &&
+                        existingFile.size ===
+                            file.size &&
+                        existingFile.lastModified ===
+                            file.lastModified
+                );
+
+
+            if (!duplicate) {
+
+                selectedFiles.push(
+                    file
+                );
+
+            }
+
+        }
+
+
+        renderSelectedFiles();
+
+    }
+
+
+    mediaInput.addEventListener(
+        "change",
+        () => {
+
+            handleSelectedFiles(
+                mediaInput.files
+            );
+
+            mediaInput.value = "";
+
+        }
+    );
+
+
+    /* =====================================================
+       Drag & Drop
+    ===================================================== */
+
+    mediaUploadBox.addEventListener(
+        "dragover",
+        event => {
+
+            event.preventDefault();
+
+            mediaUploadBox.classList.add(
+                "dragover"
+            );
+
+        }
+    );
+
+
+    mediaUploadBox.addEventListener(
+        "dragleave",
+        () => {
+
+            mediaUploadBox.classList.remove(
+                "dragover"
+            );
+
+        }
+    );
+
+
+    mediaUploadBox.addEventListener(
+        "drop",
+        event => {
+
+            event.preventDefault();
+
+            mediaUploadBox.classList.remove(
+                "dragover"
+            );
+
+
+            handleSelectedFiles(
+                event.dataTransfer.files
+            );
+
+        }
+    );
+
+
+    /* =====================================================
+       Load Tags
+    ===================================================== */
+
+    async function loadTags() {
+
+        const container =
+            document.getElementById(
+                "tagsContainer"
+            );
+
+
+        container.textContent =
+            "در حال دریافت تگ‌ها...";
+
+
+        try {
+
+            const response =
+                await fetch(
+                    "/api/reports/tags/"
+                );
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "دریافت تگ‌ها با خطا مواجه شد."
+                );
+
+            }
+
+
+            const data =
+                await response.json();
+
+
+            const tags =
+                Array.isArray(data)
+                    ? data
+                    : data.results;
+
+
+            container.replaceChildren();
+
+
+            if (
+                !tags ||
+                tags.length === 0
+            ) {
+
+                const empty =
+                    document.createElement(
+                        "span"
+                    );
+
+
+                empty.className =
+                    "text-muted small";
+
+
+                empty.textContent =
+                    "تگی وجود ندارد.";
+
+
+                container.appendChild(
+                    empty
+                );
+
+
+                return;
+
+            }
+
+
+            tags.forEach(
+                tag => {
+
+                    const wrapper =
+                        document.createElement(
+                            "div"
+                        );
+
+
+                    wrapper.className =
+                        "tag-checkbox";
+
+
+                    const input =
+                        document.createElement(
+                            "input"
+                        );
+
+
+                    input.type =
+                        "checkbox";
+
+
+                    input.className =
+                        "tag-input";
+
+
+                    input.value =
+                        String(tag.id);
+
+
+                    input.id =
+                        `tag-${tag.id}`;
+
+
+                    const label =
+                        document.createElement(
+                            "label"
+                        );
+
+
+                    label.htmlFor =
+                        input.id;
+
+
+                    label.textContent =
+                        tag.name;
+
+
+                    wrapper.appendChild(
+                        input
+                    );
+
+                    wrapper.appendChild(
+                        label
+                    );
+
+
+                    container.appendChild(
+                        wrapper
+                    );
+
+                }
+            );
+
+
+        } catch (error) {
+
+            console.error(error);
+
+
+            const errorElement =
+                document.createElement(
+                    "span"
+                );
+
+
+            errorElement.className =
+                "text-danger small";
+
+
+            errorElement.textContent =
+                error.message;
+
+
+            container.replaceChildren(
+                errorElement
+            );
+
+        }
+
+    }
+
+
+    /* =====================================================
+       Load Reports
+    ===================================================== */
+
+    async function loadReports() {
+
+        const container =
+            document.getElementById(
+                "reportsContainer"
+            );
+
+
+        container.innerHTML = `
+            <div class="loading">
+                در حال دریافت گزارش‌ها...
+            </div>
+        `;
+
+
+        try {
+
+            const response =
+                await fetch(
+                    "/api/reports/",
+                    {
+                        method: "GET",
+
+                        headers: {
+                            "Authorization":
+                                `Bearer ${accessToken}`
+                        }
+                    }
+                );
+
+
+            if (response.status === 401) {
+
+                logout();
+
+                return;
+
+            }
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "دریافت گزارش‌ها ناموفق بود."
+                );
+
+            }
+
+
+            const data =
+                await response.json();
+
+
+            const reports =
+                Array.isArray(data)
+                    ? data
+                    : data.results;
+
+
+            container.replaceChildren();
+
+
+            if (
+                !reports ||
+                reports.length === 0
+            ) {
+
+                const empty =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                empty.className =
+                    "empty-state";
+
+
+                empty.innerHTML = `
+                    <i
+                        class="bi bi-images fs-2 d-block mb-2"
+                    ></i>
+
+                    هنوز گزارشی ثبت نکرده‌اید.
+                `;
+
+
+                container.appendChild(
+                    empty
+                );
+
+
+                return;
+
+            }
+
+
+            const reportsList =
+                document.createElement(
+                    "div"
+                );
+
+
+            reportsList.className =
+                "reports-list";
+
+
+            reports.forEach(
+                report => {
+
+                    const reportElement =
+                        document.createElement(
+                            "article"
+                        );
+
+
+                    reportElement.className =
+                        "report-item";
+
+
+                    /* Header */
+
+                    const header =
+                        document.createElement(
+                            "div"
+                        );
+
+
+                    header.className =
+                        "report-header";
+
+
+                    const date =
+                        document.createElement(
+                            "span"
+                        );
+
+
+                    date.className =
+                        "report-date";
+
+
+                    date.innerHTML = `
+                        <i class="bi bi-calendar3"></i>
+                        ${formatDate(
+                            report.created_at
+                        )}
+                    `;
+
+
+                    const deleteButton =
+                        document.createElement(
+                            "button"
+                        );
+
+
+                    deleteButton.type =
+                        "button";
+
+
+                    deleteButton.className =
+                        "btn btn-sm btn-outline-danger delete-report-button";
+
+
+                    deleteButton.innerHTML = `
+                        <i class="bi bi-trash3"></i>
+                        حذف
+                    `;
+
+
+                    deleteButton.addEventListener(
+                        "click",
+                        () => {
+
+                            openDeleteModal(
+                                report.id
+                            );
+
+                        }
+                    );
+
+
+                    header.appendChild(
+                        date
+                    );
+
+
+                    header.appendChild(
+                        deleteButton
+                    );
+
+
+                    reportElement.appendChild(
+                        header
+                    );
+
+
+                    /* Text */
+
+                    if (
+                        report.text &&
+                        report.text.trim()
+                    ) {
+
+                        const reportText =
+                            document.createElement(
+                                "div"
+                            );
+
+
+                        reportText.className =
+                            "report-text";
+
+
+                        reportText.textContent =
+                            report.text;
+
+
+                        reportElement.appendChild(
+                            reportText
+                        );
+
+                    }
+
+
+                    /* Tags */
+
+                    if (
+                        Array.isArray(
+                            report.tags
+                        ) &&
+                        report.tags.length > 0
+                    ) {
+
+                        const tagsContainer =
+                            document.createElement(
+                                "div"
+                            );
+
+
+                        tagsContainer.className =
+                            "report-tags";
+
+
+                        report.tags.forEach(
+                            tag => {
+
+                                const tagElement =
+                                    document.createElement(
+                                        "span"
+                                    );
+
+
+                                tagElement.className =
+                                    "report-tag";
+
+
+                                tagElement.textContent =
+                                    tag.name;
+
+
+                                tagsContainer
+                                    .appendChild(
+                                        tagElement
+                                    );
+
+                            }
+                        );
+
+
+                        reportElement.appendChild(
+                            tagsContainer
+                        );
+
+                    }
+
+
+                    /* Media */
+
+                    const mediaContainer =
+                        document.createElement(
+                            "div"
+                        );
+
+
+                    mediaContainer.className =
+                        "report-media";
+
+
+                    if (
+                        Array.isArray(
+                            report.images
+                        )
+                    ) {
+
+                        report.images.forEach(
+                            image => {
+
+                                if (!image.image) {
+                                    return;
+                                }
+
+
+                                const imageElement =
+                                    document.createElement(
+                                        "img"
+                                    );
+
+
+                                imageElement.src =
+                                    image.image;
+
+
+                                imageElement.className =
+                                    "report-image";
+
+
+                                imageElement.alt =
+                                    "تصویر گزارش";
+
+
+                                imageElement.loading =
+                                    "lazy";
+
+
+                                imageElement.addEventListener(
+                                    "click",
+                                    () => {
+
+                                        openMediaModal(
+                                            "image",
+                                            image.image
+                                        );
+
+                                    }
+                                );
+
+
+                                mediaContainer
+                                    .appendChild(
+                                        imageElement
+                                    );
+
+                            }
+                        );
+
+                    }
+
+
+                    if (
+                        Array.isArray(
+                            report.videos
+                        )
+                    ) {
+
+                        report.videos.forEach(
+                            video => {
+
+                                if (!video.video) {
+                                    return;
+                                }
+
+
+                                const videoElement =
+                                    document.createElement(
+                                        "video"
+                                    );
+
+
+                                videoElement.className =
+                                    "report-video";
+
+
+                                videoElement.controls =
+                                    true;
+
+
+                                videoElement.preload =
+                                    "metadata";
+
+
+                                const source =
+                                    document.createElement(
+                                        "source"
+                                    );
+
+
+                                source.src =
+                                    video.video;
+
+
+                                videoElement.appendChild(
+                                    source
+                                );
+
+
+                                videoElement.addEventListener(
+                                    "click",
+                                    () => {
+
+                                        openMediaModal(
+                                            "video",
+                                            video.video
+                                        );
+
+                                    }
+                                );
+
+
+                                mediaContainer
+                                    .appendChild(
+                                        videoElement
+                                    );
+
+                            }
+                        );
+
+                    }
+
+
+                    if (
+                        mediaContainer.children
+                            .length > 0
+                    ) {
+
+                        reportElement.appendChild(
+                            mediaContainer
+                        );
+
+                    }
+
+
+                    reportsList.appendChild(
+                        reportElement
+                    );
+
+                }
+            );
+
+
+            container.appendChild(
+                reportsList
+            );
+
+
+        } catch (error) {
+
+            console.error(error);
+
+
+            container.innerHTML = `
+
+                <div class="empty-state text-danger">
+
+                    <i
+                        class="bi bi-exclamation-circle
+                               fs-2 d-block mb-2"
+                    ></i>
+
+                    دریافت گزارش‌ها با خطا مواجه شد.
+
+                </div>
+
+            `;
+
+        }
+
+    }
+
+
+    /* =====================================================
+       Create Report
+    ===================================================== */
+
+    document
+        .getElementById("reportForm")
+        .addEventListener(
+            "submit",
+            async function(event) {
+
+                event.preventDefault();
+
+
+                const formError =
+                    document.getElementById(
+                        "formError"
+                    );
+
+
+                const formSuccess =
+                    document.getElementById(
+                        "formSuccess"
+                    );
+
+
+                const submitButton =
+                    document.getElementById(
+                        "submitButton"
+                    );
+
+
+                formError.textContent =
+                    "";
+
+
+                formSuccess.textContent =
+                    "";
+
+
+                if (
+                    selectedFiles.length === 0
+                ) {
+
+                    formError.textContent =
+                        "لطفاً حداقل یک تصویر یا ویدئو انتخاب کنید.";
+
+                    return;
+
+                }
+
+
+                const formData =
+                    new FormData();
+
+
+                formData.append(
+                    "text",
+                    document
+                        .getElementById("text")
+                        .value
+                        .trim()
+                );
+
+
+                const selectedTags =
+                    document.querySelectorAll(
+                        ".tag-input:checked"
+                    );
+
+
+                selectedTags.forEach(
+                    tag => {
+
+                        formData.append(
+                            "tags",
+                            tag.value
+                        );
+
+                    }
+                );
+
+
+                selectedFiles.forEach(
+                    file => {
+
+                        formData.append(
+                            "media",
+                            file
+                        );
+
+                    }
+                );
+
+
+                submitButton.disabled =
+                    true;
+
+
+                submitButton.innerHTML = `
+                    <span
+                        class="spinner-border
+                               spinner-border-sm
+                               me-1"
+                    ></span>
+
+                    در حال ارسال...
+                `;
+
+
+                try {
+
+                    const response =
+                        await fetch(
+                            "/api/reports/",
+                            {
+                                method: "POST",
+
+                                headers: {
+                                    "Authorization":
+                                        `Bearer ${accessToken}`
+                                },
+
+                                body: formData
+                            }
+                        );
+
+
+                    if (
+                        response.status === 401
+                    ) {
+
+                        logout();
+
+                        return;
+
+                    }
+
+
+                    const data =
+                        await response.json();
+
+
+                    if (!response.ok) {
+
+                        let errorMessage =
+                            "ارسال گزارش ناموفق بود.";
+
+
+                        if (data.detail) {
+
+                            errorMessage =
+                                data.detail;
+
+                        } else {
+
+                            errorMessage =
+                                Object.values(data)
+                                    .flat()
+                                    .join(" ");
+
+                        }
+
+
+                        throw new Error(
+                            errorMessage
+                        );
+
+                    }
+
+
+                    formSuccess.textContent =
+                        "گزارش با موفقیت ثبت شد.";
+
+
+                    document
+                        .getElementById("text")
+                        .value = "";
+
+
+                    document
+                        .querySelectorAll(
+                            ".tag-input:checked"
+                        )
+                        .forEach(
+                            tag => {
+                                tag.checked = false;
+                            }
+                        );
+
+
+                    selectedFiles = [];
+
+
+                    renderSelectedFiles();
+
+
+                    await loadReports();
+
+
+                } catch (error) {
+
+                    console.error(error);
+
+
+                    formError.textContent =
+                        error.message ||
+                        "ارسال گزارش ناموفق بود.";
+
+                }
+
+
+                submitButton.disabled =
+                    false;
+
+
+                submitButton.innerHTML = `
+                    <i class="bi bi-send me-1"></i>
+                    ارسال رسانه
+                `;
+
+            }
+        );
+
+
+    /* =====================================================
+       Delete Report Modal
+    ===================================================== */
+
+    let reportToDelete = null;
+
+
+    const deleteModalElement =
+        document.getElementById(
+            "deleteModal"
+        );
+
+
+    const deleteModal =
+        bootstrap.Modal.getOrCreateInstance(
+            deleteModalElement
+        );
+
+
+    const confirmDeleteButton =
+        document.getElementById(
+            "confirmDeleteButton"
+        );
+
+
+    function openDeleteModal(reportId) {
+
+        reportToDelete =
+            reportId;
+
+
+        deleteModal.show();
+
+    }
+
+
+    confirmDeleteButton.addEventListener(
+        "click",
+        async function() {
+
+            if (
+                reportToDelete === null
+            ) {
+                return;
+            }
+
+
+            const originalText =
+                confirmDeleteButton.innerHTML;
+
+
+            confirmDeleteButton.disabled =
+                true;
+
+
+            confirmDeleteButton.innerHTML = `
+                <span
+                    class="spinner-border
+                           spinner-border-sm"
+                ></span>
+            `;
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        `/api/reports/${encodeURIComponent(
+                            reportToDelete
+                        )}/`,
+                        {
+                            method: "DELETE",
+
+                            headers: {
+                                "Authorization":
+                                    `Bearer ${accessToken}`
+                            }
+                        }
+                    );
+
+
+                if (
+                    response.status === 401
+                ) {
+
+                    logout();
+
+                    return;
+
+                }
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        "حذف گزارش ناموفق بود."
+                    );
+
+                }
+
+
+                deleteModal.hide();
+
+
+                reportToDelete =
+                    null;
+
+
+                await loadReports();
+
+
+            } catch (error) {
+
+                console.error(error);
+
+
+                alert(
+                    error.message ||
+                    "حذف گزارش ناموفق بود."
+                );
+
+            } finally {
+
+                confirmDeleteButton.disabled =
+                    false;
+
+
+                confirmDeleteButton.innerHTML =
+                    originalText;
+
+            }
+
+        }
+    );
+
+
+    /* =====================================================
+       Media Modal
+    ===================================================== */
+
+    function openMediaModal(
+        type,
+        src
+    ) {
+
+        const image =
+            document.getElementById(
+                "modalImage"
+            );
+
+
+        const video =
+            document.getElementById(
+                "modalVideo"
+            );
+
+
+        image.style.display =
+            "none";
+
+        image.removeAttribute(
+            "src"
+        );
+
+
+        video.style.display =
+            "none";
+
+        video.pause();
+
+        video.removeAttribute(
+            "src"
+        );
+
+
+        if (type === "image") {
+
+            image.src =
+                src;
+
+            image.style.display =
+                "block";
+
+        }
+
+
+        if (type === "video") {
+
+            video.src =
+                src;
+
+            video.style.display =
+                "block";
+
+        }
+
+
+        const modalElement =
+            document.getElementById(
+                "mediaModal"
+            );
+
+
+        const modal =
+            bootstrap.Modal.getOrCreateInstance(
+                modalElement
+            );
+
+
+        modal.show();
+
+    }
+
+
+    /* =====================================================
+       Date
+    ===================================================== */
+
+    function formatDate(
+        dateString
+    ) {
+
+        if (!dateString) {
+            return "";
+        }
+
+
+        const date =
+            new Date(dateString);
+
+
+        if (
+            Number.isNaN(
+                date.getTime()
+            )
+        ) {
+            return "";
+        }
+
+
+        return date.toLocaleDateString(
+            "fa-IR",
+            {
+                year: "numeric",
+                month: "long",
+                day: "numeric"
+            }
+        );
+
+    }
+
+
+    /* =====================================================
+       Buttons
+    ===================================================== */
+
+    document
+        .getElementById(
+            "refreshButton"
+        )
+        .addEventListener(
+            "click",
+            async function() {
+
+                const button =
+                    this;
+
+
+                const originalHtml =
+                    button.innerHTML;
+
+
+                button.disabled =
+                    true;
+
+
+                button.innerHTML = `
+                    <span
+                        class="spinner-border
+                               spinner-border-sm"
+                    ></span>
+                `;
+
+
+                await loadReports();
+
+
+                button.disabled =
+                    false;
+
+
+                button.innerHTML =
+                    originalHtml;
+
+            }
+        );
+
+
+    /* =====================================================
+       Initial Load
+    ===================================================== */
+
+    if (accessToken) {
+
+        loadProfile();
+
+        loadTags();
+
+        loadReports();
+
+    }
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,1514 @@
+{% extends "base.html" %}
+
+{% block title %}
+خانه معلم | سامانه گزارش معلمان
+{% endblock %}
+
+
+{% block extra_css %}
+
+<style>
+
+    /* =========================
+       Main Card
+    ========================= */
+
+    .welcome-card {
+
+        background: var(--card);
+
+        border:
+            1px solid var(--border);
+
+        border-radius:
+            var(--radius-lg);
+
+        box-shadow:
+            var(--shadow);
+
+        padding:
+            40px;
+
+        text-align: center;
+
+        max-width:
+            850px;
+
+        margin:
+            0 auto;
+
+    }
+
+
+    .welcome-icon {
+
+        width: 72px;
+        height: 72px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        margin:
+            0 auto 20px;
+
+        border-radius:
+            20px;
+
+        background:
+            linear-gradient(
+                135deg,
+                var(--primary),
+                var(--primary-dark)
+            );
+
+        color: white;
+
+        font-size: 32px;
+
+        box-shadow:
+            0 10px 25px
+            rgba(79, 70, 229, 0.25);
+
+    }
+
+
+    .welcome-title {
+
+        margin: 0;
+
+        font-size:
+            27px;
+
+        font-weight:
+            800;
+
+        color:
+            var(--text);
+
+    }
+
+
+    .welcome-description {
+
+        margin:
+            12px auto 30px;
+
+        max-width:
+            600px;
+
+        color:
+            var(--muted);
+
+        line-height:
+            1.9;
+
+        font-size:
+            14px;
+
+    }
+
+
+    /* =========================
+       Points
+    ========================= */
+
+    .points-section {
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: space-between;
+
+        gap: 15px;
+
+        padding:
+            18px;
+
+        margin-bottom:
+            30px;
+
+        background:
+            var(--background-secondary);
+
+        border:
+            1px solid var(--border);
+
+        border-radius:
+            var(--radius);
+
+        text-align:
+            right;
+
+    }
+
+
+    .points-total {
+
+        display: flex;
+
+        flex-direction:
+            column;
+
+        gap: 5px;
+
+    }
+
+
+    .points-label {
+
+        color:
+            var(--muted);
+
+        font-size:
+            12px;
+
+    }
+
+
+    .points-value {
+
+        font-size:
+            22px;
+
+        font-weight:
+            800;
+
+        color:
+            var(--primary);
+
+    }
+
+
+    .points-button {
+
+        border-radius:
+            10px;
+
+        font-size:
+            13px;
+
+        font-weight:
+            600;
+
+    }
+
+
+    .points-dropdown {
+
+        min-width:
+            280px;
+
+        max-height:
+            320px;
+
+        overflow-y:
+            auto;
+
+        padding:
+            8px;
+
+        background:
+            var(--card);
+
+        border:
+            1px solid var(--border);
+
+        box-shadow:
+            var(--shadow);
+
+    }
+
+
+    .point-item {
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: space-between;
+
+        gap: 15px;
+
+        padding:
+            10px 12px;
+
+        border-radius:
+            9px;
+
+        white-space:
+            normal;
+
+    }
+
+
+    .point-item:hover {
+
+        background:
+            var(--background-secondary);
+
+    }
+
+
+    .point-reason {
+
+        color:
+            var(--text);
+
+        font-size:
+            12px;
+
+        line-height:
+            1.7;
+
+    }
+
+
+    .point-score {
+
+        color:
+            #16a34a;
+
+        font-size:
+            12px;
+
+        white-space:
+            nowrap;
+
+    }
+
+
+    /* =========================
+       Main Buttons
+    ========================= */
+
+    .main-buttons {
+
+        display:
+            grid;
+
+        gap:
+            12px;
+
+    }
+
+
+    .main-button {
+
+        display:
+            flex;
+
+        align-items:
+            center;
+
+        gap:
+            16px;
+
+        padding:
+            16px;
+
+        background:
+            var(--card);
+
+        border:
+            1px solid var(--border);
+
+        border-radius:
+            var(--radius);
+
+        color:
+            var(--text);
+
+        text-decoration:
+            none;
+
+        text-align:
+            right;
+
+        transition:
+            all var(--transition);
+
+    }
+
+
+    .main-button:hover {
+
+        transform:
+            translateY(-2px);
+
+        border-color:
+            var(--primary);
+
+        box-shadow:
+            var(--shadow-sm);
+
+    }
+
+
+    .button-icon {
+
+        flex:
+            0 0 48px;
+
+        width:
+            48px;
+
+        height:
+            48px;
+
+        display:
+            flex;
+
+        align-items:
+            center;
+
+        justify-content:
+            center;
+
+        border-radius:
+            13px;
+
+        background:
+            var(--background-secondary);
+
+        color:
+            var(--primary);
+
+        font-size:
+            21px;
+
+    }
+
+
+    .button-content {
+
+        flex:
+            1;
+
+    }
+
+
+    .button-title {
+
+        font-size:
+            14px;
+
+        font-weight:
+            800;
+
+        margin-bottom:
+            4px;
+
+    }
+
+
+    .button-description {
+
+        color:
+            var(--muted);
+
+        font-size:
+            12px;
+
+        line-height:
+            1.7;
+
+    }
+
+
+    .button-arrow {
+
+        color:
+            var(--muted);
+
+        font-size:
+            18px;
+
+        transition:
+            transform var(--transition);
+
+    }
+
+
+    .main-button:hover
+    .button-arrow {
+
+        transform:
+            translateX(-4px);
+
+        color:
+            var(--primary);
+
+    }
+
+
+    /* =========================
+       Blogs
+    ========================= */
+
+    .blogs-section {
+
+        max-width:
+            1100px;
+
+        margin:
+            45px auto 0;
+
+        padding-bottom:
+            30px;
+
+    }
+
+
+    .section-heading {
+
+        display:
+            flex;
+
+        align-items:
+            center;
+
+        justify-content:
+            space-between;
+
+        margin-bottom:
+            20px;
+
+    }
+
+
+    .section-heading h2 {
+
+        margin:
+            0;
+
+        font-size:
+            20px;
+
+        font-weight:
+            800;
+
+    }
+
+
+    .section-heading span {
+
+        color:
+            var(--muted);
+
+        font-size:
+            12px;
+
+    }
+
+
+    .blog-card {
+
+        height:
+            100%;
+
+        overflow:
+            hidden;
+
+        background:
+            var(--card);
+
+        border:
+            1px solid var(--border);
+
+        border-radius:
+            var(--radius-lg);
+
+        box-shadow:
+            var(--shadow-sm);
+
+        transition:
+            all var(--transition);
+
+    }
+
+
+    .blog-card:hover {
+
+        transform:
+            translateY(-3px);
+
+        box-shadow:
+            var(--shadow);
+
+    }
+
+
+    .blog-media {
+
+        display:
+            block;
+
+        width:
+            100%;
+
+        height:
+            210px;
+
+        object-fit:
+            cover;
+
+        background:
+            var(--background-secondary);
+
+    }
+
+
+    .blog-content {
+
+        padding:
+            18px;
+
+    }
+
+
+    .blog-content h3 {
+
+        margin:
+            0 0 8px;
+
+        font-size:
+            16px;
+
+        font-weight:
+            800;
+
+        line-height:
+            1.7;
+
+    }
+
+
+    .blog-content p {
+
+        margin:
+            0 0 14px;
+
+        color:
+            var(--muted);
+
+        font-size:
+            13px;
+
+        line-height:
+            1.9;
+
+        display:
+            -webkit-box;
+
+        -webkit-line-clamp:
+            3;
+
+        -webkit-box-orient:
+            vertical;
+
+        overflow:
+            hidden;
+
+    }
+
+
+    .blog-date {
+
+        display:
+            flex;
+
+        align-items:
+            center;
+
+        gap:
+            5px;
+
+        color:
+            var(--muted);
+
+        font-size:
+            11px;
+
+    }
+
+
+    .no-blogs {
+
+        padding:
+            40px 20px;
+
+        text-align:
+            center;
+
+        color:
+            var(--muted);
+
+        background:
+            var(--card);
+
+        border:
+            1px dashed var(--border);
+
+        border-radius:
+            var(--radius);
+
+    }
+
+
+    /* =========================
+       Responsive
+    ========================= */
+
+    @media (max-width: 576px) {
+
+        .welcome-card {
+
+            padding:
+                25px 18px;
+
+        }
+
+
+        .welcome-title {
+
+            font-size:
+                22px;
+
+        }
+
+
+        .points-section {
+
+            align-items:
+                stretch;
+
+            flex-direction:
+                column;
+
+        }
+
+
+        .points-button {
+
+            width:
+                100%;
+
+        }
+
+
+        .points-dropdown {
+
+            width:
+                100%;
+
+        }
+
+
+        .blog-media {
+
+            height:
+                190px;
+
+        }
+
+    }
+
+</style>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container">
+
+
+    <!-- =========================
+         Welcome
+    ========================= -->
+
+    <section class="welcome-card">
+
+        <div class="welcome-icon">
+            <i class="bi bi-mortarboard-fill"></i>
+        </div>
+
+
+        <h1 class="welcome-title">
+            خوش آمدید 👋
+        </h1>
+
+
+        <p class="welcome-description">
+
+            از طریق گزینه‌های زیر می‌توانید
+            گزارش‌ها، تصاویر و ویدیوهای خود را
+            ارسال کنید و با پشتیبانی سامانه
+            در ارتباط باشید.
+
+        </p>
+
+
+        <!-- =========================
+             Points
+        ========================= -->
+
+        <div class="points-section">
+
+            <div class="points-total">
+
+                <span class="points-label">
+                    مجموع امتیازات شما
+                </span>
+
+                <strong
+                    id="totalPoints"
+                    class="points-value"
+                >
+                    در حال دریافت...
+                </strong>
+
+            </div>
+
+
+            <div class="dropdown">
+
+                <button
+                    class="btn btn-outline-primary
+                           dropdown-toggle points-button"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                >
+
+                    <i class="bi bi-stars"></i>
+
+                    جزئیات امتیازات
+
+                </button>
+
+
+                <ul
+                    class="dropdown-menu
+                           points-dropdown"
+                    id="pointsDropdown"
+                >
+
+                    <li>
+
+                        <span
+                            class="dropdown-item-text
+                                   text-muted"
+                        >
+                            در حال دریافت امتیازات...
+                        </span>
+
+                    </li>
+
+                </ul>
+
+            </div>
+
+        </div>
+
+
+        <!-- =========================
+             Main Actions
+        ========================= -->
+
+        <div class="main-buttons">
+
+
+            <!-- Reports -->
+
+            <a
+                href="/dashboard/"
+                class="main-button"
+            >
+
+                <div class="button-icon">
+                    <i class="bi bi-images"></i>
+                </div>
+
+
+                <div class="button-content">
+
+                    <div class="button-title">
+                        ارسال تصاویر و ویدیوها
+                    </div>
+
+                    <div class="button-description">
+                        ثبت و ارسال تصاویر و ویدیوهای
+                        برنامه‌های فاطمیه
+                    </div>
+
+                </div>
+
+
+                <div class="button-arrow">
+                    ←
+                </div>
+
+            </a>
+
+
+            <!-- Survey -->
+
+            <a
+                href="/survey/"
+                class="main-button"
+            >
+
+                <div class="button-icon">
+                    <i class="bi bi-file-earmark-text"></i>
+                </div>
+
+
+                <div class="button-content">
+
+                    <div class="button-title">
+                        ارسال گزارش
+                    </div>
+
+                    <div class="button-description">
+                        ارسال گزارش برنامه فاطمیه ۱۴۰۵
+                    </div>
+
+                </div>
+
+
+                <div class="button-arrow">
+                    ←
+                </div>
+
+            </a>
+
+
+            <!-- Contact -->
+
+            <a
+                href="/contact/"
+                class="main-button"
+            >
+
+                <div class="button-icon">
+                    <i class="bi bi-headset"></i>
+                </div>
+
+
+                <div class="button-content">
+
+                    <div class="button-title">
+                        تماس با ما
+                    </div>
+
+                    <div class="button-description">
+                        ارتباط با پشتیبانی پویش فاطمیه
+                    </div>
+
+                </div>
+
+
+                <div class="button-arrow">
+                    ←
+                </div>
+
+            </a>
+
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         Blogs
+    ========================= -->
+
+    <section class="blogs-section">
+
+
+        <div class="section-heading">
+
+            <h2>
+                آخرین بلاگ‌ها
+            </h2>
+
+            <span>
+                اخبار و اطلاعیه‌های سامانه
+            </span>
+
+        </div>
+
+
+        <div
+            id="blogs-container"
+            class="row g-4"
+        >
+
+            <div class="col-12">
+
+                <div class="no-blogs">
+
+                    <div
+                        class="spinner-border
+                               spinner-border-sm
+                               text-primary
+                               mb-2"
+                    ></div>
+
+                    <div>
+                        در حال دریافت بلاگ‌ها...
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+<script>
+
+    const accessToken =
+        localStorage.getItem(
+            "access_token"
+        );
+
+
+    /* =========================
+       Authentication
+    ========================= */
+
+    if (!accessToken) {
+
+        window.location.href =
+            "/login/";
+
+    }
+
+
+    /* =========================
+       Points
+    ========================= */
+
+    async function loadPoints() {
+
+        try {
+
+            const response =
+                await fetch(
+                    "/api/reports/points/",
+                    {
+                        method: "GET",
+
+                        headers: {
+                            "Authorization":
+                                `Bearer ${accessToken}`
+                        }
+                    }
+                );
+
+
+            if (response.status === 401) {
+
+                localStorage.removeItem(
+                    "access_token"
+                );
+
+                localStorage.removeItem(
+                    "refresh_token"
+                );
+
+                window.location.href =
+                    "/login/";
+
+                return;
+
+            }
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "خطا در دریافت امتیازات"
+                );
+
+            }
+
+
+            const data =
+                await response.json();
+
+
+            document.getElementById(
+                "totalPoints"
+            ).textContent =
+                `${data.total} امتیاز`;
+
+
+            const dropdown =
+                document.getElementById(
+                    "pointsDropdown"
+                );
+
+
+            dropdown.replaceChildren();
+
+
+            if (
+                !data.points ||
+                data.points.length === 0
+            ) {
+
+                const li =
+                    document.createElement(
+                        "li"
+                    );
+
+
+                const span =
+                    document.createElement(
+                        "span"
+                    );
+
+
+                span.className =
+                    "dropdown-item-text text-muted";
+
+
+                span.textContent =
+                    "هنوز امتیازی ثبت نشده است.";
+
+
+                li.appendChild(span);
+
+                dropdown.appendChild(li);
+
+                return;
+
+            }
+
+
+            data.points.forEach(
+                function(point) {
+
+                    const li =
+                        document.createElement(
+                            "li"
+                        );
+
+
+                    const item =
+                        document.createElement(
+                            "div"
+                        );
+
+
+                    item.className =
+                        "dropdown-item point-item";
+
+
+                    const reason =
+                        document.createElement(
+                            "div"
+                        );
+
+
+                    reason.className =
+                        "point-reason";
+
+
+                    reason.textContent =
+                        point.reason;
+
+
+                    const score =
+                        document.createElement(
+                            "strong"
+                        );
+
+
+                    score.className =
+                        "point-score";
+
+
+                    score.textContent =
+                        point.score > 0
+                            ? `+${point.score} امتیاز`
+                            : `${point.score} امتیاز`;
+
+
+                    item.appendChild(reason);
+
+                    item.appendChild(score);
+
+                    li.appendChild(item);
+
+                    dropdown.appendChild(li);
+
+                }
+            );
+
+        } catch (error) {
+
+            console.error(error);
+
+
+            document.getElementById(
+                "totalPoints"
+            ).textContent =
+                "خطا";
+
+
+            const dropdown =
+                document.getElementById(
+                    "pointsDropdown"
+                );
+
+
+            dropdown.replaceChildren();
+
+
+            const li =
+                document.createElement(
+                    "li"
+                );
+
+
+            const span =
+                document.createElement(
+                    "span"
+                );
+
+
+            span.className =
+                "dropdown-item-text text-danger";
+
+
+            span.textContent =
+                "دریافت امتیازات با خطا مواجه شد.";
+
+
+            li.appendChild(span);
+
+            dropdown.appendChild(li);
+
+        }
+
+    }
+
+
+    /* =========================
+       Blogs
+    ========================= */
+
+    async function loadBlogs() {
+
+        const container =
+            document.getElementById(
+                "blogs-container"
+            );
+
+
+        try {
+
+            const response =
+            await fetch(
+                "/api/blogs/",
+                {
+                    method: "GET",
+
+                    headers: {
+                        "Authorization":
+                            `Bearer ${accessToken}`
+                    }
+                }
+            );
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "خطا در دریافت بلاگ‌ها"
+                );
+
+            }
+
+
+            const data =
+                await response.json();
+
+
+            const blogs =
+                data.results || data;
+
+
+            container.innerHTML = "";
+
+
+            if (!blogs.length) {
+
+                container.innerHTML = `
+
+                    <div class="col-12">
+
+                        <div class="no-blogs">
+
+                            هنوز بلاگی منتشر نشده است.
+
+                        </div>
+
+                    </div>
+
+                `;
+
+                return;
+
+            }
+
+
+            blogs.forEach(
+                function(blog) {
+
+                    let mediaHtml = "";
+
+
+                    if (blog.media) {
+
+                        const extension =
+                            blog.media
+                                .split("?")[0]
+                                .split(".")
+                                .pop()
+                                .toLowerCase();
+
+
+                        const videoExtensions = [
+                            "mp4",
+                            "webm",
+                            "mov"
+                        ];
+
+
+                        if (
+                            videoExtensions
+                                .includes(extension)
+                        ) {
+
+                            mediaHtml = `
+
+                                <video
+                                    class="blog-media"
+                                    controls
+                                    preload="metadata"
+                                >
+
+                                    <source
+                                        src="${blog.media}"
+                                    >
+
+                                </video>
+
+                            `;
+
+                        } else {
+
+                            mediaHtml = `
+
+                                <img
+                                    src="${blog.media}"
+                                    class="blog-media"
+                                    alt="${escapeHtml(
+                                        blog.title
+                                    )}"
+                                    loading="lazy"
+                                >
+
+                            `;
+
+                        }
+
+                    }
+
+
+                    container.innerHTML += `
+
+                        <div
+                            class="col-12
+                                   col-md-6
+                                   col-lg-4"
+                        >
+
+                            <article
+                                class="blog-card"
+                            >
+
+                                ${
+                                    mediaHtml ||
+                                    `<div
+                                        class="blog-media
+                                               d-flex
+                                               align-items-center
+                                               justify-content-center"
+                                    >
+                                        <i
+                                            class="bi
+                                                   bi-image
+                                                   fs-1
+                                                   text-muted"
+                                        ></i>
+                                    </div>`
+                                }
+
+
+                                <div class="blog-content">
+
+                                    <h3>
+                                        ${escapeHtml(
+                                            blog.title
+                                        )}
+                                    </h3>
+
+
+                                    <p>
+                                        ${escapeHtml(
+                                            blog.content
+                                        )}
+                                    </p>
+
+
+                                    <div class="blog-date">
+
+                                        <i
+                                            class="bi
+                                                   bi-calendar3"
+                                        ></i>
+
+                                        ${formatDate(
+                                            blog.created_at
+                                        )}
+
+                                    </div>
+
+                                </div>
+
+                            </article>
+
+                        </div>
+
+                    `;
+
+                }
+            );
+
+        } catch (error) {
+
+            console.error(error);
+
+
+            container.innerHTML = `
+
+                <div class="col-12">
+
+                    <div class="no-blogs">
+
+                        <i
+                            class="bi
+                                   bi-exclamation-circle
+                                   fs-3
+                                   d-block
+                                   mb-2"
+                        ></i>
+
+                        دریافت بلاگ‌ها با خطا مواجه شد.
+
+                    </div>
+
+                </div>
+
+            `;
+
+        }
+
+    }
+
+
+    /* =========================
+       Helpers
+    ========================= */
+
+    function escapeHtml(text) {
+
+        const div =
+            document.createElement(
+                "div"
+            );
+
+
+        div.textContent =
+            text || "";
+
+
+        return div.innerHTML;
+
+    }
+
+
+    function formatDate(dateString) {
+
+        if (!dateString) {
+            return "";
+        }
+
+
+        const date =
+            new Date(dateString);
+
+
+        if (
+            Number.isNaN(
+                date.getTime()
+            )
+        ) {
+            return "";
+        }
+
+
+        return date.toLocaleDateString(
+            "fa-IR",
+            {
+                year: "numeric",
+                month: "long",
+                day: "numeric"
+            }
+        );
+
+    }
+
+
+    /* =========================
+       Init
+    ========================= */
+
+    if (accessToken) {
+
+        loadPoints();
+
+    }
+
+
+    loadBlogs();
+
+</script>
+
+{% endblock %}

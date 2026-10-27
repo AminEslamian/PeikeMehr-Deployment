@@ -1,0 +1,1272 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>تأیید ثبت نام</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css"
+        rel="stylesheet"
+    >
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+        rel="stylesheet"
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{% static 'css/auth.css' %}"
+    >
+
+    <style>
+
+        .auth-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 72px;
+            height: 72px;
+            margin: 0 auto 20px;
+            border-radius: 20px;
+            background: linear-gradient(
+                135deg,
+                #4f46e5,
+                #4338ca
+            );
+            color: #fff;
+            font-size: 30px;
+            box-shadow:
+                0 12px 25px rgba(79, 70, 229, 0.22);
+        }
+
+        .phone-display {
+            direction: ltr;
+            text-align: center;
+            font-size: 15px;
+            font-weight: 700;
+            color: #4f46e5;
+            margin-top: -4px;
+            margin-bottom: 28px;
+        }
+
+        .otp-input {
+            direction: ltr;
+            letter-spacing: 12px;
+            font-size: 25px !important;
+            font-weight: 700;
+            padding-left: 12px !important;
+            text-align: center;
+        }
+
+        .otp-input:focus {
+            border-color: #4f46e5;
+            box-shadow:
+                0 0 0 0.2rem rgba(79, 70, 229, 0.12);
+        }
+
+        .verify-actions {
+            margin-top: 18px;
+        }
+
+        .resend-wrapper {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .resend-text {
+            color: #6b7280;
+            font-size: 13px;
+            margin-bottom: 7px;
+        }
+
+        .resend-button {
+            border: 0;
+            background: transparent;
+            color: #4f46e5;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            padding: 4px 8px;
+        }
+
+        .resend-button:hover:not(:disabled) {
+            color: #4338ca;
+            text-decoration: underline;
+        }
+
+        .resend-button:disabled {
+            color: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .countdown {
+            font-weight: 700;
+            color: #4f46e5;
+        }
+
+        /* Alert */
+
+        .verify-alert {
+            display: none;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding: 13px 14px;
+            border: 1px solid #fecaca;
+            border-radius: 13px;
+            background: #fef2f2;
+            color: #991b1b;
+            text-align: right;
+        }
+
+        .verify-alert.show {
+            display: flex;
+        }
+
+        .verify-alert-icon {
+            flex: 0 0 auto;
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 9px;
+            background: #fee2e2;
+            color: #dc2626;
+            font-size: 16px;
+        }
+
+        .verify-alert-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .verify-alert-title {
+            margin: 0 0 3px;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .verify-alert-message {
+            margin: 0;
+            font-size: 12px;
+            line-height: 1.8;
+            color: #7f1d1d;
+        }
+
+        .verify-alert-close {
+            flex: 0 0 auto;
+            border: 0;
+            background: transparent;
+            color: #991b1b;
+            padding: 3px;
+            cursor: pointer;
+        }
+
+        .verify-alert-close:hover {
+            color: #7f1d1d;
+        }
+
+        /* Success alert */
+
+        .verify-alert.success {
+            border-color: #bbf7d0;
+            background: #f0fdf4;
+            color: #166534;
+        }
+
+        .verify-alert.success .verify-alert-icon {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .verify-alert.success .verify-alert-message {
+            color: #166534;
+        }
+
+        .verify-alert.success .verify-alert-close {
+            color: #166534;
+        }
+
+        @media (max-width: 576px) {
+
+            .otp-input {
+                letter-spacing: 8px;
+                font-size: 22px !important;
+            }
+
+            .auth-icon {
+                width: 64px;
+                height: 64px;
+                font-size: 27px;
+            }
+
+        }
+
+    </style>
+</head>
+
+<body>
+
+<main class="auth-page">
+
+    <div class="container">
+
+        <div class="row justify-content-center">
+
+            <div class="col-12 col-sm-10 col-md-7 col-lg-5">
+
+                <div class="auth-card">
+
+                    <!-- Icon -->
+
+                    <div class="auth-icon">
+                        <i class="bi bi-shield-check"></i>
+                    </div>
+
+
+                    <!-- Title -->
+
+                    <h1 class="auth-title">
+                        تأیید ثبت نام
+                    </h1>
+
+                    <p class="auth-description">
+                        کد تأیید ارسال‌شده به شماره زیر را وارد کنید.
+                    </p>
+
+
+                    <!-- Phone -->
+
+                    <p
+                        id="phoneDisplay"
+                        class="phone-display"
+                    ></p>
+
+
+                    <!-- Alert -->
+
+                    <div
+                        id="verifyAlert"
+                        class="verify-alert"
+                        role="alert"
+                        aria-live="polite"
+                    >
+
+                        <div
+                            id="verifyAlertIcon"
+                            class="verify-alert-icon"
+                        >
+                            <i class="bi bi-exclamation-circle-fill"></i>
+                        </div>
+
+                        <div class="verify-alert-content">
+
+                            <p
+                                id="verifyAlertTitle"
+                                class="verify-alert-title"
+                            ></p>
+
+                            <p
+                                id="verifyAlertMessage"
+                                class="verify-alert-message"
+                            ></p>
+
+                        </div>
+
+                        <button
+                            type="button"
+                            id="verifyAlertClose"
+                            class="verify-alert-close"
+                            aria-label="بستن"
+                        >
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+
+                    </div>
+
+
+                    <!-- Form -->
+
+                    <form id="verifyForm">
+
+                        <div class="mb-3 text-end">
+
+                            <label
+                                for="otp"
+                                class="form-label"
+                            >
+                                کد تأیید
+                            </label>
+
+                            <input
+                                type="text"
+                                class="form-control form-control-lg otp-input"
+                                id="otp"
+                                name="otp"
+                                maxlength="4"
+                                minlength="4"
+                                inputmode="numeric"
+                                autocomplete="one-time-code"
+                                placeholder="----"
+                                required
+                                autofocus
+                            >
+
+                        </div>
+
+
+                        <!-- Submit -->
+
+                        <div class="verify-actions">
+
+                            <button
+                                type="submit"
+                                class="btn btn-primary btn-lg w-100"
+                                id="submitButton"
+                            >
+
+                                <span id="submitButtonText">
+                                    تأیید و ایجاد حساب
+                                </span>
+
+                                <span
+                                    id="submitSpinner"
+                                    class="spinner-border spinner-border-sm ms-2 d-none"
+                                    role="status"
+                                    aria-hidden="true"
+                                ></span>
+
+                            </button>
+
+                        </div>
+
+                    </form>
+
+
+                    <!-- Resend -->
+
+                    <div class="resend-wrapper">
+
+                        <div class="resend-text">
+                            کد را دریافت نکردید؟
+                        </div>
+
+                        <button
+                            type="button"
+                            id="resendButton"
+                            class="resend-button"
+                            disabled
+                        >
+                            ارسال مجدد کد
+                        </button>
+
+                        <div
+                            id="countdownText"
+                            class="resend-text mt-1"
+                        >
+                            امکان ارسال مجدد تا
+                            <span
+                                id="countdown"
+                                class="countdown"
+                            >
+                                ۶۰
+                            </span>
+                            ثانیه دیگر
+                        </div>
+
+                    </div>
+
+
+                    <!-- Footer -->
+
+                    <div class="auth-footer">
+
+                        <a href="/register/">
+                            <i class="bi bi-arrow-right"></i>
+                            ویرایش اطلاعات
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</main>
+
+
+<script>
+
+    /*
+     * ============================
+     * Register data
+     * ============================
+     */
+
+    const registerDataString =
+        sessionStorage.getItem("register_data");
+
+
+    if (!registerDataString) {
+
+        window.location.href = "/register/";
+
+    }
+
+
+    let registerData;
+
+    try {
+
+        registerData =
+            JSON.parse(registerDataString);
+
+    } catch (error) {
+
+        sessionStorage.removeItem("register_data");
+
+        window.location.href = "/register/";
+
+    }
+
+
+    /*
+     * ============================
+     * Elements
+     * ============================
+     */
+
+    const phoneDisplay =
+        document.getElementById("phoneDisplay");
+
+    const form =
+        document.getElementById("verifyForm");
+
+    const otpInput =
+        document.getElementById("otp");
+
+    const submitButton =
+        document.getElementById("submitButton");
+
+    const submitButtonText =
+        document.getElementById("submitButtonText");
+
+    const submitSpinner =
+        document.getElementById("submitSpinner");
+
+    const resendButton =
+        document.getElementById("resendButton");
+
+    const countdown =
+        document.getElementById("countdown");
+
+    const countdownText =
+        document.getElementById("countdownText");
+
+    const verifyAlert =
+        document.getElementById("verifyAlert");
+
+    const verifyAlertIcon =
+        document.getElementById("verifyAlertIcon");
+
+    const verifyAlertTitle =
+        document.getElementById("verifyAlertTitle");
+
+    const verifyAlertMessage =
+        document.getElementById("verifyAlertMessage");
+
+    const verifyAlertClose =
+        document.getElementById("verifyAlertClose");
+
+
+    /*
+     * ============================
+     * Phone display
+     * ============================
+     */
+
+    phoneDisplay.textContent =
+        registerData.phone_number;
+
+
+    /*
+     * ============================
+     * Digit normalization
+     * ============================
+     */
+
+    function normalizeDigits(value) {
+
+        return value
+            .replace(/[۰-۹]/g, function (digit) {
+                return String(
+                    digit.charCodeAt(0) - 1776
+                );
+            })
+            .replace(/[٠-٩]/g, function (digit) {
+                return String(
+                    digit.charCodeAt(0) - 1632
+                );
+            });
+
+    }
+
+
+    /*
+     * ============================
+     * OTP input
+     * ============================
+     */
+
+    otpInput.addEventListener(
+        "input",
+        function () {
+
+            let value =
+                normalizeDigits(this.value);
+
+            value =
+                value.replace(/\D/g, "");
+
+            value =
+                value.substring(0, 4);
+
+            this.value = value;
+
+            hideAlert();
+
+        }
+    );
+
+
+    /*
+     * ============================
+     * Alert
+     * ============================
+     */
+
+    function showAlert(
+        title,
+        message,
+        type = "error"
+    ) {
+
+        verifyAlert.classList.remove("success");
+
+        if (type === "success") {
+
+            verifyAlert.classList.add("success");
+
+            verifyAlertIcon.innerHTML =
+                '<i class="bi bi-check-circle-fill"></i>';
+
+        } else {
+
+            verifyAlertIcon.innerHTML =
+                '<i class="bi bi-exclamation-circle-fill"></i>';
+
+        }
+
+        verifyAlertTitle.textContent =
+            title;
+
+        verifyAlertMessage.textContent =
+            message;
+
+        verifyAlert.classList.add("show");
+
+    }
+
+
+    function hideAlert() {
+
+        verifyAlert.classList.remove("show");
+
+    }
+
+
+    verifyAlertClose.addEventListener(
+        "click",
+        hideAlert
+    );
+
+
+    /*
+     * ============================
+     * Backend error mapping
+     * ============================
+     */
+
+    function getFriendlyError(
+        result,
+        status
+    ) {
+
+        const errorCode =
+            result?.error_code ||
+            result?.code ||
+            result?.error;
+
+
+        const fieldErrors =
+            result?.errors ||
+            result;
+
+
+        /*
+         * OTP errors
+         */
+
+        if (
+            errorCode === "invalid_otp" ||
+            errorCode === "invalid_code"
+        ) {
+
+            return {
+                title: "کد تأیید نادرست است",
+                message:
+                    "کد واردشده صحیح نیست. لطفاً کد ارسال‌شده را بررسی کنید."
+            };
+
+        }
+
+
+        if (
+            errorCode === "otp_expired" ||
+            errorCode === "code_expired"
+        ) {
+
+            return {
+                title: "کد تأیید منقضی شده",
+                message:
+                    "این کد دیگر معتبر نیست. لطفاً کد جدید دریافت کنید."
+            };
+
+        }
+
+
+        /*
+         * Phone errors
+         */
+
+        if (
+            errorCode === "phone_not_found" ||
+            errorCode === "user_not_found"
+        ) {
+
+            return {
+                title: "شماره پیدا نشد",
+                message:
+                    "اطلاعات ثبت‌نام برای این شماره پیدا نشد. لطفاً دوباره ثبت‌نام کنید."
+            };
+
+        }
+
+
+        /*
+         * Rate limit
+         */
+
+        if (
+            errorCode === "otp_rate_limit"
+        ) {
+
+            return {
+                title: "تعداد درخواست‌ها زیاد است",
+                message:
+                    "لطفاً کمی صبر کنید و سپس دوباره تلاش کنید."
+            };
+
+        }
+
+
+        /*
+         * SMS service
+         */
+
+        if (
+            errorCode === "sms_service_error"
+        ) {
+
+            return {
+                title: "ارسال پیامک ناموفق بود",
+                message:
+                    "در ارسال پیامک مشکلی ایجاد شد. لطفاً کمی بعد دوباره تلاش کنید."
+            };
+
+        }
+
+
+        /*
+         * Field validation
+         */
+
+        if (
+            fieldErrors?.code ||
+            fieldErrors?.otp
+        ) {
+
+            return {
+                title: "کد تأیید نامعتبر است",
+                message:
+                    "لطفاً کد ۴ رقمی ارسال‌شده را وارد کنید."
+            };
+
+        }
+
+
+        /*
+         * HTTP status
+         */
+
+        if (status === 400) {
+
+            return {
+                title: "اطلاعات واردشده صحیح نیست",
+                message:
+                    "لطفاً کد تأیید را بررسی کنید و دوباره تلاش کنید."
+            };
+
+        }
+
+
+        if (status === 401) {
+
+            return {
+                title: "درخواست معتبر نیست",
+                message:
+                    "لطفاً دوباره کد تأیید را وارد کنید."
+            };
+
+        }
+
+
+        if (status === 404) {
+
+            return {
+                title: "اطلاعات پیدا نشد",
+                message:
+                    "اطلاعات ثبت‌نام پیدا نشد. لطفاً دوباره ثبت‌نام کنید."
+            };
+
+        }
+
+
+        if (status === 429) {
+
+            return {
+                title: "تعداد درخواست‌ها زیاد است",
+                message:
+                    "لطفاً کمی صبر کنید و بعد دوباره تلاش کنید."
+            };
+
+        }
+
+
+        if (status >= 500) {
+
+            return {
+                title: "خطای سرور",
+                message:
+                    "مشکلی در سرور ایجاد شده است. لطفاً کمی بعد دوباره تلاش کنید."
+            };
+
+        }
+
+
+        return {
+            title: "تأیید ثبت نام انجام نشد",
+            message:
+                "در بررسی کد مشکلی ایجاد شد. لطفاً دوباره تلاش کنید."
+        };
+
+    }
+
+
+    /*
+     * ============================
+     * Submit loading
+     * ============================
+     */
+
+    function setSubmitLoading(
+        loading
+    ) {
+
+        submitButton.disabled =
+            loading;
+
+        if (loading) {
+
+            submitButtonText.textContent =
+                "در حال بررسی...";
+
+            submitSpinner.classList.remove(
+                "d-none"
+            );
+
+        } else {
+
+            submitButtonText.textContent =
+                "تأیید و ایجاد حساب";
+
+            submitSpinner.classList.add(
+                "d-none"
+            );
+
+        }
+
+    }
+
+
+    /*
+     * ============================
+     * Verify OTP
+     * ============================
+     */
+
+    form.addEventListener(
+        "submit",
+        async function (event) {
+
+            event.preventDefault();
+
+            hideAlert();
+
+
+            let code =
+                normalizeDigits(
+                    otpInput.value.trim()
+                );
+
+
+            /*
+             * Client-side validation
+             */
+
+            if (!/^\d{4}$/.test(code)) {
+
+                showAlert(
+                    "کد تأیید نامعتبر است",
+                    "کد تأیید باید دقیقاً ۴ رقم باشد."
+                );
+
+                otpInput.focus();
+
+                return;
+
+            }
+
+
+            setSubmitLoading(true);
+
+
+            /*
+             * Stage 1 registration data
+             * + OTP
+             */
+
+            const data = {
+                ...registerData,
+                code: code
+            };
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/api/auth/register/verify-otp/",
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body:
+                                JSON.stringify(data)
+                        }
+                    );
+
+
+                let result = {};
+
+                try {
+
+                    result =
+                        await response.json();
+
+                } catch (jsonError) {
+
+                    result = {};
+
+                }
+
+
+                /*
+                 * Backend error
+                 */
+
+                if (!response.ok) {
+
+                    const friendlyError =
+                        getFriendlyError(
+                            result,
+                            response.status
+                        );
+
+                    showAlert(
+                        friendlyError.title,
+                        friendlyError.message
+                    );
+
+                    setSubmitLoading(false);
+
+                    otpInput.focus();
+
+                    return;
+
+                }
+
+
+                /*
+                 * JWT
+                 */
+
+                if (!result.access) {
+
+                    showAlert(
+                        "ثبت نام انجام نشد",
+                        "ورود موفق بود اما اطلاعات احراز هویت دریافت نشد. لطفاً دوباره تلاش کنید."
+                    );
+
+                    setSubmitLoading(false);
+
+                    return;
+
+                }
+
+
+                localStorage.setItem(
+                    "access_token",
+                    result.access
+                );
+
+
+                if (result.refresh) {
+
+                    localStorage.setItem(
+                        "refresh_token",
+                        result.refresh
+                    );
+
+                }
+
+
+                /*
+                 * Registration data
+                 * is no longer needed.
+                 */
+
+                sessionStorage.removeItem(
+                    "register_data"
+                );
+
+
+                /*
+                 * Success
+                 */
+
+                showAlert(
+                    "ثبت نام با موفقیت انجام شد",
+                    "حساب کاربری شما ایجاد شد. در حال انتقال...",
+                    "success"
+                );
+
+
+                setSubmitLoading(true);
+
+
+                setTimeout(
+                    function () {
+
+                        window.location.href =
+                            "/main/";
+
+                    },
+                    700
+                );
+
+            }
+
+
+            /*
+             * Network / unexpected errors
+             */
+
+            catch (error) {
+
+                console.error(
+                    "Register verification error:",
+                    error
+                );
+
+                showAlert(
+                    "ارتباط با سرور برقرار نشد",
+                    "لطفاً اتصال اینترنت خود را بررسی کنید و دوباره تلاش کنید."
+                );
+
+                setSubmitLoading(false);
+
+            }
+
+        }
+    );
+
+
+    /*
+     * ============================
+     * Resend OTP
+     * ============================
+     */
+
+    let countdownTimer = null;
+
+    let remainingSeconds = 60;
+
+
+    function toPersianDigits(value) {
+
+        return String(value).replace(
+            /\d/g,
+            function (digit) {
+
+                return "۰۱۲۳۴۵۶۷۸۹"[
+                    Number(digit)
+                ];
+
+            }
+        );
+
+    }
+
+
+    function updateCountdown() {
+
+        countdown.textContent =
+            toPersianDigits(
+                remainingSeconds
+            );
+
+    }
+
+
+    function startCountdown() {
+
+        clearInterval(
+            countdownTimer
+        );
+
+        remainingSeconds = 60;
+
+        resendButton.disabled = true;
+
+        countdownText.style.display =
+            "block";
+
+        updateCountdown();
+
+
+        countdownTimer =
+            setInterval(
+                function () {
+
+                    remainingSeconds--;
+
+                    updateCountdown();
+
+
+                    if (
+                        remainingSeconds <= 0
+                    ) {
+
+                        clearInterval(
+                            countdownTimer
+                        );
+
+                        resendButton.disabled =
+                            false;
+
+                        countdownText.style.display =
+                            "none";
+
+                    }
+
+                },
+                1000
+            );
+
+    }
+
+
+    resendButton.addEventListener(
+        "click",
+        async function () {
+
+            if (resendButton.disabled) {
+                return;
+            }
+
+
+            hideAlert();
+
+
+            resendButton.disabled =
+                true;
+
+            resendButton.textContent =
+                "در حال ارسال...";
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/api/auth/register/send-otp/",
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body:
+                                JSON.stringify(
+                                    registerData
+                                )
+                        }
+                    );
+
+
+                let result = {};
+
+                try {
+
+                    result =
+                        await response.json();
+
+                } catch (jsonError) {
+
+                    result = {};
+
+                }
+
+
+                if (!response.ok) {
+
+                    const friendlyError =
+                        getFriendlyError(
+                            result,
+                            response.status
+                        );
+
+                    showAlert(
+                        friendlyError.title,
+                        friendlyError.message
+                    );
+
+                    resendButton.disabled =
+                        false;
+
+                    resendButton.textContent =
+                        "ارسال مجدد کد";
+
+                    return;
+
+                }
+
+
+                /*
+                 * Restart 60 second timer
+                 */
+
+                resendButton.textContent =
+                    "ارسال مجدد کد";
+
+                startCountdown();
+
+
+                showAlert(
+                    "کد جدید ارسال شد",
+                    "کد تأیید جدید به شماره موبایل شما ارسال شد.",
+                    "success"
+                );
+
+
+                otpInput.value = "";
+
+                otpInput.focus();
+
+            }
+
+
+            catch (error) {
+
+                console.error(
+                    "Resend OTP error:",
+                    error
+                );
+
+                showAlert(
+                    "ارسال کد ناموفق بود",
+                    "ارتباط با سرور برقرار نشد. لطفاً دوباره تلاش کنید."
+                );
+
+
+                resendButton.disabled =
+                    false;
+
+                resendButton.textContent =
+                    "ارسال مجدد کد";
+
+            }
+
+        }
+    );
+
+
+    /*
+     * ============================
+     * Start initial countdown
+     * ============================
+     *
+     * The user must wait 60 seconds
+     * before requesting another OTP.
+     */
+
+    startCountdown();
+
+</script>
+
+</body>
+</html>

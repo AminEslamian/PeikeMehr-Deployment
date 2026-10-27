@@ -1,0 +1,195 @@
+* {
+      box-sizing: border-box;
+  }
+  
+  body {
+      margin: 0;
+      font-family: "Vazirmatn", sans-serif;
+      background: #f4f7fb;
+      color: #1f2937;
+  }
+  
+  .auth-page {
+      min-height: 100vh;
+  
+      display: flex;
+      align-items: center;
+  
+      background:
+          radial-gradient(
+              circle at top right,
+              rgba(13, 110, 253, 0.10),
+              transparent 35%
+          ),
+          radial-gradient(
+              circle at bottom left,
+              rgba(13, 110, 253, 0.07),
+              transparent 35%
+          );
+  }
+  
+  .auth-card {
+      background: #ffffff;
+  
+      padding: 42px 38px;
+  
+      border-radius: 24px;
+  
+      box-shadow:
+          0 20px 60px rgba(0, 0, 0, 0.08);
+  }
+  
+  .auth-icon {
+      width: 65px;
+      height: 65px;
+  
+      margin: 0 auto 22px;
+  
+      display: flex;
+      align-items: center;
+      justify-content: center;
+  
+      border-radius: 18px;
+  
+      background: #eaf2ff;
+  
+      font-size: 30px;
+  }
+  
+  .auth-title {
+      text-align: center;
+  
+      font-size: 27px;
+      font-weight: 800;
+  
+      margin-bottom: 12px;
+  }
+  
+  .auth-description {
+      text-align: center;
+  
+      color: #6b7280;
+  
+      font-size: 14px;
+  
+      line-height: 1.9;
+  
+      margin-bottom: 8px;
+  }
+  
+  .phone-display {
+      text-align: center;
+  
+      direction: ltr;
+  
+      font-size: 17px;
+      font-weight: 600;
+  
+      color: #0d6efd;
+  
+      margin-bottom: 28px;
+  }
+  
+  .form-label {
+      font-size: 14px;
+      font-weight: 600;
+  
+      margin-bottom: 8px;
+  }
+  
+  .form-control {
+      font-family: "Vazirmatn", sans-serif;
+  
+      border-radius: 11px;
+  
+      border: 1px solid #dce2ea;
+  }
+  
+  .form-control:focus {
+      border-color: #0d6efd;
+  
+      box-shadow:
+          0 0 0 0.2rem rgba(13, 110, 253, 0.12);
+  }
+  
+  .auth-card .btn {
+      font-family: "Vazirmatn", sans-serif;
+  
+      border-radius: 11px;
+  
+      padding: 12px;
+  
+      font-size: 15px;
+      font-weight: 600;
+  }
+  
+  .auth-footer {
+      text-align: center;
+  
+      margin-top: 25px;
+  
+      color: #6b7280;
+  
+      font-size: 14px;
+  }
+  
+  .auth-footer a {
+      color: #0d6efd;
+  
+      text-decoration: none;
+  
+      font-weight: 600;
+  }
+  
+  .auth-footer a:hover {
+      text-decoration: underline;
+  }
+  
+  @media (max-width: 576px) {
+  
+      .auth-card {
+          padding: 35px 25px;
+  
+          border-radius: 20px;
+      }
+  
+      .auth-title {
+          font-size: 24px;
+      }
+  }
+
+  .grades-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.grade-checkbox {
+    position: relative;
+    cursor: pointer;
+}
+
+.grade-checkbox input {
+    position: absolute;
+    opacity: 0;
+}
+
+.grade-checkbox span {
+    display: block;
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #dee2e6;
+    border-radius: 10px;
+    background: #fff;
+    transition: all 0.2s ease;
+}
+
+.grade-checkbox input:checked + span {
+    background: #0d6efd;
+    color: white;
+    border-color: #0d6efd;
+}
+
+.grade-checkbox span:hover {
+    border-color: #0d6efd;
+}

@@ -1,0 +1,3714 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>ثبت نام | سامانه گزارش معلمان</title>
+
+
+    <!-- Bootstrap -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css"
+        rel="stylesheet"
+    >
+
+
+    <!-- Bootstrap Icons -->
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    >
+
+
+    <!-- Vazirmatn -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+
+    <!-- Custom CSS -->
+    <link
+        rel="stylesheet"
+        href="{% static 'css/auth.css' %}"
+    >
+
+
+    <style>
+
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+
+            --background: #f5f7fb;
+            --card: #ffffff;
+
+            --text: #171923;
+            --muted: #6b7280;
+
+            --border: #e5e7eb;
+
+            --danger: #dc2626;
+            --danger-bg: #fef2f2;
+            --danger-border: #fecaca;
+
+            --warning: #b45309;
+            --warning-bg: #fffbeb;
+            --warning-border: #fde68a;
+
+            --success: #15803d;
+            --success-bg: #f0fdf4;
+            --success-border: #bbf7d0;
+
+            --shadow:
+                0 20px 50px rgba(15, 23, 42, 0.10);
+
+            --radius: 22px;
+        }
+
+
+        * {
+            box-sizing: border-box;
+        }
+
+
+        body {
+            margin: 0;
+
+            min-height: 100vh;
+
+            font-family: "Vazirmatn", sans-serif;
+
+            background:
+                radial-gradient(
+                    circle at 10% 10%,
+                    rgba(79, 70, 229, 0.10),
+                    transparent 30%
+                ),
+                radial-gradient(
+                    circle at 90% 90%,
+                    rgba(67, 56, 202, 0.08),
+                    transparent 30%
+                ),
+                var(--background);
+
+            color: var(--text);
+        }
+
+
+        /* =========================================================
+           Page
+        ========================================================= */
+
+        .auth-page {
+            min-height: 100vh;
+
+            display: flex;
+            align-items: center;
+
+            padding: 45px 0;
+        }
+
+
+        /* =========================================================
+           Card
+        ========================================================= */
+
+        .auth-card {
+            position: relative;
+
+            max-width: 760px;
+
+            margin: 0 auto;
+
+            padding: 42px;
+
+            background: var(--card);
+
+            border: 1px solid rgba(229, 231, 235, 0.9);
+
+            border-radius: var(--radius);
+
+            box-shadow: var(--shadow);
+
+            overflow: hidden;
+        }
+
+
+        .auth-card::before {
+            content: "";
+
+            position: absolute;
+
+            top: 0;
+            right: 0;
+            left: 0;
+
+            height: 4px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    var(--primary),
+                    #6366f1,
+                    var(--primary-dark)
+                );
+        }
+
+
+        /* =========================================================
+           Header
+        ========================================================= */
+
+        .auth-header {
+            text-align: center;
+
+            margin-bottom: 32px;
+        }
+
+
+        .auth-icon {
+            width: 72px;
+            height: 72px;
+
+            margin: 0 auto 22px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 20px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--primary),
+                    var(--primary-dark)
+                );
+
+            color: #ffffff;
+
+            box-shadow:
+                0 12px 25px rgba(79, 70, 229, 0.25);
+        }
+
+
+        .auth-icon i {
+            font-size: 30px;
+        }
+
+
+        .auth-title {
+            margin: 0;
+
+            font-size: 27px;
+
+            font-weight: 800;
+
+            line-height: 1.5;
+
+            color: var(--text);
+        }
+
+
+        .auth-description {
+            max-width: 520px;
+
+            margin: 10px auto 0;
+
+            font-size: 14px;
+
+            line-height: 1.9;
+
+            color: var(--muted);
+        }
+
+
+        /* =========================================================
+           Backend Error Alert
+        ========================================================= */
+
+        .backend-alert {
+            display: none;
+
+            align-items: flex-start;
+
+            gap: 12px;
+
+            margin: 0 0 25px;
+
+            padding: 14px 16px;
+
+            border: 1px solid;
+
+            border-radius: 13px;
+
+            animation:
+                alertIn 0.25s ease;
+        }
+
+
+        .backend-alert.show {
+            display: flex;
+        }
+
+
+        .backend-alert.error {
+            color: var(--danger);
+
+            background: var(--danger-bg);
+
+            border-color: var(--danger-border);
+        }
+
+
+        .backend-alert.warning {
+            color: var(--warning);
+
+            background: var(--warning-bg);
+
+            border-color: var(--warning-border);
+        }
+
+
+        .backend-alert.success {
+            color: var(--success);
+
+            background: var(--success-bg);
+
+            border-color: var(--success-border);
+        }
+
+
+        .alert-icon {
+            width: 34px;
+            height: 34px;
+
+            flex-shrink: 0;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 9px;
+
+            background: rgba(255, 255, 255, 0.65);
+
+            font-size: 17px;
+        }
+
+
+        .alert-content {
+            flex: 1;
+
+            min-width: 0;
+        }
+
+
+        .alert-title {
+            margin: 0 0 3px;
+
+            font-size: 13px;
+
+            font-weight: 800;
+
+            line-height: 1.7;
+        }
+
+
+        .alert-message {
+            margin: 0;
+
+            font-size: 12px;
+
+            line-height: 1.9;
+
+            font-weight: 500;
+        }
+
+
+        .alert-close {
+            width: 28px;
+            height: 28px;
+
+            flex-shrink: 0;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            padding: 0;
+
+            border: none;
+
+            border-radius: 7px;
+
+            background: transparent;
+
+            color: currentColor;
+
+            opacity: 0.6;
+
+            cursor: pointer;
+
+            transition:
+                background-color 0.2s ease,
+                opacity 0.2s ease;
+        }
+
+
+        .alert-close:hover {
+            background: rgba(0, 0, 0, 0.05);
+
+            opacity: 1;
+        }
+
+
+        @keyframes alertIn {
+
+            from {
+                opacity: 0;
+                transform: translateY(-5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+        }
+
+
+        /* =========================================================
+           Form Section
+        ========================================================= */
+
+        .form-section-title {
+            display: flex;
+            align-items: center;
+
+            gap: 9px;
+
+            margin: 25px 0 18px;
+
+            padding-bottom: 10px;
+
+            border-bottom: 1px solid var(--border);
+
+            color: var(--text);
+
+            font-size: 14px;
+
+            font-weight: 800;
+        }
+
+
+        .form-section-title i {
+            color: var(--primary);
+
+            font-size: 17px;
+        }
+
+
+        .form-label {
+            margin-bottom: 8px;
+
+            font-size: 13px;
+
+            font-weight: 700;
+
+            color: var(--text);
+        }
+
+
+        .required-star {
+            color: var(--danger);
+        }
+
+
+        /* =========================================================
+           Inputs
+        ========================================================= */
+
+        .form-control,
+        .form-select {
+            min-height: 50px;
+
+            border: 1px solid var(--border);
+
+            border-radius: 11px;
+
+            background-color: #ffffff;
+
+            color: var(--text);
+
+            font-family: "Vazirmatn", sans-serif;
+
+            font-size: 13px;
+
+            transition:
+                border-color 0.2s ease,
+                box-shadow 0.2s ease;
+        }
+
+
+        .form-control {
+            padding: 10px 14px;
+        }
+
+
+        .form-select {
+            padding: 10px 38px 10px 14px;
+        }
+
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--primary);
+
+            background-color: #ffffff;
+
+            box-shadow:
+                0 0 0 4px rgba(79, 70, 229, 0.10);
+        }
+
+
+        .form-control::placeholder {
+            color: #9ca3af;
+        }
+
+
+        .numeric-input {
+            direction: ltr;
+
+            text-align: left;
+        }
+
+
+        .field-invalid {
+            border-color: var(--danger) !important;
+
+            box-shadow:
+                0 0 0 3px rgba(220, 38, 38, 0.08) !important;
+        }
+
+
+        /* =========================================================
+           Field Error
+        ========================================================= */
+
+        .field-error {
+            min-height: 19px;
+
+            margin-top: 5px;
+
+            color: var(--danger);
+
+            font-size: 11px;
+
+            line-height: 1.7;
+        }
+
+
+        /* =========================================================
+           Grades
+        ========================================================= */
+
+        .grades-container {
+            display: grid;
+
+            grid-template-columns:
+                repeat(6, minmax(0, 1fr));
+
+            gap: 10px;
+        }
+
+
+        .grade-checkbox {
+            position: relative;
+
+            cursor: pointer;
+
+            margin: 0;
+        }
+
+
+        .grade-checkbox input {
+            position: absolute;
+
+            opacity: 0;
+
+            pointer-events: none;
+        }
+
+
+        .grade-checkbox span {
+            min-height: 48px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border: 1px solid var(--border);
+
+            border-radius: 11px;
+
+            background: #ffffff;
+
+            color: var(--text);
+
+            font-size: 13px;
+
+            font-weight: 600;
+
+            transition:
+                background-color 0.2s ease,
+                border-color 0.2s ease,
+                color 0.2s ease,
+                box-shadow 0.2s ease;
+        }
+
+
+        .grade-checkbox:hover span {
+            border-color: #a5b4fc;
+
+            background: #f8f9ff;
+        }
+
+
+        .grade-checkbox input:checked + span {
+            border-color: var(--primary);
+
+            background: rgba(79, 70, 229, 0.08);
+
+            color: var(--primary);
+
+            box-shadow:
+                0 0 0 3px rgba(79, 70, 229, 0.07);
+        }
+
+
+        .grades-invalid .grade-checkbox span {
+            border-color: var(--danger-border);
+        }
+
+
+        /* =========================================================
+           Submit
+        ========================================================= */
+
+        .submit-button {
+            width: 100%;
+
+            min-height: 54px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            gap: 9px;
+
+            border: none;
+
+            border-radius: 12px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--primary),
+                    var(--primary-dark)
+                );
+
+            color: #ffffff;
+
+            font-family: "Vazirmatn", sans-serif;
+
+            font-size: 14px;
+
+            font-weight: 700;
+
+            box-shadow:
+                0 8px 18px rgba(79, 70, 229, 0.20);
+
+            transition:
+                transform 0.2s ease,
+                box-shadow 0.2s ease,
+                opacity 0.2s ease;
+        }
+
+
+        .submit-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+
+            box-shadow:
+                0 12px 24px rgba(79, 70, 229, 0.28);
+        }
+
+
+        .submit-button:disabled {
+            cursor: not-allowed;
+
+            opacity: 0.7;
+
+            box-shadow: none;
+        }
+
+
+        /* =========================================================
+           Loading
+        ========================================================= */
+
+        .loading-spinner {
+            width: 17px;
+            height: 17px;
+
+            border: 2px solid rgba(255, 255, 255, 0.4);
+
+            border-top-color: #ffffff;
+
+            border-radius: 50%;
+
+            animation:
+                spin 0.7s linear infinite;
+        }
+
+
+        @keyframes spin {
+
+            to {
+                transform: rotate(360deg);
+            }
+
+        }
+
+
+        /* =========================================================
+           Footer
+        ========================================================= */
+
+        .auth-footer {
+            margin-top: 25px;
+
+            padding-top: 20px;
+
+            border-top: 1px solid var(--border);
+
+            text-align: center;
+
+            font-size: 13px;
+
+            color: var(--muted);
+        }
+
+
+        .auth-footer a {
+            margin-right: 4px;
+
+            color: var(--primary);
+
+            font-weight: 700;
+
+            text-decoration: none;
+        }
+
+
+        .auth-footer a:hover {
+            color: var(--primary-dark);
+
+            text-decoration: underline;
+        }
+
+
+        /* =========================================================
+           Responsive
+        ========================================================= */
+
+        @media (max-width: 767px) {
+
+            .auth-page {
+                padding: 25px 15px;
+            }
+
+
+            .auth-card {
+                padding: 34px 22px;
+
+                border-radius: 18px;
+            }
+
+
+            .auth-title {
+                font-size: 23px;
+            }
+
+
+            .auth-description {
+                font-size: 13px;
+            }
+
+
+            .auth-icon {
+                width: 64px;
+                height: 64px;
+            }
+
+
+            .grades-container {
+                grid-template-columns:
+                    repeat(3, minmax(0, 1fr));
+            }
+
+        }
+
+
+        @media (max-width: 400px) {
+
+            .grades-container {
+                grid-template-columns:
+                    repeat(2, minmax(0, 1fr));
+            }
+
+        }
+
+    </style>
+</head>
+
+
+<body>
+
+<main class="auth-page">
+
+    <div class="container">
+
+        <div class="row justify-content-center">
+
+            <div class="col-12 col-md-11 col-lg-9 col-xl-8">
+
+                <div class="auth-card">
+
+
+                    <!-- =================================================
+                         Header
+                    ================================================= -->
+
+                    <div class="auth-header">
+
+                        <div class="auth-icon">
+                            <i class="bi bi-person-plus-fill"></i>
+                        </div>
+
+                        <h1 class="auth-title">
+                            ایجاد حساب جدید
+                        </h1>
+
+                        <p class="auth-description">
+                            اطلاعات خود را وارد کنید تا کد تأیید برای شماره تماس شما ارسال شود.
+                        </p>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         Backend Alert
+                    ================================================= -->
+
+                    <div
+                        id="backendAlert"
+                        class="backend-alert"
+                        role="alert"
+                        aria-live="polite"
+                    >
+
+                        <div
+                            id="alertIcon"
+                            class="alert-icon"
+                        >
+                            <i class="bi bi-exclamation-circle-fill"></i>
+                        </div>
+
+
+                        <div class="alert-content">
+
+                            <p
+                                id="alertTitle"
+                                class="alert-title"
+                            ></p>
+
+                            <p
+                                id="alertMessage"
+                                class="alert-message"
+                            ></p>
+
+                        </div>
+
+
+                        <button
+                            type="button"
+                            id="alertClose"
+                            class="alert-close"
+                            aria-label="بستن"
+                        >
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         Form
+                    ================================================= -->
+
+                    <form id="registerForm">
+
+                        {% csrf_token %}
+
+
+                        <!-- =================================================
+                             Personal Information
+                        ================================================= -->
+
+                        <div class="form-section-title">
+
+                            <i class="bi bi-person-fill"></i>
+
+                            <span>
+                                اطلاعات شخصی
+                            </span>
+
+                        </div>
+
+
+                        <div class="row">
+
+
+                            <!-- First name -->
+
+                            <div class="col-md-6 mb-3">
+
+                                <label
+                                    for="first_name"
+                                    class="form-label"
+                                >
+                                    نام
+                                    <span class="required-star">*</span>
+                                </label>
+
+
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    id="first_name"
+                                    name="first_name"
+                                    maxlength="100"
+                                    autocomplete="given-name"
+                                    required
+                                >
+
+
+                                <div
+                                    id="firstNameError"
+                                    class="field-error"
+                                ></div>
+
+                            </div>
+
+
+                            <!-- Last name -->
+
+                            <div class="col-md-6 mb-3">
+
+                                <label
+                                    for="last_name"
+                                    class="form-label"
+                                >
+                                    نام خانوادگی
+                                    <span class="required-star">*</span>
+                                </label>
+
+
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    id="last_name"
+                                    name="last_name"
+                                    maxlength="100"
+                                    autocomplete="family-name"
+                                    required
+                                >
+
+
+                                <div
+                                    id="lastNameError"
+                                    class="field-error"
+                                ></div>
+
+                            </div>
+
+
+                            <!-- Phone -->
+
+                            <div class="col-md-6 mb-3">
+
+                                <label
+                                    for="phone_number"
+                                    class="form-label"
+                                >
+                                    شماره تماس
+                                    <span class="required-star">*</span>
+                                </label>
+
+
+                                <input
+                                    type="tel"
+                                    class="form-control numeric-input"
+                                    id="phone_number"
+                                    name="phone_number"
+                                    placeholder="09123456789"
+                                    maxlength="11"
+                                    inputmode="numeric"
+                                    autocomplete="tel"
+                                    required
+                                >
+
+
+                                <div
+                                    id="phoneError"
+                                    class="field-error"
+                                ></div>
+
+                            </div>
+
+
+                            <!-- National ID -->
+
+                            <div class="col-md-6 mb-3">
+
+                                <label
+                                    for="national_id"
+                                    class="form-label"
+                                >
+                                    کد ملی
+                                </label>
+
+
+                                <input
+                                    type="text"
+                                    class="form-control numeric-input"
+                                    id="national_id"
+                                    name="national_id"
+                                    placeholder="0012345678"
+                                    maxlength="10"
+                                    inputmode="numeric"
+                                    autocomplete="off"
+                                >
+
+
+                                <div
+                                    id="nationalIdError"
+                                    class="field-error"
+                                ></div>
+
+                            </div>
+
+
+                            <!-- Gender -->
+
+                            <div class="col-md-6 mb-3">
+
+                                <label
+                                    for="gender"
+                                    class="form-label"
+                                >
+                                    جنسیت
+                                    <span class="required-star">*</span>
+                                </label>
+
+
+                                <select
+                                    class="form-select"
+                                    id="gender"
+                                    name="gender"
+                                    required
+                                >
+
+                                    <option
+                                        value=""
+                                        selected
+                                        disabled
+                                    >
+                                        انتخاب جنسیت
+                                    </option>
+
+                                    <option value="man">
+                                        مرد
+                                    </option>
+
+                                    <option value="woman">
+                                        زن
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- =================================================
+                             Location
+                        ================================================= -->
+
+                        <div class="form-section-title">
+
+                            <i class="bi bi-geo-alt-fill"></i>
+
+                            <span>
+                                محل سکونت
+                            </span>
+
+                        </div>
+
+
+                        <div class="row">
+
+
+                            <!-- Province -->
+
+                            <div class="col-md-6 mb-3">
+
+                                <label
+                                    for="province"
+                                    class="form-label"
+                                >
+                                    استان
+                                    <span class="required-star">*</span>
+                                </label>
+
+
+                                <select
+                                    class="form-select"
+                                    id="province"
+                                    name="province"
+                                    required
+                                >
+
+                                    <option
+                                        value=""
+                                        selected
+                                        disabled
+                                    >
+                                        انتخاب استان
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <!-- City -->
+
+                            <div class="col-md-6 mb-3">
+
+                                <label
+                                    for="city"
+                                    class="form-label"
+                                >
+                                    شهر
+                                    <span class="required-star">*</span>
+                                </label>
+
+
+                                <select
+                                    class="form-select"
+                                    id="city"
+                                    name="city"
+                                    disabled
+                                    required
+                                >
+
+                                    <option
+                                        value=""
+                                        selected
+                                        disabled
+                                    >
+                                        ابتدا استان را انتخاب کنید
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <!-- Village -->
+
+                            <div class="col-12 mb-3">
+
+                                <label
+                                    for="village"
+                                    class="form-label"
+                                >
+                                    روستا
+
+                                    <span class="text-muted fw-normal">
+                                        (اختیاری)
+                                    </span>
+
+                                </label>
+
+
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    id="village"
+                                    name="village"
+                                    maxlength="100"
+                                    autocomplete="off"
+                                    placeholder="در صورت سکونت در روستا وارد کنید"
+                                >
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- =================================================
+                             Educational Information
+                        ================================================= -->
+
+                        <div class="form-section-title">
+
+                            <i class="bi bi-mortarboard-fill"></i>
+
+                            <span>
+                                اطلاعات آموزشی
+                            </span>
+
+                        </div>
+
+
+                        <div class="row">
+
+
+                            <!-- School -->
+
+                            <div class="col-md-6 mb-3">
+
+                                <label
+                                    for="school"
+                                    class="form-label"
+                                >
+                                    مدرسه
+                                    <span class="required-star">*</span>
+                                </label>
+
+
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    id="school"
+                                    name="school"
+                                    maxlength="200"
+                                    autocomplete="organization"
+                                    required
+                                >
+
+
+                                <div
+                                    id="schoolError"
+                                    class="field-error"
+                                ></div>
+
+                            </div>
+
+
+                            <!-- Position -->
+
+                            <div class="col-md-6 mb-3">
+
+                                <label
+                                    for="position"
+                                    class="form-label"
+                                >
+                                    سمت
+                                    <span class="required-star">*</span>
+                                </label>
+
+
+                                <select
+                                    class="form-select"
+                                    id="position"
+                                    name="position"
+                                    required
+                                >
+
+                                    <option
+                                        value=""
+                                        selected
+                                        disabled
+                                    >
+                                        انتخاب سمت
+                                    </option>
+
+                                    <option value="teacher">
+                                        معلم
+                                    </option>
+
+                                    <option value="instructor">
+                                        مربی
+                                    </option>
+
+                                    <option value="amin_instructor">
+                                        مربی طرح امین
+                                    </option>
+
+                                    <option value="free_preacher">
+                                        مبلغ آزاد
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <!-- Grades -->
+
+                            <div class="col-12 mb-3">
+
+                                <label class="form-label">
+
+                                    پایه‌های تدریس
+
+                                    <span class="required-star">
+                                        *
+                                    </span>
+
+                                </label>
+
+
+                                <div
+                                    id="gradesContainer"
+                                    class="grades-container"
+                                >
+
+                                    <label class="grade-checkbox">
+
+                                        <input
+                                            type="checkbox"
+                                            name="grade"
+                                            value="first"
+                                        >
+
+                                        <span>
+                                            اول
+                                        </span>
+
+                                    </label>
+
+
+                                    <label class="grade-checkbox">
+
+                                        <input
+                                            type="checkbox"
+                                            name="grade"
+                                            value="second"
+                                        >
+
+                                        <span>
+                                            دوم
+                                        </span>
+
+                                    </label>
+
+
+                                    <label class="grade-checkbox">
+
+                                        <input
+                                            type="checkbox"
+                                            name="grade"
+                                            value="third"
+                                        >
+
+                                        <span>
+                                            سوم
+                                        </span>
+
+                                    </label>
+
+
+                                    <label class="grade-checkbox">
+
+                                        <input
+                                            type="checkbox"
+                                            name="grade"
+                                            value="fourth"
+                                        >
+
+                                        <span>
+                                            چهارم
+                                        </span>
+
+                                    </label>
+
+
+                                    <label class="grade-checkbox">
+
+                                        <input
+                                            type="checkbox"
+                                            name="grade"
+                                            value="fifth"
+                                        >
+
+                                        <span>
+                                            پنجم
+                                        </span>
+
+                                    </label>
+
+                                    
+                                    <label class="grade-checkbox">
+
+                                        <input
+                                            type="checkbox"
+                                            name="grade"
+                                            value="sixth"
+                                        >
+
+                                        <span>
+                                            ششم
+                                        </span>
+
+                                    </label>
+
+                                </div>
+
+
+                                <div
+                                    id="gradeError"
+                                    class="field-error"
+                                ></div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- =================================================
+                             Submit
+                        ================================================= -->
+
+                        <button
+                            type="submit"
+                            class="submit-button"
+                            id="submitButton"
+                        >
+
+                            <i class="bi bi-shield-check"></i>
+
+                            <span>
+                                ارسال کد تأیید
+                            </span>
+
+                        </button>
+
+                    </form>
+
+
+                    <!-- Footer -->
+
+                    <div class="auth-footer">
+
+                        قبلاً حساب ساخته‌اید؟
+
+                        <a href="/login/">
+                            وارد شوید
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</main>
+
+
+<script>
+
+/* =========================================================
+   Province / City Data
+========================================================= */
+
+const provinces = {
+
+    "آذربایجان شرقی": [
+        "تبریز",
+        "مراغه",
+        "مرند",
+        "میانه",
+        "اهر",
+        "بناب",
+        "سراب",
+        "شبستر",
+        "بستان‌آباد",
+        "هریس",
+        "اسکو",
+        "آذرشهر",
+        "جلفا",
+        "کلیبر"
+    ],
+
+    "آذربایجان غربی": [
+        "ارومیه",
+        "خوی",
+        "میاندوآب",
+        "مهاباد",
+        "بوکان",
+        "سلماس",
+        "نقده",
+        "پیرانشهر",
+        "سردشت",
+        "تکاب",
+        "شاهین‌دژ",
+        "ماکو",
+        "اشنویه",
+        "چالدران",
+        "پلدشت"
+    ],
+
+    "اردبیل": [
+        "اردبیل",
+        "مشگین‌شهر",
+        "خلخال",
+        "پارس‌آباد",
+        "گرمی",
+        "نمین",
+        "نیر",
+        "کوثر",
+        "بیله‌سوار",
+        "اصلاندوز"
+    ],
+
+    "اصفهان": [
+        "اصفهان",
+        "کاشان",
+        "خمینی‌شهر",
+        "نجف‌آباد",
+        "شاهین‌شهر",
+        "فلاورجان",
+        "مبارکه",
+        "شهرضا",
+        "گلپایگان",
+        "خوانسار",
+        "سمیرم",
+        "نائین",
+        "اردستان",
+        "آران و بیدگل",
+        "لنجان",
+        "دهاقان",
+        "تیران",
+        "فریدن",
+        "فریدون‌شهر"
+    ],
+
+    "البرز": [
+        "کرج",
+        "فردیس",
+        "نظرآباد",
+        "محمدشهر",
+        "ماهدشت",
+        "هشتگرد",
+        "طالقان",
+        "اشتهارد",
+        "آسارا"
+    ],
+
+    "ایلام": [
+        "ایلام",
+        "دهلران",
+        "ایوان",
+        "آبدانان",
+        "دره‌شهر",
+        "مهران",
+        "سرابله",
+        "موسیان",
+        "بدره",
+        "ملکشاهی"
+    ],
+
+    "بوشهر": [
+        "بوشهر",
+        "برازجان",
+        "کنگان",
+        "جم",
+        "گناوه",
+        "دیر",
+        "دشتی",
+        "خورموج",
+        "عسلویه",
+        "دیلم"
+    ],
+
+    "تهران": [
+        "تهران",
+        "ری",
+        "شمیرانات",
+        "شهریار",
+        "اسلامشهر",
+        "قدس",
+        "ملارد",
+        "رباط‌کریم",
+        "پاکدشت",
+        "ورامین",
+        "دماوند",
+        "فیروزکوه",
+        "قرچک",
+        "پیشوا",
+        "پردیس"
+    ],
+
+    "چهارمحال و بختیاری": [
+        "شهرکرد",
+        "بروجن",
+        "فارسان",
+        "لردگان",
+        "کوهرنگ",
+        "سامان",
+        "اردل",
+        "کیار",
+        "بن",
+        "خانمیرزا"
+    ],
+
+    "خراسان جنوبی": [
+        "بیرجند",
+        "قائن",
+        "طبس",
+        "فردوس",
+        "نهبندان",
+        "سرایان",
+        "سربیشه",
+        "درمیان",
+        "بشرویه",
+        "زیرکوه"
+    ],
+
+    "خراسان رضوی": [
+        "مشهد",
+        "نیشابور",
+        "سبزوار",
+        "تربت حیدریه",
+        "تربت جام",
+        "قوچان",
+        "کاشمر",
+        "چناران",
+        "گناباد",
+        "تایباد",
+        "خواف",
+        "درگز",
+        "بردسکن",
+        "فریمان",
+        "سرخس"
+    ],
+
+    "خراسان شمالی": [
+        "بجنورد",
+        "شیروان",
+        "اسفراین",
+        "جاجرم",
+        "فاروج",
+        "گرمه",
+        "مانه و سملقان",
+        "راز و جرگلان"
+    ],
+
+    "خوزستان": [
+        "اهواز",
+        "آبادان",
+        "خرمشهر",
+        "دزفول",
+        "اندیمشک",
+        "ماهشهر",
+        "بهبهان",
+        "شوش",
+        "شوشتر",
+        "ایذه",
+        "مسجدسلیمان",
+        "رامهرمز",
+        "شادگان",
+        "دشت آزادگان",
+        "هندیجان",
+        "باغ‌ملک",
+        "لالی",
+        "هفتکل",
+        "امیدیه"
+    ],
+
+    "زنجان": [
+        "زنجان",
+        "ابهر",
+        "خرمدره",
+        "قیدار",
+        "ماه‌نشان",
+        "طارم",
+        "ایجرود",
+        "سلطانیه"
+    ],
+
+    "سمنان": [
+        "سمنان",
+        "شاهرود",
+        "دامغان",
+        "گرمسار",
+        "مهدی‌شهر",
+        "سرخه",
+        "میامی",
+        "آرادان"
+    ],
+
+    "سیستان و بلوچستان": [
+        "زاهدان",
+        "چابهار",
+        "زابل",
+        "ایرانشهر",
+        "سراوان",
+        "خاش",
+        "نیک‌شهر",
+        "کنارک",
+        "راسک",
+        "میرجاوه",
+        "دلگان",
+        "فنوج",
+        "قصرقند",
+        "مهرستان",
+        "سیب و سوران"
+    ],
+
+    "فارس": [
+        "شیراز",
+        "مرودشت",
+        "جهرم",
+        "فسا",
+        "کازرون",
+        "لار",
+        "آباده",
+        "داراب",
+        "نی‌ریز",
+        "فیروزآباد",
+        "استهبان",
+        "اقلید",
+        "ممسنی",
+        "لامرد",
+        "گراش",
+        "خنج",
+        "زرین‌دشت",
+        "سپیدان",
+        "خرم‌بید"
+    ],
+
+    "قزوین": [
+        "قزوین",
+        "تاکستان",
+        "آبیک",
+        "الوند",
+        "بوئین‌زهرا",
+        "آوج",
+        "محمدیه"
+    ],
+
+    "قم": [
+        "قم",
+        "جعفریه",
+        "کهک",
+        "دستجرد",
+        "سلفچگان"
+    ],
+
+    "کردستان": [
+        "سنندج",
+        "سقز",
+        "مریوان",
+        "بانه",
+        "قروه",
+        "کامیاران",
+        "بیجار",
+        "دیواندره",
+        "دهگلان",
+        "سروآباد"
+    ],
+
+    "کرمان": [
+        "کرمان",
+        "رفسنجان",
+        "سیرجان",
+        "جیرفت",
+        "بم",
+        "زرند",
+        "راور",
+        "بافت",
+        "شهربابک",
+        "کهنوج",
+        "بردسیر",
+        "عنبرآباد",
+        "رودبار جنوب",
+        "فهرج",
+        "ریگان",
+        "منوجان"
+    ],
+
+    "کرمانشاه": [
+        "کرمانشاه",
+        "اسلام‌آباد غرب",
+        "سرپل ذهاب",
+        "پاوه",
+        "کنگاور",
+        "سنقر",
+        "صحنه",
+        "جوانرود",
+        "هرسین",
+        "قصر شیرین",
+        "گیلانغرب",
+        "ثلاث باباجانی",
+        "روانسر"
+    ],
+
+    "کهگیلویه و بویراحمد": [
+        "یاسوج",
+        "دهدشت",
+        "گچساران",
+        "دوگنبدان",
+        "لیکک",
+        "سی‌سخت",
+        "باشت",
+        "چرام"
+    ],
+
+    "گلستان": [
+        "گرگان",
+        "گنبد کاووس",
+        "علی‌آباد کتول",
+        "آق‌قلا",
+        "بندر ترکمن",
+        "کردکوی",
+        "مینودشت",
+        "کلاله",
+        "آزادشهر",
+        "رامیان",
+        "گمیشان",
+        "گالیکش",
+        "خان‌ببین"
+    ],
+
+    "گیلان": [
+        "رشت",
+        "انزلی",
+        "لاهیجان",
+        "رودسر",
+        "آستانه اشرفیه",
+        "تالش",
+        "رودبار",
+        "فومن",
+        "صومعه‌سرا",
+        "لنگرود",
+        "ماسال",
+        "آستارا",
+        "املش",
+        "شفت",
+        "رضوانشهر"
+    ],
+
+    "لرستان": [
+        "خرم‌آباد",
+        "بروجرد",
+        "دورود",
+        "الیگودرز",
+        "کوهدشت",
+        "نورآباد",
+        "ازنا",
+        "الشتر",
+        "پلدختر",
+        "رومشکان"
+    ],
+
+    "مازندران": [
+        "ساری",
+        "بابل",
+        "آمل",
+        "قائمشهر",
+        "بهشهر",
+        "نوشهر",
+        "چالوس",
+        "تنکابن",
+        "رامسر",
+        "نکا",
+        "بابلسر",
+        "محمودآباد",
+        "جویبار",
+        "نور",
+        "فریدونکنار",
+        "سوادکوه",
+        "سوادکوه شمالی",
+        "میاندورود"
+    ],
+
+    "مرکزی": [
+        "اراک",
+        "ساوه",
+        "خمین",
+        "محلات",
+        "دلیجان",
+        "تفرش",
+        "آشتیان",
+        "شازند",
+        "زرندیه",
+        "فراهان",
+        "خنداب"
+    ],
+
+    "هرمزگان": [
+        "بندرعباس",
+        "میناب",
+        "بندر لنگه",
+        "قشم",
+        "کیش",
+        "رودان",
+        "حاجی‌آباد",
+        "پارسیان",
+        "جاسک",
+        "بستک",
+        "سیریک",
+        "ابوموسی",
+        "بندر خمیر"
+    ],
+
+    "همدان": [
+        "همدان",
+        "ملایر",
+        "نهاوند",
+        "اسدآباد",
+        "تویسرکان",
+        "کبودرآهنگ",
+        "رزن",
+        "فامنین",
+        "بهار"
+    ],
+
+    "یزد": [
+        "یزد",
+        "میبد",
+        "اردکان",
+        "بافق",
+        "مهریز",
+        "اشکذر",
+        "ابرکوه",
+        "تفت",
+        "خاتم",
+        "هرات",
+        "مروست"
+    ]
+
+};
+
+
+/* =========================================================
+   Elements
+========================================================= */
+
+const form =
+    document.getElementById("registerForm");
+
+const submitButton =
+    document.getElementById("submitButton");
+
+const provinceSelect =
+    document.getElementById("province");
+
+const citySelect =
+    document.getElementById("city");
+
+const phoneInput =
+    document.getElementById("phone_number");
+
+const nationalIdInput =
+    document.getElementById("national_id");
+
+const gradesContainer =
+    document.getElementById("gradesContainer");
+
+const gradeError =
+    document.getElementById("gradeError");
+
+
+/* =========================================================
+   Alert Elements
+========================================================= */
+
+const backendAlert =
+    document.getElementById("backendAlert");
+
+const alertIcon =
+    document.getElementById("alertIcon");
+
+const alertTitle =
+    document.getElementById("alertTitle");
+
+const alertMessage =
+    document.getElementById("alertMessage");
+
+const alertClose =
+    document.getElementById("alertClose");
+
+
+/* =========================================================
+   Error UI
+========================================================= */
+
+function showAlert(
+    title,
+    message,
+    type = "error"
+) {
+
+    backendAlert.className =
+        "backend-alert show " + type;
+
+
+    alertTitle.textContent =
+        title;
+
+
+    alertMessage.textContent =
+        message;
+
+
+    alertIcon.replaceChildren();
+
+
+    const icon =
+        document.createElement("i");
+
+
+    if (type === "warning") {
+
+        icon.className =
+            "bi bi-exclamation-triangle-fill";
+
+    }
+    else if (type === "success") {
+
+        icon.className =
+            "bi bi-check-circle-fill";
+
+    }
+    else {
+
+        icon.className =
+            "bi bi-exclamation-circle-fill";
+
+    }
+
+
+    alertIcon.appendChild(icon);
+
+
+    backendAlert.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest"
+    });
+
+}
+
+
+function hideAlert() {
+
+    backendAlert.classList.remove(
+        "show"
+    );
+
+}
+
+
+alertClose.addEventListener(
+    "click",
+    hideAlert
+);
+
+
+/* =========================================================
+   Field Errors
+========================================================= */
+
+function clearFieldErrors() {
+
+    const fields = document.querySelectorAll(
+        ".field-invalid"
+    );
+
+
+    fields.forEach(function (field) {
+
+        field.classList.remove(
+            "field-invalid"
+        );
+
+    });
+
+
+    document
+        .querySelectorAll(".field-error")
+        .forEach(function (element) {
+
+            element.textContent = "";
+
+        });
+
+
+    gradesContainer.classList.remove(
+        "grades-invalid"
+    );
+
+}
+
+
+function setFieldError(
+    fieldId,
+    errorId,
+    message
+) {
+
+    const field =
+        document.getElementById(fieldId);
+
+    const error =
+        document.getElementById(errorId);
+
+
+    if (field) {
+
+        field.classList.add(
+            "field-invalid"
+        );
+
+    }
+
+
+    if (error) {
+
+        error.textContent =
+            message;
+
+    }
+
+}
+
+
+/* =========================================================
+   Digit Normalization
+========================================================= */
+
+function normalizeDigits(value) {
+
+    return value
+        .replace(/[۰-۹]/g, function (digit) {
+
+            return String(
+                digit.charCodeAt(0) - 1776
+            );
+
+        })
+        .replace(/[٠-٩]/g, function (digit) {
+
+            return String(
+                digit.charCodeAt(0) - 1632
+            );
+
+        });
+
+}
+
+
+/* =========================================================
+   Clean Text
+========================================================= */
+
+function cleanText(value) {
+
+    return value
+        .trim()
+        .replace(/\s+/g, " ");
+
+}
+
+
+/* =========================================================
+   CSRF
+========================================================= */
+
+function getCSRFToken() {
+
+    const csrfInput =
+        document.querySelector(
+            'input[name="csrfmiddlewaretoken"]'
+        );
+
+
+    return csrfInput
+        ? csrfInput.value
+        : "";
+
+}
+
+
+/* =========================================================
+   National ID Validation
+========================================================= */
+
+function isValidNationalId(code) {
+
+    code =
+        normalizeDigits(code);
+
+
+    if (!/^\d{10}$/.test(code)) {
+
+        return false;
+
+    }
+
+
+    /*
+     * جلوگیری از کدهای کاملاً تکراری
+     */
+
+    if (/^(\d)\1{9}$/.test(code)) {
+
+        return false;
+
+    }
+
+
+    const digits =
+        code.split("").map(Number);
+
+
+    let sum = 0;
+
+
+    for (let i = 0; i < 9; i++) {
+
+        sum +=
+            digits[i] * (10 - i);
+
+    }
+
+
+    const remainder =
+        sum % 11;
+
+
+    const controlDigit =
+        digits[9];
+
+
+    if (remainder < 2) {
+
+        return controlDigit === remainder;
+
+    }
+
+
+    return controlDigit ===
+        11 - remainder;
+
+}
+
+
+/* =========================================================
+   Provinces
+========================================================= */
+
+Object.keys(provinces)
+    .forEach(function (provinceName) {
+
+        const option =
+            document.createElement("option");
+
+
+        option.value =
+            provinceName;
+
+
+        option.textContent =
+            provinceName;
+
+
+        provinceSelect.appendChild(
+            option
+        );
+
+    });
+
+
+/* =========================================================
+   Province -> City
+========================================================= */
+
+provinceSelect.addEventListener(
+    "change",
+    function () {
+
+        citySelect.replaceChildren();
+
+
+        const province =
+            provinceSelect.value;
+
+
+        citySelect.classList.remove(
+            "field-invalid"
+        );
+
+
+        if (!province) {
+
+            const option =
+                document.createElement("option");
+
+
+            option.value = "";
+
+            option.textContent =
+                "ابتدا استان را انتخاب کنید";
+
+            option.disabled = true;
+
+            option.selected = true;
+
+
+            citySelect.appendChild(
+                option
+            );
+
+
+            citySelect.disabled =
+                true;
+
+
+            return;
+
+        }
+
+
+        const defaultOption =
+            document.createElement("option");
+
+
+        defaultOption.value = "";
+
+        defaultOption.textContent =
+            "انتخاب شهر";
+
+        defaultOption.disabled =
+            true;
+
+        defaultOption.selected =
+            true;
+
+
+        citySelect.appendChild(
+            defaultOption
+        );
+
+
+        const cities =
+            provinces[province] || [];
+
+
+        cities.forEach(
+            function (cityName) {
+
+                const option =
+                    document.createElement(
+                        "option"
+                    );
+
+
+                option.value =
+                    cityName;
+
+
+                option.textContent =
+                    cityName;
+
+
+                citySelect.appendChild(
+                    option
+                );
+
+            }
+        );
+
+
+        citySelect.disabled =
+            cities.length === 0;
+
+    }
+);
+
+
+/* =========================================================
+   Numeric Inputs
+========================================================= */
+
+phoneInput.addEventListener(
+    "input",
+    function () {
+
+        let value =
+            normalizeDigits(
+                this.value
+            );
+
+
+        value =
+            value.replace(
+                /\D/g,
+                ""
+            );
+
+
+        value =
+            value.slice(
+                0,
+                11
+            );
+
+
+        this.value =
+            value;
+
+    }
+);
+
+
+nationalIdInput.addEventListener(
+    "input",
+    function () {
+
+        let value =
+            normalizeDigits(
+                this.value
+            );
+
+
+        value =
+            value.replace(
+                /\D/g,
+                ""
+            );
+
+
+        value =
+            value.slice(
+                0,
+                10
+            );
+
+
+        this.value =
+            value;
+
+    }
+);
+
+
+/* =========================================================
+   Backend Error Mapping
+========================================================= */
+
+/*
+ * این تابع مهم‌ترین قسمت مربوط به خطاهای backend است.
+ *
+ * هیچ متن خامی از backend مستقیماً به کاربر نشان داده نمی‌شود.
+ *
+ * فقط از ساختار پاسخ backend برای تشخیص نوع خطا
+ * استفاده می‌کنیم و متن مناسب UI را خودمان تولید می‌کنیم.
+ */
+
+function getFriendlyBackendError(result, status) {
+
+    /*
+     * اگر backend در آینده error_code برگرداند،
+     * این قسمت مستقیماً آن را مدیریت می‌کند.
+     */
+
+    const errorCode =
+        result &&
+        typeof result.error_code === "string"
+            ? result.error_code
+            : null;
+
+
+    if (errorCode === "phone_unique") {
+
+        return {
+            title: "شماره تماس قبلاً ثبت شده",
+            message:
+                "با این شماره قبلاً حسابی در سامانه ایجاد شده است.",
+            type: "warning",
+            field: "phone"
+        };
+
+    }
+
+
+    if (errorCode === "national_id_unique") {
+
+        return {
+            title: "کد ملی قبلاً ثبت شده",
+            message:
+                "این کد ملی قبلاً در سامانه ثبت شده است.",
+            type: "warning",
+            field: "national_id"
+        };
+
+    }
+
+
+    if (errorCode === "invalid_phone") {
+
+        return {
+            title: "شماره تماس نامعتبر",
+            message:
+                "لطفاً شماره تماس خود را بررسی و دوباره وارد کنید.",
+            type: "error",
+            field: "phone"
+        };
+
+    }
+
+
+    if (errorCode === "invalid_national_id") {
+
+        return {
+            title: "کد ملی نامعتبر",
+            message:
+                "لطفاً کد ملی واردشده را بررسی کنید.",
+            type: "error",
+            field: "national_id"
+        };
+
+    }
+
+
+    if (errorCode === "invalid_province") {
+
+        return {
+            title: "استان نامعتبر",
+            message:
+                "لطفاً استان را دوباره انتخاب کنید.",
+            type: "error",
+            field: "province"
+        };
+
+    }
+
+
+    if (errorCode === "invalid_city") {
+
+        return {
+            title: "شهر نامعتبر",
+            message:
+                "لطفاً شهر را دوباره انتخاب کنید.",
+            type: "error",
+            field: "city"
+        };
+
+    }
+
+
+    if (errorCode === "invalid_grade") {
+
+        return {
+            title: "پایه تدریس نامعتبر",
+            message:
+                "لطفاً پایه‌های تدریس را دوباره انتخاب کنید.",
+            type: "error",
+            field: "grade"
+        };
+
+    }
+
+
+    if (errorCode === "invalid_position") {
+
+        return {
+            title: "سمت نامعتبر",
+            message:
+                "لطفاً سمت خود را دوباره انتخاب کنید.",
+            type: "error",
+            field: "position"
+        };
+
+    }
+
+
+    if (errorCode === "invalid_gender") {
+
+        return {
+            title: "جنسیت نامعتبر",
+            message:
+                "لطفاً جنسیت خود را دوباره انتخاب کنید.",
+            type: "error",
+            field: "gender"
+        };
+
+    }
+
+
+    /*
+     * -----------------------------------------
+     * تشخیص خطا از ساختار معمول DRF
+     * -----------------------------------------
+     *
+     * حتی اگر backend فعلاً error_code نداشته باشد،
+     * کلیدهای response را بررسی می‌کنیم.
+     *
+     * اما متن خام error را نمایش نمی‌دهیم.
+     */
+
+
+    if (result && typeof result === "object") {
+
+        const keys =
+            Object.keys(result);
+
+
+        if (
+            keys.includes("phone_number")
+        ) {
+
+            return {
+                title: "شماره تماس قابل استفاده نیست",
+                message:
+                    "این شماره تماس قبلاً ثبت شده یا اطلاعات آن معتبر نیست.",
+                type: "warning",
+                field: "phone"
+            };
+
+        }
+
+
+        if (
+            keys.includes("national_id")
+        ) {
+
+            return {
+                title: "کد ملی قابل استفاده نیست",
+                message:
+                    "این کد ملی قبلاً ثبت شده یا اطلاعات آن معتبر نیست.",
+                type: "warning",
+                field: "national_id"
+            };
+
+        }
+
+
+        if (
+            keys.includes("province")
+        ) {
+
+            return {
+                title: "استان نامعتبر",
+                message:
+                    "لطفاً استان انتخاب‌شده را بررسی کنید.",
+                type: "error",
+                field: "province"
+            };
+
+        }
+
+
+        if (
+            keys.includes("city")
+        ) {
+
+            return {
+                title: "شهر نامعتبر",
+                message:
+                    "لطفاً شهر انتخاب‌شده را بررسی کنید.",
+                type: "error",
+                field: "city"
+            };
+
+        }
+
+
+        if (
+            keys.includes("grade")
+        ) {
+
+            return {
+                title: "پایه تدریس نامعتبر",
+                message:
+                    "لطفاً پایه‌های تدریس را بررسی کنید.",
+                type: "error",
+                field: "grade"
+            };
+
+        }
+
+
+        if (
+            keys.includes("first_name")
+        ) {
+
+            return {
+                title: "نام نامعتبر",
+                message:
+                    "لطفاً نام خود را بررسی کنید.",
+                type: "error",
+                field: "first_name"
+            };
+
+        }
+
+
+        if (
+            keys.includes("last_name")
+        ) {
+
+            return {
+                title: "نام خانوادگی نامعتبر",
+                message:
+                    "لطفاً نام خانوادگی خود را بررسی کنید.",
+                type: "error",
+                field: "last_name"
+            };
+
+        }
+
+
+        if (
+            keys.includes("school")
+        ) {
+
+            return {
+                title: "نام مدرسه نامعتبر",
+                message:
+                    "لطفاً نام مدرسه را بررسی کنید.",
+                type: "error",
+                field: "school"
+            };
+
+        }
+
+    }
+
+
+    /*
+     * -----------------------------------------
+     * Backend detail errors
+     * -----------------------------------------
+     *
+     * RegisterSendOTPView currently returns:
+     * {"detail": "..."}
+     * for duplicate phone/national ID.
+     */
+    if (
+        result &&
+        typeof result.detail === "string"
+    ) {
+        const detail =
+            result.detail.toLowerCase();
+
+        if (
+            detail.includes("phone number") &&
+            detail.includes("already registered")
+        ) {
+            return {
+                title: "شماره تماس قبلاً ثبت شده",
+                message:
+                    "با این شماره قبلاً حسابی در سامانه ایجاد شده است.",
+                type: "warning",
+                field: "phone"
+            };
+        }
+
+        if (
+            detail.includes("national id") &&
+            detail.includes("already registered")
+        ) {
+            return {
+                title: "کد ملی قبلاً ثبت شده",
+                message:
+                    "این کد ملی قبلاً در سامانه ثبت شده است.",
+                type: "warning",
+                field: "national_id"
+            };
+        }
+
+        if (
+            detail.includes("wait before requesting another otp")
+        ) {
+            return {
+                title: "لطفاً کمی صبر کنید",
+                message:
+                    "برای دریافت کد جدید باید حداقل یک دقیقه صبر کنید.",
+                type: "warning"
+            };
+        }
+    }
+
+    /*
+     * -----------------------------------------
+     * خطاهای HTTP
+     * -----------------------------------------
+     */
+
+    if (status === 400) {
+
+        return {
+            title: "اطلاعات واردشده صحیح نیست",
+            message:
+                "لطفاً اطلاعات فرم را بررسی کنید و دوباره تلاش کنید.",
+            type: "error"
+        };
+
+    }
+
+
+    if (status === 401) {
+
+        return {
+            title: "درخواست غیرمجاز",
+            message:
+                "امکان انجام این درخواست وجود ندارد.",
+            type: "error"
+        };
+
+    }
+
+
+    if (status === 403) {
+
+        return {
+            title: "دسترسی امکان‌پذیر نیست",
+            message:
+                "اجازه انجام این عملیات را ندارید.",
+            type: "error"
+        };
+
+    }
+
+
+    if (status === 409) {
+
+        return {
+            title: "اطلاعات تکراری است",
+            message:
+                "یکی از اطلاعات واردشده قبلاً در سامانه ثبت شده است.",
+            type: "warning"
+        };
+
+    }
+
+
+    if (status >= 500) {
+
+        return {
+            title: "خطا در سامانه",
+            message:
+                "در حال حاضر امکان ثبت‌نام وجود ندارد. لطفاً کمی بعد دوباره تلاش کنید.",
+            type: "error"
+        };
+
+    }
+
+
+    /*
+     * -----------------------------------------
+     * خطای عمومی
+     * -----------------------------------------
+     */
+
+    return {
+        title: "ثبت‌نام انجام نشد",
+        message:
+            "اطلاعات واردشده را بررسی کنید و دوباره تلاش کنید.",
+        type: "error"
+    };
+
+}
+
+
+/* =========================================================
+   Apply Backend Error To UI
+========================================================= */
+
+function applyBackendError(errorInfo) {
+
+    showAlert(
+        errorInfo.title,
+        errorInfo.message,
+        errorInfo.type
+    );
+
+
+    if (errorInfo.field === "phone") {
+
+        setFieldError(
+            "phone_number",
+            "phoneError",
+            "شماره تماس را بررسی کنید."
+        );
+
+    }
+
+
+    if (errorInfo.field === "national_id") {
+
+        setFieldError(
+            "national_id",
+            "nationalIdError",
+            "کد ملی را بررسی کنید."
+        );
+
+    }
+
+
+    if (errorInfo.field === "province") {
+
+        provinceSelect.classList.add(
+            "field-invalid"
+        );
+
+    }
+
+
+    if (errorInfo.field === "city") {
+
+        citySelect.classList.add(
+            "field-invalid"
+        );
+
+    }
+
+
+    if (errorInfo.field === "grade") {
+
+        gradesContainer.classList.add(
+            "grades-invalid"
+        );
+
+    }
+
+
+    if (errorInfo.field === "first_name") {
+
+        setFieldError(
+            "first_name",
+            "firstNameError",
+            "نام را بررسی کنید."
+        );
+
+    }
+
+
+    if (errorInfo.field === "last_name") {
+
+        setFieldError(
+            "last_name",
+            "lastNameError",
+            "نام خانوادگی را بررسی کنید."
+        );
+
+    }
+
+
+    if (errorInfo.field === "school") {
+
+        setFieldError(
+            "school",
+            "schoolError",
+            "نام مدرسه را بررسی کنید."
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   Form Submit
+========================================================= */
+
+form.addEventListener(
+    "submit",
+    async function (event) {
+
+        event.preventDefault();
+
+
+        hideAlert();
+
+        clearFieldErrors();
+
+
+        /*
+         * -----------------------------------------
+         * Get text values
+         * -----------------------------------------
+         */
+
+        const firstName =
+            cleanText(
+                document
+                    .getElementById("first_name")
+                    .value
+            );
+
+
+        const lastName =
+            cleanText(
+                document
+                    .getElementById("last_name")
+                    .value
+            );
+
+
+        const school =
+            cleanText(
+                document
+                    .getElementById("school")
+                    .value
+            );
+
+
+        const village =
+            cleanText(
+                document
+                    .getElementById("village")
+                    .value
+            );
+
+
+        /*
+         * -----------------------------------------
+         * Phone
+         * -----------------------------------------
+         */
+
+        const phoneNumber =
+            normalizeDigits(
+                phoneInput.value.trim()
+            );
+
+
+        /*
+         * -----------------------------------------
+         * National ID
+         * -----------------------------------------
+         */
+
+        const nationalId =
+            normalizeDigits(
+                nationalIdInput.value.trim()
+            );
+
+
+        /*
+         * -----------------------------------------
+         * Grades
+         * -----------------------------------------
+         */
+
+        const selectedGrades =
+            [
+                ...document.querySelectorAll(
+                    'input[name="grade"]:checked'
+                )
+            ].map(function (checkbox) {
+
+                return checkbox.value;
+
+            });
+
+
+        /*
+         * -----------------------------------------
+         * First name
+         * -----------------------------------------
+         */
+
+        if (
+            !firstName ||
+            firstName.length < 2
+        ) {
+
+            showAlert(
+                "نام وارد نشده است",
+                "لطفاً نام خود را به‌درستی وارد کنید.",
+                "error"
+            );
+
+
+            setFieldError(
+                "first_name",
+                "firstNameError",
+                "لطفاً نام معتبر وارد کنید."
+            );
+
+
+            document
+                .getElementById("first_name")
+                .focus();
+
+
+            return;
+
+        }
+
+
+        /*
+         * -----------------------------------------
+         * Last name
+         * -----------------------------------------
+         */
+
+        if (
+            !lastName ||
+            lastName.length < 2
+        ) {
+
+            showAlert(
+                "نام خانوادگی وارد نشده است",
+                "لطفاً نام خانوادگی خود را به‌درستی وارد کنید.",
+                "error"
+            );
+
+
+            setFieldError(
+                "last_name",
+                "lastNameError",
+                "لطفاً نام خانوادگی معتبر وارد کنید."
+            );
+
+
+            document
+                .getElementById("last_name")
+                .focus();
+
+
+            return;
+
+        }
+
+
+        /*
+         * -----------------------------------------
+         * Phone
+         * -----------------------------------------
+         */
+
+        if (
+            !/^09\d{9}$/.test(
+                phoneNumber
+            )
+        ) {
+
+            showAlert(
+                "شماره تماس نامعتبر است",
+                "شماره تماس باید دقیقاً ۱۱ رقم باشد و با 09 شروع شود.",
+                "error"
+            );
+
+
+            setFieldError(
+                "phone_number",
+                "phoneError",
+                "شماره تماس معتبر نیست."
+            );
+
+
+            phoneInput.focus();
+
+
+            return;
+
+        }
+
+
+        /*
+         * -----------------------------------------
+         * National ID
+         * -----------------------------------------
+         */
+
+        if (
+            !isValidNationalId(
+                nationalId
+            )
+        ) {
+
+            showAlert(
+                "کد ملی نامعتبر است",
+                "لطفاً کد ملی ۱۰ رقمی خود را بررسی کنید.",
+                "error"
+            );
+
+
+            setFieldError(
+                "national_id",
+                "nationalIdError",
+                "کد ملی معتبر نیست."
+            );
+
+
+            nationalIdInput.focus();
+
+
+            return;
+
+        }
+
+
+        /*
+         * -----------------------------------------
+         * Province
+         * -----------------------------------------
+         */
+
+        const province =
+            provinceSelect.value;
+
+
+        if (
+            !Object.prototype.hasOwnProperty.call(
+                provinces,
+                province
+            )
+        ) {
+
+            showAlert(
+                "استان انتخاب نشده است",
+                "لطفاً استان محل سکونت خود را انتخاب کنید.",
+                "error"
+            );
+
+
+            provinceSelect.classList.add(
+                "field-invalid"
+            );
+
+
+            provinceSelect.focus();
+
+
+            return;
+
+        }
+
+
+        /*
+         * -----------------------------------------
+         * City
+         * -----------------------------------------
+         */
+
+        const city =
+            citySelect.value;
+
+
+        const validCities =
+            provinces[province] || [];
+
+
+        if (
+            !city ||
+            !validCities.includes(city)
+        ) {
+
+            showAlert(
+                "شهر انتخاب نشده است",
+                "لطفاً شهر محل سکونت خود را انتخاب کنید.",
+                "error"
+            );
+
+
+            citySelect.classList.add(
+                "field-invalid"
+            );
+
+
+            citySelect.focus();
+
+
+            return;
+
+        }
+
+
+        /*
+         * -----------------------------------------
+         * School
+         * -----------------------------------------
+         */
+
+        if (
+            !school ||
+            school.length < 2
+        ) {
+
+            showAlert(
+                "نام مدرسه وارد نشده است",
+                "لطفاً نام مدرسه را وارد کنید.",
+                "error"
+            );
+
+
+            setFieldError(
+                "school",
+                "schoolError",
+                "نام مدرسه معتبر نیست."
+            );
+
+
+            document
+                .getElementById("school")
+                .focus();
+
+
+            return;
+
+        }
+
+
+        /*
+         * -----------------------------------------
+         * Grades
+         * -----------------------------------------
+         */
+
+        if (
+            selectedGrades.length === 0
+        ) {
+
+            showAlert(
+                "پایه تدریس انتخاب نشده است",
+                "لطفاً حداقل یک پایه تدریس انتخاب کنید.",
+                "error"
+            );
+
+
+            gradeError.textContent =
+                "حداقل یک پایه را انتخاب کنید.";
+
+
+            gradesContainer.classList.add(
+                "grades-invalid"
+            );
+
+
+            return;
+
+        }
+
+
+        /*
+         * -----------------------------------------
+         * Position
+         * -----------------------------------------
+         */
+
+        const position =
+            document
+                .getElementById("position")
+                .value;
+
+
+        const validPositions = [
+            "teacher",
+            "instructor",
+            "amin_instructor",
+            "free_preacher"
+        ];
+
+
+        if (
+            !validPositions.includes(
+                position
+            )
+        ) {
+
+            showAlert(
+                "سمت انتخاب نشده است",
+                "لطفاً سمت خود را انتخاب کنید.",
+                "error"
+            );
+
+
+            document
+                .getElementById("position")
+                .focus();
+
+
+            return;
+
+        }
+
+
+        /*
+         * -----------------------------------------
+         * Gender
+         * -----------------------------------------
+         */
+
+        const gender =
+            document
+                .getElementById("gender")
+                .value;
+
+
+        const validGenders = [
+            "man",
+            "woman"
+        ];
+
+
+        if (
+            !validGenders.includes(
+                gender
+            )
+        ) {
+
+            showAlert(
+                "جنسیت انتخاب نشده است",
+                "لطفاً جنسیت خود را انتخاب کنید.",
+                "error"
+            );
+
+
+            document
+                .getElementById("gender")
+                .focus();
+
+
+            return;
+
+        }
+
+
+        /*
+         * -----------------------------------------
+         * Village
+         * -----------------------------------------
+         */
+
+        if (
+            village.length > 100
+        ) {
+
+            showAlert(
+                "اطلاعات روستا نامعتبر است",
+                "نام روستا نمی‌تواند بیشتر از ۱۰۰ کاراکتر باشد.",
+                "error"
+            );
+
+
+            document
+                .getElementById("village")
+                .focus();
+
+
+            return;
+
+        }
+
+
+        /*
+         * -----------------------------------------
+         * Final Data
+         * -----------------------------------------
+         */
+
+        const data = {
+
+            phone_number:
+                phoneNumber,
+
+            first_name:
+                firstName,
+
+            last_name:
+                lastName,
+
+            province:
+                province,
+
+            city:
+                city,
+
+            village:
+                village,
+
+            school:
+                school,
+
+            grade:
+                selectedGrades,
+
+            position:
+                position,
+
+            gender:
+                gender,
+
+            national_id:
+                nationalId
+
+        };
+
+
+        /*
+         * -----------------------------------------
+         * Loading
+         * -----------------------------------------
+         */
+
+        submitButton.disabled =
+            true;
+
+
+        submitButton.innerHTML = `
+            <span class="loading-spinner"></span>
+            <span>در حال ارسال...</span>
+        `;
+
+
+        try {
+
+            const csrfToken =
+                getCSRFToken();
+
+
+            const response =
+                await fetch(
+                    "/api/auth/register/send-otp/",
+                    {
+                        method: "POST",
+
+                        headers: {
+
+                            "Content-Type":
+                                "application/json",
+
+                            "X-CSRFToken":
+                                csrfToken,
+
+                            "X-Requested-With":
+                                "XMLHttpRequest"
+
+                        },
+
+                        credentials:
+                            "same-origin",
+
+                        body:
+                            JSON.stringify(data)
+
+                    }
+                );
+
+
+            /*
+             * تلاش برای خواندن JSON
+             */
+
+            let result = {};
+
+
+            try {
+
+                result =
+                    await response.json();
+
+            }
+            catch (jsonError) {
+
+                result = {};
+
+            }
+
+
+            /*
+             * -----------------------------------------
+             * Backend Error
+             * -----------------------------------------
+             */
+
+            if (!response.ok) {
+
+                const errorInfo =
+                    getFriendlyBackendError(
+                        result,
+                        response.status
+                    );
+
+
+                applyBackendError(
+                    errorInfo
+                );
+
+
+                return;
+
+            }
+
+
+            /*
+             * -----------------------------------------
+             * Success
+             * -----------------------------------------
+             */
+
+            sessionStorage.setItem(
+                "register_data",
+                JSON.stringify(data)
+            );
+
+
+            window.location.href =
+                "/register/verify/";
+
+        }
+
+
+        catch (error) {
+
+            /*
+             * خطای شبکه / قطع بودن backend
+             *
+             * متن exception را به کاربر نشان نمی‌دهیم.
+             */
+
+            console.error(
+                "Registration request failed:",
+                error
+            );
+
+
+            showAlert(
+                "ارتباط با سامانه برقرار نشد",
+                "لطفاً اتصال اینترنت خود را بررسی کنید و دوباره تلاش کنید.",
+                "error"
+            );
+
+        }
+
+
+        finally {
+
+            submitButton.disabled =
+                false;
+
+
+            submitButton.innerHTML = `
+                <i class="bi bi-shield-check"></i>
+                <span>ارسال کد تأیید</span>
+            `;
+
+        }
+
+    });
+
+
+/* =========================================================
+   Clear Error While Editing
+========================================================= */
+
+document
+    .querySelectorAll(
+        "input, select"
+    )
+    .forEach(function (element) {
+
+        element.addEventListener(
+            "input",
+            function () {
+
+                this.classList.remove(
+                    "field-invalid"
+                );
+
+            }
+        );
+
+
+        element.addEventListener(
+            "change",
+            function () {
+
+                this.classList.remove(
+                    "field-invalid"
+                );
+
+            }
+        );
+
+    });
+
+
+/*
+ * با انتخاب پایه، خطای پایه حذف شود.
+ */
+
+document
+    .querySelectorAll(
+        'input[name="grade"]'
+    )
+    .forEach(function (checkbox) {
+
+        checkbox.addEventListener(
+            "change",
+            function () {
+
+                const selected =
+                    document.querySelectorAll(
+                        'input[name="grade"]:checked'
+                    );
+
+
+                if (selected.length > 0) {
+
+                    gradesContainer.classList.remove(
+                        "grades-invalid"
+                    );
+
+
+                    gradeError.textContent =
+                        "";
+
+                }
+
+            }
+        );
+
+    });
+
+</script>
+
+</body>
+
+</html>
