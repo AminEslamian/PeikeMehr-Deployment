@@ -22,16 +22,14 @@ import {
   Database,
   FileCheck,
   PhoneCall,
-  Phone,
   MessageSquare,
-  Mail,
-  MapPin,
   Inbox,
   Bell,
   User,
   Edit3,
+  Play,
 } from 'lucide-react';
-import { api, getTeacherInfo, resolveMediaUrl } from '../api';
+import { api, getTeacherInfo, UserProfile, hasPersianDigits } from '../api';
 import { ConfirmModal } from '../components/ConfirmModal';
 
 interface DashboardViewProps {
@@ -69,6 +67,16 @@ const toPersianDigits = (n: number | string): string => {
   return n.toString().replace(/\d/g, (x) => farsiDigits[parseInt(x, 10)]);
 };
 
+// Safe media URL resolver to route through Vite proxy without CORS/host mismatch
+const resolveMediaUrl = (url: string | null | undefined): string => {
+  if (!url) return '';
+  const cleaned = url.replace(/^http:\/\/(127\.0\.0\.1|localhost):8000/, '');
+  if (cleaned.startsWith('/')) {
+    return cleaned;
+  }
+  return `/media/${cleaned}`;
+};
+
 export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
   const teacher = getTeacherInfo();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -95,7 +103,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
   };
 
   // Profile data for gender-based honorific ("جناب آقای" / "سرکار خانم")
-  const [profile, setProfile] = useState<Awaited<ReturnType<typeof api.getProfile>> | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
 
   // Points & Gamification
   const [pointsData, setPointsData] = useState<{
@@ -129,6 +137,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
 
     if (!contactForm.subject.trim() || !contactForm.message.trim()) {
       setContactError('لطفاً موضوع و متن پیام پشتیبانی را تکمیل فرمایید.');
+      return;
+    }
+
+    if (contactForm.phone && hasPersianDigits(contactForm.phone)) {
+      setContactError('لطفاً شماره همراه را با ارقام انگلیسی وارد کنید.');
       return;
     }
 
@@ -168,6 +181,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
   const [submitting, setSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState('');
   const [submitError, setSubmitError] = useState('');
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [uploadLoadedBytes, setUploadLoadedBytes] = useState<number>(0);
+  const [uploadTotalBytes, setUploadTotalBytes] = useState<number>(0);
+  const abortControllerRef = useRef<AbortController | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [deleteReportTargetId, setDeleteReportTargetId] = useState<number | null>(null);
   const [isDeletingReport, setIsDeletingReport] = useState(false);
@@ -235,21 +252,57 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
     }
   };
 
+  const MAX_SINGLE_FILE_SIZE = 150 * 1024 * 1024; // 150 MB
+  const MAX_TOTAL_REPORT_SIZE = 250 * 1024 * 1024; // 250 MB
+  const MAX_FILE_COUNT = 10;
+
   // File selection
   const handleFiles = (files: FileList | null) => {
-    if (!files) return;
-    const newFiles: File[] = [];
+    if (!files || files.length === 0) return;
+    setSubmitError('');
+
+    const currentFiles = [...selectedFiles];
+    let currentTotalSize = currentFiles.reduce((acc, f) => acc + f.size, 0);
+
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      if (file.type.startsWith('image/') || file.type.startsWith('video/')) {
-        newFiles.push(file);
+
+      if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) {
+        setSubmitError(`فرمت فایل «${file.name}» مجاز نیست.`);
+        continue;
+      }
+
+      if (file.size > MAX_SINGLE_FILE_SIZE) {
+        setSubmitError(`حجم فایل «${file.name}» بیشتر از ۱۵۰ مگابایت است.`);
+        continue;
+      }
+
+      if (currentFiles.length >= MAX_FILE_COUNT) {
+        setSubmitError('حداکثر ۱۰ فایل مجاز است.');
+        break;
+      }
+
+      if (currentTotalSize + file.size > MAX_TOTAL_REPORT_SIZE) {
+        setSubmitError('مجموع حجم فایل‌ها بیشتر از ۲۵۰ مگابایت است.');
+        break;
+      }
+
+      const exists = currentFiles.some(
+        (f) => f.name === file.name && f.size === file.size && f.lastModified === file.lastModified
+      );
+      if (!exists) {
+        currentFiles.push(file);
+        currentTotalSize += file.size;
       }
     }
-    setSelectedFiles((prev) => [...prev, ...newFiles]);
+
+    setSelectedFiles(currentFiles);
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const removeFile = (index: number) => {
     setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+    setSubmitError('');
   };
 
   const formatFileSize = (bytes: number) => {
@@ -258,11 +311,15 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
     return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
   };
 
-  // Generate client-side thumbnail URLs for chosen files before submit
+  const totalFilesSize = useMemo(() => {
+    return selectedFiles.reduce((acc, f) => acc + f.size, 0);
+  }, [selectedFiles]);
+
+  // Generate client-side thumbnail URLs for chosen files before submit (both images and videos)
   const filePreviews = useMemo(() => {
     return selectedFiles.map((file) => ({
       file,
-      url: file.type.startsWith('image/') ? URL.createObjectURL(file) : null,
+      url: URL.createObjectURL(file),
       isVideo: file.type.startsWith('video/'),
     }));
   }, [selectedFiles]);
@@ -276,6 +333,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
     };
   }, [filePreviews]);
 
+  const handleCancelUpload = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+    setSubmitting(false);
+    setUploadProgress(0);
+    setSubmitError('بارگذاری توسط شما لغو شد.');
+  };
+
   // Submit Report
   const handleSubmitReport = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -283,17 +350,39 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
     setSubmitSuccess('');
 
     if (!reportText.trim()) {
-      setSubmitError('لطفاً شرح و روایت فعالیت کلاسی را وارد فرمایید.');
+      setSubmitError('لطفاً متن گزارش را بنویسید.');
       textInputRef.current?.focus();
       return;
     }
 
     if (selectedTagIds.length === 0 && !otherTag.trim()) {
-      setSubmitError('لطفاً حداقل یک برچسب موضوعی انتخاب نمایید یا در بخش «سایر»، عنوان فعالیت کلاسی خود را مشخص فرمایید.');
+      setSubmitError('لطفاً حداقل یک موضوع برای گزارش انتخاب کنید.');
       return;
     }
 
+    for (const file of selectedFiles) {
+      if (file.size > MAX_SINGLE_FILE_SIZE) {
+        setSubmitError(`حجم فایل «${file.name}» بیشتر از ۱۵۰ مگابایت است.`);
+        return;
+      }
+    }
+
+    if (totalFilesSize > MAX_TOTAL_REPORT_SIZE) {
+      setSubmitError('مجموع حجم فایل‌ها بیشتر از ۲۵۰ مگابایت است.');
+      return;
+    }
+
+    if (selectedFiles.length > MAX_FILE_COUNT) {
+      setSubmitError('حداکثر ۱۰ فایل مجاز است.');
+      return;
+    }
+
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
     setSubmitting(true);
+    setUploadProgress(0);
+    setUploadLoadedBytes(0);
+    setUploadTotalBytes(totalFilesSize);
 
     try {
       const formData = new FormData();
@@ -311,7 +400,15 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
         formData.append('media', file);
       });
 
-      await api.createReport(formData);
+      await api.createReport(
+        formData,
+        (percent, loaded, total) => {
+          setUploadProgress(percent);
+          setUploadLoadedBytes(loaded);
+          setUploadTotalBytes(total);
+        },
+        controller.signal
+      );
 
       setSubmitSuccess('گزارش فعالیت شما با موفقیت در سامانه پیک مهر ثبت گردید.');
       setReportText('');
@@ -319,6 +416,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
       setOtherTag('');
       setIsOtherTagActive(false);
       setSelectedFiles([]);
+      setUploadProgress(0);
+      abortControllerRef.current = null;
       if (fileInputRef.current) fileInputRef.current.value = '';
 
       setTimeout(() => {
@@ -335,6 +434,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
         api.getReports().then(setReports).catch(() => {});
       }
     } catch (err: any) {
+      abortControllerRef.current = null;
       setSubmitError(err.message || 'خطا در ثبت گزارش. لطفاً مجدداً تلاش نمایید.');
       setTimeout(() => {
         if (tabBarRef.current) {
@@ -559,7 +659,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
               ثبت و ارسال روایت فعالیت کلاسی
             </h3>
             <p>
-              شرح دستاوردها، اقدامات ابتکاری و تجارب پرورشی خود را همراه با مستندات تصویری ثبت فرمایید.
+              ارسال تصاویر و ویدیو‌های اتفاقات، فعالیت‌ها، تجارب و ... اجرای طرح آموزشی، فرهنگی زیتون.
             </p>
           </div>
 
@@ -606,7 +706,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
                 rows={6}
                 value={reportText}
                 onChange={(e) => setReportText(e.target.value)}
-                placeholder="توضیح دهید چه فعالیتی با دانش‌آموزان انجام شد، بازخورد آنان چه بود و چه دستاورد تربیتی یا آموزشی حاصل گردید..."
+                placeholder="توضیح دهید رسانه ارسالی شما مربوط به کدام بخش فعالیت‌ها می‌باشد، بازخورد دانش‌آموزان چه بود و چه دستاورد تربیتی یا آموزشی حاصل گردید."
                 style={{ resize: 'vertical', minHeight: '160px', lineHeight: '2' }}
               />
               <div
@@ -660,51 +760,33 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
                   role="button"
                   tabIndex={0}
                 >
-                  {isOtherTagActive && '✓ '}
-                  ✨ سایر (موضوع دلخواه)
+                  {isOtherTagActive ? '✓ سایر (موضوع دلخواه)' : '+ سایر (موضوع دلخواه)'}
                 </span>
               </div>
 
               {/* Custom Topic Input Field - Shown ONLY when toggled active */}
               {isOtherTagActive && (
                 <div className="other-tag-input-box">
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                    <label
-                      htmlFor="otherTagInput"
-                      style={{
-                        fontSize: '0.84rem',
-                        fontWeight: 700,
-                        color: 'var(--foreground)',
-                      }}
-                    >
-                      عنوان موضوع دلخواه (سایر)
-                    </label>
+                  <div className="other-tag-input-wrapper">
+                    <input
+                      id="otherTagInput"
+                      type="text"
+                      className="form-input"
+                      placeholder="عنوان موضوع دلخواه خود را بنویسید (مثلاً: اردوی زیارتی، پویش کتابخوانی، ...)"
+                      maxLength={100}
+                      value={otherTag}
+                      onChange={(e) => setOtherTag(e.target.value)}
+                      autoFocus
+                    />
                     <button
                       type="button"
+                      className="other-tag-close-btn"
                       onClick={handleToggleOtherTag}
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        color: 'var(--muted-foreground)',
-                        cursor: 'pointer',
-                        fontSize: '0.8rem',
-                        padding: '2px 6px',
-                      }}
+                      title="بستن موضوع دلخواه"
                     >
-                      انصراف
+                      <X size={16} />
                     </button>
                   </div>
-
-                  <input
-                    id="otherTagInput"
-                    type="text"
-                    className="form-input"
-                    placeholder="مثال: اردوی زیارتی، پویش کتابخوانی، جشن تکلیف، طرح همدلی دانش‌آموزی..."
-                    maxLength={100}
-                    value={otherTag}
-                    onChange={(e) => setOtherTag(e.target.value)}
-                    autoFocus
-                  />
                 </div>
               )}
             </div>
@@ -740,46 +822,66 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
                   <span>انتخاب عکس یا فیلم</span>
                 </div>
                 <div className="upload-compact-hint">
-                  یا کشیدن و رها کردن فایل‌ها (حداکثر ۱۰ فایل)
+                  حداکثر ۱۰ فایل (هر فایل تا ۱۵۰ مگابایت، مجموع تا ۲۵۰ مگابایت)
                 </div>
               </div>
 
               {/* Instant Client-side Previews with Real Thumbnails */}
               {filePreviews.length > 0 && (
                 <div style={{ marginTop: '16px' }}>
-                  <div style={{ fontSize: '0.86rem', fontWeight: 700, marginBottom: '10px' }}>
-                    فایل‌های آماده ارسال ({toPersianDigits(filePreviews.length)} مورد):
+                  <div className="upload-preview-header">
+                    <div className="upload-preview-title">
+                      <CheckCircle size={16} style={{ color: 'var(--primary)' }} />
+                      <span>فایل‌های آماده ارسال ({toPersianDigits(filePreviews.length)} مورد)</span>
+                    </div>
+                    <div className="upload-size-meter">
+                      <span style={{ color: totalFilesSize > MAX_TOTAL_REPORT_SIZE ? 'var(--danger)' : 'var(--muted-foreground)' }}>
+                        مجموع حجم: {formatFileSize(totalFilesSize)} از ۲۵۰ مگابایت
+                      </span>
+                    </div>
                   </div>
                   <div className="upload-preview-grid">
                     {filePreviews.map((item, idx) => (
                       <div key={idx} className="upload-file-item">
-                        <div className="upload-file-thumbnail">
-                          {item.url ? (
-                            <img src={item.url} alt={item.file.name} />
+                        <div className={`upload-file-thumbnail ${item.isVideo ? 'upload-video-thumb-container' : ''}`}>
+                          {item.isVideo ? (
+                            <>
+                              <video
+                                src={item.url!}
+                                preload="metadata"
+                                className="upload-video-thumb"
+                                muted
+                              />
+                              <div className="upload-video-badge">
+                                <Play size={9} fill="currentColor" />
+                                <span>ویدیو</span>
+                              </div>
+                            </>
                           ) : (
-                            <div className="upload-video-placeholder">
-                              <Film size={24} />
-                            </div>
+                            <img src={item.url!} alt={item.file.name} />
                           )}
                         </div>
                         <div className="upload-file-meta">
                           <span className="upload-file-name" title={item.file.name}>
                             {item.file.name}
                           </span>
-                          <span className="upload-file-size persian-num">
-                            {formatFileSize(item.file.size)}
-                          </span>
+                          <div className="upload-file-details">
+                            <span className="upload-file-badge">{item.isVideo ? 'ویدیو' : 'تصویر'}</span>
+                            <span className="upload-file-size persian-num">
+                              {formatFileSize(item.file.size)}
+                            </span>
+                          </div>
                         </div>
                         <button
                           type="button"
-                          className="upload-file-remove"
+                          className="upload-file-remove-btn"
                           onClick={(e) => {
                             e.stopPropagation();
                             removeFile(idx);
                           }}
-                          title="حذف فایل"
+                          title="حذف این فایل"
                         >
-                          <X size={16} />
+                          <Trash2 size={15} />
                         </button>
                       </div>
                     ))}
@@ -788,43 +890,78 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
               )}
             </div>
 
-            {/* Submit Action */}
-            <div style={{ marginTop: '30px', display: 'flex', gap: '14px', alignItems: 'center' }}>
-              <button
-                type="submit"
-                className="btn-astra btn-astra-primary btn-astra-lg"
-                disabled={submitting}
-                style={{ minWidth: '220px' }}
-              >
-                {submitting ? (
-                  <>
-                    <Loader2 size={18} className="spinner" />
-                    در حال بارگذاری و ثبت...
-                  </>
-                ) : (
-                  <>
-                    ارسال و ثبت نهایی گزارش
-                    <Send size={18} />
-                  </>
-                )}
-              </button>
+            {/* Submit Action & Live Progress */}
+            <div style={{ marginTop: '26px' }}>
+              {submitting && (
+                <div className="upload-progress-container">
+                  <div className="upload-progress-info">
+                    <div className="upload-progress-status">
+                      <Loader2 size={16} className="spinner" />
+                      <span>در حال ارسال اطلاعات و مستندات به سرور...</span>
+                    </div>
+                    <div className="upload-progress-stats">
+                      <span className="upload-progress-percent persian-num">{toPersianDigits(uploadProgress)}٪</span>
+                      {uploadTotalBytes > 0 && (
+                        <span className="upload-progress-bytes">
+                          ({formatFileSize(uploadLoadedBytes)} از {formatFileSize(uploadTotalBytes)})
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="upload-progress-bar-bg">
+                    <div
+                      className="upload-progress-bar-fill"
+                      style={{ width: `${uploadProgress}%` }}
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    className="upload-progress-cancel-btn"
+                    onClick={handleCancelUpload}
+                    title="انصراف از بارگذاری"
+                  >
+                    <X size={14} />
+                    <span>لغو فرآیند بارگذاری</span>
+                  </button>
+                </div>
+              )}
 
-              <button
-                type="button"
-                className="btn-astra btn-astra-ghost btn-astra-md"
-                onClick={() => {
-                  setReportText('');
-                  setSelectedTagIds([]);
-                  setOtherTag('');
-                  setIsOtherTagActive(false);
-                  setSelectedFiles([]);
-                  setSubmitSuccess('');
-                  setSubmitError('');
-                }}
-                disabled={submitting}
-              >
-                انصراف و پاک‌سازی
-              </button>
+              <div className="form-action-group mobile-stack-buttons" style={{ display: 'flex', gap: '14px', alignItems: 'center', flexWrap: 'wrap' }}>
+                <button
+                  type="submit"
+                  className="btn-astra btn-astra-primary btn-astra-lg form-action-primary"
+                  disabled={submitting}
+                >
+                  {submitting ? (
+                    <>
+                      <Loader2 size={18} className="spinner" />
+                      <span>در حال بارگذاری ({toPersianDigits(uploadProgress)}٪)...</span>
+                    </>
+                  ) : (
+                    <>
+                      ارسال و ثبت نهایی گزارش
+                      <Send size={18} />
+                    </>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  className="btn-astra btn-astra-ghost btn-astra-md form-action-secondary"
+                  onClick={() => {
+                    setReportText('');
+                    setSelectedTagIds([]);
+                    setOtherTag('');
+                    setIsOtherTagActive(false);
+                    setSelectedFiles([]);
+                    setSubmitSuccess('');
+                    setSubmitError('');
+                  }}
+                  disabled={submitting}
+                >
+                  انصراف و پاک‌سازی
+                </button>
+              </div>
             </div>
           </form>
         </div>
@@ -833,13 +970,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
       {/* TAB 2: ARCHIVE / PREVIOUS REPORTS (On-Demand with User Admission) */}
       {activeTab === 'history' && (
         <div className="studio-card">
-          <div className="studio-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div className="studio-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
             <div>
               <h3>
                 <FolderArchive size={20} style={{ color: 'var(--primary)' }} />
                 سوابق و بایگانی فعالیت‌های ثبت‌شده
               </h3>
-              <p>مشاهده، بازبینی و مدیریت گزارش‌های ارسالی شما در طول سال تحصیلی</p>
+              <p>مشاهده، بازبینی و مدیریت گزارش‌های ارسالی شما</p>
             </div>
 
             {reportsLoaded && (
@@ -1064,69 +1201,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
           <div className="studio-header">
             <h3>
               <PhoneCall size={20} style={{ color: 'var(--primary)' }} />
-              تماس و ارتباط با ستاد سفیر مهر
+              ارتباط با پشتیبانی
             </h3>
             <p>
               همکاران گرامی؛ در صورت داشتن هرگونه ابهام، پیشنهاد یا نیاز به راهنمایی در ثبت گزارش‌ها و پاسخ به نظرسنجی‌ها با ما در ارتباط باشید.
             </p>
           </div>
 
-          <div className="contact-layout-grid">
-            {/* Contact Channels Info */}
-            <div className="contact-channels-card">
-              <h4 className="contact-section-title">راه‌های ارتباط مستقیم</h4>
-
-              <div className="contact-info-list">
-                <div className="contact-info-item">
-                  <div className="contact-info-icon">
-                    <Phone size={18} />
-                  </div>
-                  <div>
-                    <div className="contact-info-label">تلفن پشتیبانی و دبیرخانه</div>
-                    <div className="contact-info-val ltr-num">۰۲۱-۶۶۴۰۲۳۱۵</div>
-                    <div className="contact-info-sub">پاسخگویی: شنبه تا چهارشنبه (ساعت ۸:۰۰ الی ۱۶:۰۰)</div>
-                  </div>
-                </div>
-
-                <div className="contact-info-item">
-                  <div className="contact-info-icon">
-                    <MessageSquare size={18} />
-                  </div>
-                  <div>
-                    <div className="contact-info-label">پیام‌رسان‌های رسمی</div>
-                    <div className="contact-social-pills">
-                      <span className="contact-social-pill">
-                        <strong>ایتا:</strong> @safiremehr_support
-                      </span>
-                      <span className="contact-social-pill">
-                        <strong>بله:</strong> @safiremehr_admin
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="contact-info-item">
-                  <div className="contact-info-icon">
-                    <Mail size={18} />
-                  </div>
-                  <div>
-                    <div className="contact-info-label">پست الکترونیکی</div>
-                    <div className="contact-info-val ltr-num">info@safiremehr.ir</div>
-                  </div>
-                </div>
-
-                <div className="contact-info-item">
-                  <div className="contact-info-icon">
-                    <MapPin size={18} />
-                  </div>
-                  <div>
-                    <div className="contact-info-label">مرکز اداری و دبیرخانه</div>
-                    <div className="contact-info-sub">تهران، میدان انقلاب اسلامی، خیابان کارگر شمالی، دبیرخانه مرکزی طرح سفیر مهر</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
+          <div className="internal-support-container">
             {/* Messaging Form */}
             <div className="contact-form-card">
               <h4 className="contact-section-title">ارسال پیام به مدیریت و پشتیبانی سامانه</h4>
@@ -1168,8 +1250,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
                     className="form-input"
                     dir="ltr"
                     value={contactForm.phone}
-                    onChange={(e) => setContactForm({ ...contactForm, phone: e.target.value })}
-                    placeholder="۰۹۱۲۳۴۵۶۷۸۹"
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setContactForm({ ...contactForm, phone: val });
+                      if (hasPersianDigits(val)) {
+                        setContactError('لطفاً شماره همراه را با ارقام انگلیسی وارد کنید.');
+                      } else if (contactError === 'لطفاً شماره همراه را با ارقام انگلیسی وارد کنید.') {
+                        setContactError('');
+                      }
+                    }}
+                    placeholder="09123456789"
                   />
                 </div>
 
@@ -1358,9 +1448,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
               </div>
               <button
                 type="button"
-                className="lightbox-close-btn"
+                className="points-modal-close-btn"
                 onClick={() => setShowPointsModal(false)}
                 title="بستن پنجره"
+                aria-label="بستن پنجره"
               >
                 <X size={18} />
               </button>

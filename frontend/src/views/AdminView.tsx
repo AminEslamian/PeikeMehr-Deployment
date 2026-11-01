@@ -39,7 +39,7 @@ import {
   Play,
   Check,
 } from 'lucide-react';
-import { api, getTeacherInfo, resolveMediaUrl } from '../api';
+import { api, getTeacherInfo, hasPersianDigits } from '../api';
 
 interface AdminViewProps {
   onNavigate: (view: string) => void;
@@ -461,6 +461,15 @@ export const AdminView: React.FC<AdminViewProps> = ({ onNavigate }) => {
     e.preventDefault();
     if (!editingTeacher) return;
 
+    if (teacherEditForm.phone_number && hasPersianDigits(teacherEditForm.phone_number)) {
+      alert('لطفاً شماره همراه را با ارقام انگلیسی وارد کنید.');
+      return;
+    }
+    if (teacherEditForm.national_id && hasPersianDigits(teacherEditForm.national_id)) {
+      alert('لطفاً کد ملی را با ارقام انگلیسی وارد کنید.');
+      return;
+    }
+
     setTeacherUpdating(true);
     try {
       await api.admin.updateTeacher(editingTeacher.id, teacherEditForm);
@@ -807,6 +816,12 @@ export const AdminView: React.FC<AdminViewProps> = ({ onNavigate }) => {
 
     if (!isImg && !isVid) {
       alert('لطفاً تنها فایل تصویری (عکس) یا ویدیویی معتبر انتخاب نمایید.');
+      if (blogFileInputRef.current) blogFileInputRef.current.value = '';
+      return;
+    }
+
+    if (file.size > 150 * 1024 * 1024) {
+      alert('حجم فایل نمی‌تواند بیشتر از ۱۵۰ مگابایت باشد.');
       if (blogFileInputRef.current) blogFileInputRef.current.value = '';
       return;
     }
@@ -1694,10 +1709,10 @@ export const AdminView: React.FC<AdminViewProps> = ({ onNavigate }) => {
                       <div className="admin-report-media-box">
                         {report.images && report.images.length > 0 ? (
                           <img
-                            src={resolveMediaUrl(report.images[0].url || report.images[0].image)}
+                            src={report.images[0].url || report.images[0].image}
                             alt="تصویر گزارش"
                             onClick={() => {
-                              setActiveMediaUrl(resolveMediaUrl(report.images[0].url || report.images[0].image));
+                              setActiveMediaUrl(report.images[0].url || report.images[0].image);
                               setActiveMediaType('image');
                             }}
                           />
@@ -1705,11 +1720,11 @@ export const AdminView: React.FC<AdminViewProps> = ({ onNavigate }) => {
                           <div
                             style={{ position: 'relative', width: '100%', height: '100%', cursor: 'pointer' }}
                             onClick={() => {
-                              setActiveMediaUrl(resolveMediaUrl(report.videos[0].url || report.videos[0].video));
+                              setActiveMediaUrl(report.videos[0].url || report.videos[0].video);
                               setActiveMediaType('video');
                             }}
                           >
-                            <video src={resolveMediaUrl(report.videos[0].url || report.videos[0].video)} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            <video src={report.videos[0].url || report.videos[0].video} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                             <div className="video-overlay-btn">
                               <Play size={24} fill="#ffffff" />
                             </div>
@@ -2205,7 +2220,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ onNavigate }) => {
                       >
                         {b.media ? (
                           <div style={{ width: '56px', height: '56px', borderRadius: '8px', overflow: 'hidden', flexShrink: 0, background: '#0f172a' }}>
-                            <img src={resolveMediaUrl(b.media)} alt={b.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            <img src={b.media} alt={b.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                           </div>
                         ) : null}
                         <div style={{ minWidth: 0, flex: 1 }}>
@@ -2603,11 +2618,11 @@ export const AdminView: React.FC<AdminViewProps> = ({ onNavigate }) => {
                     key={img.id}
                     style={{ height: '140px', borderRadius: '10px', overflow: 'hidden', cursor: 'pointer', border: '1px solid #e2e8f0' }}
                     onClick={() => {
-                      setActiveMediaUrl(resolveMediaUrl(img.url || img.image));
+                      setActiveMediaUrl(img.url || img.image);
                       setActiveMediaType('image');
                     }}
                   >
-                    <img src={resolveMediaUrl(img.url || img.image)} alt="تصویر گزارش" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <img src={img.url || img.image} alt="تصویر گزارش" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   </div>
                 ))}
 
@@ -2616,11 +2631,11 @@ export const AdminView: React.FC<AdminViewProps> = ({ onNavigate }) => {
                     key={vid.id}
                     style={{ position: 'relative', height: '140px', borderRadius: '10px', overflow: 'hidden', cursor: 'pointer', background: '#0f172a' }}
                     onClick={() => {
-                      setActiveMediaUrl(resolveMediaUrl(vid.url || vid.video));
+                      setActiveMediaUrl(vid.url || vid.video);
                       setActiveMediaType('video');
                     }}
                   >
-                    <video src={resolveMediaUrl(vid.url || vid.video)} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <video src={vid.url || vid.video} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     <div className="video-overlay-btn" style={{ width: '36px', height: '36px' }}>
                       <Play size={18} fill="#ffffff" />
                     </div>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { ArrowLeft, Check, AlertCircle, Clock, RotateCcw } from 'lucide-react';
-import { api, setTokens, setTeacherInfo, setUserRole } from '../api';
+import { api, setTokens, setTeacherInfo, setUserRole, hasPersianDigits } from '../api';
 import { Logo } from '../components/Logo';
 
 const toPersianDigits = (n: number | string): string => {
@@ -99,6 +99,10 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode, onDone, onSwitc
     setError('');
     setSuccessNotice('');
     if (!loginPhone.trim()) return;
+    if (hasPersianDigits(loginPhone)) {
+      setError('لطفاً شماره همراه را با ارقام انگلیسی وارد کنید.');
+      return;
+    }
     if (countdown > 0) return;
 
     setLoading(true);
@@ -121,6 +125,10 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode, onDone, onSwitc
   const handleLoginVerify = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    if (hasPersianDigits(otpCode)) {
+      setError('لطفاً کد تأیید را با ارقام انگلیسی وارد کنید.');
+      return;
+    }
     if (otpCode.trim().length !== 4) {
       setError('کد تأیید باید ۴ رقم باشد.');
       return;
@@ -150,6 +158,14 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode, onDone, onSwitc
 
     if (regForm.grade.length !== 1) {
       setError('لطفاً پایه تحصیلی خود را انتخاب فرمایید.');
+      return;
+    }
+    if (hasPersianDigits(regForm.phone_number)) {
+      setError('لطفاً شماره همراه را با ارقام انگلیسی وارد کنید.');
+      return;
+    }
+    if (regForm.national_id && hasPersianDigits(regForm.national_id)) {
+      setError('لطفاً کد ملی را با ارقام انگلیسی وارد کنید.');
       return;
     }
     if (countdown > 0) return;
@@ -186,6 +202,14 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode, onDone, onSwitc
     if (countdown > 0 || loading) return;
     setError('');
     setSuccessNotice('');
+    if (mode === 'login' && hasPersianDigits(loginPhone)) {
+      setError('لطفاً شماره همراه را با ارقام انگلیسی وارد کنید.');
+      return;
+    }
+    if (mode === 'register' && hasPersianDigits(regForm.phone_number)) {
+      setError('لطفاً شماره همراه را با ارقام انگلیسی وارد کنید.');
+      return;
+    }
     setLoading(true);
     try {
       if (mode === 'login') {
@@ -220,6 +244,10 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode, onDone, onSwitc
   const handleRegisterVerify = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    if (hasPersianDigits(otpCode)) {
+      setError('لطفاً کد تأیید را با ارقام انگلیسی وارد کنید.');
+      return;
+    }
     if (otpCode.trim().length !== 4) {
       setError('کد تأیید باید ۴ رقم باشد.');
       return;
@@ -260,7 +288,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode, onDone, onSwitc
             <Logo size={56} variant="icon" />
           </div>
           <span className="eyebrow">
-            <span className="line" /> سامانه مبلغین و معلمین پیک مهر
+            <span className="line" /> سامانه معلمین و مربیان پیک مهر
           </span>
 
           <h1 className="auth-title">
@@ -268,7 +296,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode, onDone, onSwitc
               ? 'تأیید شماره و ورود'
               : mode === 'login'
               ? 'ورود به حساب کاربری'
-              : 'ایجاد حساب کاربری (مبلغین و معلمین)'}
+              : 'ایجاد حساب کاربری (معلمین و مربیان)'}
           </h1>
 
           <p className="auth-subtitle">
@@ -317,7 +345,15 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode, onDone, onSwitc
                 required
                 autoFocus
                 value={loginPhone}
-                onChange={(e) => setLoginPhone(e.target.value)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setLoginPhone(val);
+                  if (hasPersianDigits(val)) {
+                    setError('لطفاً شماره همراه را با ارقام انگلیسی وارد کنید.');
+                  } else if (error === 'لطفاً شماره همراه را با ارقام انگلیسی وارد کنید.') {
+                    setError('');
+                  }
+                }}
               />
             </div>
 
@@ -343,7 +379,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode, onDone, onSwitc
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))',
                 gap: '16px',
               }}
             >
@@ -387,7 +423,15 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode, onDone, onSwitc
                   dir="ltr"
                   required
                   value={regForm.phone_number}
-                  onChange={(e) => setRegForm({ ...regForm, phone_number: e.target.value })}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setRegForm({ ...regForm, phone_number: val });
+                    if (hasPersianDigits(val)) {
+                      setError('لطفاً شماره همراه را با ارقام انگلیسی وارد کنید.');
+                    } else if (error === 'لطفاً شماره همراه را با ارقام انگلیسی وارد کنید.') {
+                      setError('');
+                    }
+                  }}
                 />
               </div>
 
@@ -450,7 +494,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode, onDone, onSwitc
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))',
                 gap: '16px',
                 marginTop: '12px',
               }}
@@ -555,7 +599,15 @@ export const AuthView: React.FC<AuthViewProps> = ({ initialMode, onDone, onSwitc
                 required
                 autoFocus
                 value={otpCode}
-                onChange={(e) => setOtpCode(e.target.value)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setOtpCode(val);
+                  if (hasPersianDigits(val)) {
+                    setError('لطفاً کد تأیید را با ارقام انگلیسی وارد کنید.');
+                  } else if (error === 'لطفاً کد تأیید را با ارقام انگلیسی وارد کنید.') {
+                    setError('');
+                  }
+                }}
               />
             </div>
 

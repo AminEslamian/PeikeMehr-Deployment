@@ -25,27 +25,25 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
         <div className="hero-text">
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', marginBottom: '14px' }}>
             <span className="hero-badge">
-              <Sparkles size={14} /> ویژه سال تحصیلی ۱۴۰۴–۱۴۰۵
+              <Sparkles size={14} /> ویژه ایام فاطمیه - سال ۱۴۰۵
             </span>
             <span className="eyebrow">
-              <span className="line" /> از دل کلاس، برای زندگی
+              <span className="line" /> از دل کلاس، برای آگاهی
             </span>
           </div>
 
           <h1>
-            مهربانی را<br />
-            با هم <em>روایت می‌کنیم.</em>
+            طرح آموزشی فرهنگی زیتون
           </h1>
 
           <p className="hero-desc">
-            سامانه فرهنگی آموزشی پیک مهر؛ همراه مبلغین و معلمین، برای ثبت تجارب ماندگار در کلاس‌های درس و مدارس، ارائه
-            گزارش‌های چندرسانه‌ای و ارتقای فعالیت‌های تربیتی دانش‌آموزان.
+            سامانه تبلیغی پیک‌مهر، همراه معلمین و مربیان، برای ثبت تجارب و لحظات ماندگار ارائه طرح آموزشی فرهنگی زیتون در ایام فاطمیه
           </p>
 
-          <div className="hero-actions">
+          <div className="hero-actions form-action-group mobile-stack-buttons">
             <button
               type="button"
-              className="btn-astra btn-astra-primary btn-astra-lg"
+              className="btn-astra btn-astra-primary btn-astra-lg form-action-primary"
               onClick={() => onNavigate('register')}
             >
               عضویت در پیک مهر
@@ -54,7 +52,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
 
             <button
               type="button"
-              className="btn-astra btn-astra-outline btn-astra-lg"
+              className="btn-astra btn-astra-outline btn-astra-lg form-action-secondary"
               onClick={() => onNavigate('login')}
             >
               قبلاً ثبت‌نام کرده‌ام
@@ -64,7 +62,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
 
           <div className="hero-features">
             <span className="hero-feature-item">
-              <Check size={16} /> ویژه مبلغین، معلمان و مربیان تربیتی
+              <Check size={16} /> ویژه معلمین و مربیان طرح زیتون
             </span>
             <span className="hero-feature-item">
               <Check size={16} /> ثبت گزارش‌های متنی، عکس و فیلم
@@ -90,14 +88,11 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
             </div>
 
             <div className="panel-center">
-              <div className="panel-tagline-badge">فضای هم‌افزایی معلمان و مبلغین</div>
+              <div className="panel-tagline-badge">فضای هم‌افزایی معلمین و مربیان</div>
               <h2 className="panel-hero-heading">
                 روایت تجارب تربیتی،<br />
-                <em>در خدمت فردای روشن دانش‌آموزان</em>
+                <em>درخدمت رشد و ارتقای فرهنگ دانش‌آموزان</em>
               </h2>
-              <p className="panel-hero-desc">
-                ثبت فعالیت‌های پرورشی و آموزشی، بارگذاری مستندات چندرسانه‌ای و سنجش بازخوردها
-              </p>
             </div>
 
             <div className="panel-bottom">
@@ -107,8 +102,8 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
               </div>
               <div className="panel-stat-divider" />
               <div className="panel-stat-item">
-                <span className="stat-title">بانک مستندات</span>
-                <span className="stat-desc">آرشیو کلاسی</span>
+                <span className="stat-title">ارسال گزارشات</span>
+                <span className="stat-desc">ثبت جامع و کامل</span>
               </div>
               <div className="panel-stat-divider" />
               <div className="panel-stat-item">
@@ -119,7 +114,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
           </div>
 
           <div className="paper-tag">
-            <Heart size={16} /> همراه مطمئن در مسیر تعلیم و تربیت
+            <Heart size={16} /> همراهی شما، گامی موثر در رشد ماست
           </div>
         </div>
       </section>
@@ -131,7 +126,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
             <span className="line" /> مسیر همراهی
           </span>
           <h2>سه گام تا همراهی در پیک مهر</h2>
-          <p>مسیر ساده و روان برای فعالیت مبلغین و معلمان گرامی در سامانه</p>
+          <p>مسیر ساده و روان برای فعالیت معلمین و مربیان گرامی در سامانه</p>
         </div>
 
         <div className="steps-grid steps-grid-3">
@@ -145,7 +140,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
             {
               num: '۰۲',
               title: 'ثبت تجارب و آثار کلاسی',
-              desc: 'ارسال روایت‌های کلاسی به همراه بارگذاری آسان تصاویر و ویدیوهای فعالیت‌های فرهنگی و تربیتی.',
+              desc: 'ارسال روایت‌های کلاسی به همراه بارگذاری آسان تصاویر و ویدیوهای طرح آموزشی فرهنگی زیتون.',
               icon: FileText,
             },
             {
@@ -182,13 +177,13 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
             </span>
           </div>
           <h2>پیش از همراهی بدانید</h2>
-          <p>پاسخ به متداول‌ترین پرسش‌های مبلغین و معلمان پیرامون نحوه کار با سامانه</p>
+          <p>پاسخ به متداول‌ترین پرسش‌های معلمین و مربیان پیرامون نحوه کار با سامانه</p>
         </div>
 
         <div className="faq-list">
-          <details className="faq-item" open>
-            <summary>آیا استفاده از سامانه برای مبلغین و معلمان هزینه‌ای دارد؟</summary>
-            <p>خیر؛ ثبت‌نام، ارسال گزارش‌ها و شرکت در نظرسنجی‌ها برای تمامی مبلغین، معلمان و مربیان مدارس کاملاً رایگان است.</p>
+          <details className="faq-item">
+            <summary>آیا استفاده از سامانه برای معلمین و مربیان هزینه‌ای دارد؟</summary>
+            <p>خیر؛ ثبت‌نام، ارسال گزارش‌ها و شرکت در نظرسنجی‌ها برای تمامی معلمین و مربیان مدارس کاملاً رایگان است.</p>
           </details>
 
           <details className="faq-item">

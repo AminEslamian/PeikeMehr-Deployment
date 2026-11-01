@@ -17,43 +17,6 @@ export const clearAuth = () => {
   localStorage.removeItem('user_role');
 };
 
-let refreshInFlight: Promise<string | null> | null = null;
-
-export const refreshAccessToken = async (): Promise<string | null> => {
-  const refresh = getRefreshToken();
-  if (!refresh) return null;
-
-  try {
-    const res = await fetch('/api/auth/token/refresh/', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ refresh }),
-    });
-
-    if (!res.ok) return null;
-
-    const data = await res.json().catch(() => null);
-    if (!data?.access) return null;
-
-    localStorage.setItem('access_token', data.access);
-    if (data.refresh) {
-      localStorage.setItem('refresh_token', data.refresh);
-    }
-    return data.access as string;
-  } catch {
-    return null;
-  }
-};
-
-const ensureFreshAccessToken = (): Promise<string | null> => {
-  if (!refreshInFlight) {
-    refreshInFlight = refreshAccessToken().finally(() => {
-      refreshInFlight = null;
-    });
-  }
-  return refreshInFlight;
-};
-
 export const getUserRole = (): 'admin' | 'teacher' | null => {
   const role = localStorage.getItem('user_role');
   if (role === 'admin' || role === 'teacher') return role;
@@ -79,94 +42,117 @@ export const setTeacherInfo = (info: any) => {
   localStorage.setItem('teacher_info', JSON.stringify(info));
 };
 
-// Resolve local media through the app origin, but preserve absolute URLs.
-// Absolute URLs are required for S3-compatible object storage (signed URLs).
+// Safe media URL resolver to route through Vite proxy without CORS/host mismatch
 export const resolveMediaUrl = (url: string | null | undefined): string => {
   if (!url) return '';
-
-  if (/^https?:\/\//i.test(url)) {
-    try {
-      const parsed = new URL(url);
-      // Normalize the local Django dev server to a same-origin path.
-      if (
-        (parsed.hostname === '127.0.0.1' || parsed.hostname === 'localhost') &&
-        parsed.port === '8000'
-      ) {
-        return `${parsed.pathname}${parsed.search}`;
-      }
-      return url;
-    } catch {
-      return url;
-    }
+  const cleaned = url.replace(/^http:\/\/(127\.0\.0\.1|localhost):8000/, '');
+  if (cleaned.startsWith('/')) {
+    return cleaned;
   }
+  return `/media/${cleaned}`;
+};
 
-  if (url.startsWith('/')) {
-    return url;
-  }
-  return `/media/${url}`;
+/**
+ * Checks if a string contains Persian (۰-۹) or Arabic (٠-٩) digits.
+ */
+export const hasPersianDigits = (value: string | number | null | undefined): boolean => {
+  if (value === null || value === undefined) return false;
+  return /[۰-۹٠-٩]/.test(String(value));
 };
 
 function translateApiError(detail: any, status?: number): string {
   if (status === 429) {
-    return 'لطفاً ۱ دقیقه صبر کنید و سپس مجدداً درخواست ارسال کد نمایید.';
+    return 'لطفاً ۱ دقیقه صبر کنید و سپس دوباره درخواست کد دهید.';
   }
 
   const raw = String(detail || '').trim();
 
+  // HTTP Status & Server limits
+  if (status === 413 || /413|payload too large|request entity too large/i.test(raw)) {
+    return 'حجم فایل ارسالی بیش از حد مجاز است.';
+  }
+  if (status === 403 || /permission/i.test(raw)) {
+    return 'شما به این بخش دسترسی ندارید.';
+  }
+  if (status === 404 || (/not found/i.test(raw) && !/phone/i.test(raw))) {
+    return 'موردی یافت نشد.';
+  }
+  if (status && status >= 500) {
+    return 'خطای سرور. لطفاً کمی بعد دوباره امتحان کنید.';
+  }
+
   // Rate limit
   if (/wait before requesting/i.test(raw) || /too many requests/i.test(raw)) {
-    return 'لطفاً ۱ دقیقه صبر کنید و سپس مجدداً درخواست ارسال کد نمایید.';
+    return 'لطفاً ۱ دقیقه صبر کنید و سپس دوباره درخواست کد دهید.';
   }
 
   // Phone doesn't exist
   if (/phone number doesn't exist/i.test(raw) || (/not found/i.test(raw) && status === 404)) {
-    return 'این شماره همراه در سامانه ثبت نشده است. لطفاً ابتدا ثبت‌نام فرمایید.';
+    return 'این شماره همراه در سامانه ثبت نشده است.';
   }
 
   // Already registered
   if (/already registered/i.test(raw)) {
     if (/national_id/i.test(raw) || /national id/i.test(raw)) {
-      return 'این کد ملی قبلاً در سامانه ثبت شده است.';
+      return 'این کد ملی قبلاً ثبت شده است.';
     }
-    return 'این شماره همراه قبلاً در سامانه ثبت شده است. لطفاً وارد حساب خود شوید.';
+    return 'این شماره همراه قبلاً ثبت شده است.';
   }
 
   // OTP Verification errors
   if (/invalid otp/i.test(raw)) {
-    return 'کد تأیید واردشده نادرست است. لطفاً مجدداً بررسی فرمایید.';
+    return 'کد تأیید نادرست است.';
   }
   if (/otp has expired/i.test(raw)) {
-    return 'کد تأیید منقضی شده است. لطفاً درخواست ارسال مجدد کد نمایید.';
+    return 'کد تأیید منقضی شده است.';
   }
   if (/no active otp/i.test(raw)) {
-    return 'کد تأیید فعالی یافت نشد. لطفاً ابتدا درخواست ارسال کد نمایید.';
+    return 'کد تأیید فعالی یافت نشد.';
   }
 
   // Validation errors
-  if (/this field is required/i.test(raw)) {
-    return 'تکمیل تمامی فیلدهای ستاره‌دار الزامی است.';
+  if (/phone number must contain|11 digits/i.test(raw)) {
+    return 'شماره همراه باید ۱۱ رقم با ارقام انگلیسی باشد (مثال: 09123456789).';
+  }
+  if (/national id must contain|10 digits/i.test(raw)) {
+    return 'کد ملی باید ۱۰ رقم با ارقام انگلیسی باشد.';
+  }
+  if (/this field is required|this field may not be blank|this field may not be null/i.test(raw)) {
+    return 'لطفاً فیلدهای الزامی را تکمیل کنید.';
   }
   if (/enter a valid/i.test(raw) || /valid phone/i.test(raw)) {
-    return 'شماره همراه واردشده نامعتبر است (باید ۱۱ رقم و با ۰۹ آغاز شود).';
+    return 'شماره همراه نامعتبر است.';
+  }
+  if (/valid image|valid video|supported/i.test(raw)) {
+    return 'فرمت فایل انتخابی معتبر نیست.';
+  }
+  if (/no file was submitted|not a file/i.test(raw)) {
+    return 'فایلی ارسال نشده است.';
+  }
+  if (/ensure this field has no more than/i.test(raw)) {
+    return 'طول متن بیش از حد مجاز است.';
+  }
+  if (/ensure this field has at least/i.test(raw)) {
+    return 'طول متن کمتر از حد مجاز است.';
+  }
+  if (/valid integer|valid number/i.test(raw)) {
+    return 'مقدار عددی معتبر وارد کنید.';
   }
 
   // Token errors
   if (/token/i.test(raw) && /not valid/i.test(raw)) {
-    return 'نشست کاربری شما منقضی شده است. لطفاً مجدداً وارد شوید.';
+    return 'نشست کاربری منقضی شده است. لطفاً دوباره وارد شوید.';
   }
 
-  if (raw) {
+  // If backend returned a Persian message (e.g. from custom serializers), return it directly
+  if (/[\u0600-\u06FF]/.test(raw)) {
     return raw;
   }
 
-  return 'خطایی در ارتباط با سرور رخ داد. لطفاً مجدداً تلاش فرمایید.';
+  return 'خطایی رخ داد. لطفاً دوباره امتحان کنید.';
 }
 
-async function request<T>(
-  url: string,
-  options: RequestInit = {},
-  allowRefresh = true,
-): Promise<T> {
+async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
   const token = getAccessToken();
   const headers = new Headers(options.headers || {});
 
@@ -184,20 +170,6 @@ async function request<T>(
     res = await fetch(url, { ...options, headers });
   } catch {
     throw new Error('خطا در برقراری ارتباط با سرور. لطفاً اتصال اینترنت خود را بررسی نمایید.');
-  }
-
-  if (
-    res.status === 401 &&
-    allowRefresh &&
-    !url.includes('/token/refresh/') &&
-    getRefreshToken()
-  ) {
-    const newAccess = await ensureFreshAccessToken();
-    if (newAccess) {
-      const retryHeaders = new Headers(headers);
-      retryHeaders.set('Authorization', `Bearer ${newAccess}`);
-      return request<T>(url, { ...options, headers: retryHeaders }, false);
-    }
   }
 
   if (res.status === 401) {
@@ -224,6 +196,77 @@ async function request<T>(
   }
 
   return data as T;
+}
+
+export function uploadWithProgress<T>(
+  url: string,
+  formData: FormData,
+  onProgress?: (percent: number, loaded: number, total: number) => void,
+  signal?: AbortSignal
+): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', url);
+
+    const token = getAccessToken();
+    if (token) {
+      xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+    }
+
+    if (signal) {
+      signal.addEventListener('abort', () => {
+        xhr.abort();
+        reject(new Error('آپلود توسط کاربر لغو شد.'));
+      });
+    }
+
+    if (xhr.upload && onProgress) {
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable && event.total > 0) {
+          const percent = Math.min(100, Math.round((event.loaded / event.total) * 100));
+          onProgress(percent, event.loaded, event.total);
+        }
+      };
+    }
+
+    xhr.onload = () => {
+      let data: any = {};
+      try {
+        data = JSON.parse(xhr.responseText || '{}');
+      } catch {
+        data = {};
+      }
+
+      if (xhr.status === 401) {
+        clearAuth();
+        window.location.hash = '#/login';
+        return reject(new Error('نشست شما منقضی شده است. لطفاً مجدداً وارد شوید.'));
+      }
+
+      if (xhr.status >= 200 && xhr.status < 300) {
+        return resolve(data as T);
+      }
+
+      let msg = data.detail;
+      if (!msg && typeof data === 'object') {
+        msg = Object.values(data).flat().join(' - ');
+      }
+      const translatedMsg = translateApiError(msg, xhr.status);
+      const error: any = new Error(translatedMsg);
+      error.status = xhr.status;
+      reject(error);
+    };
+
+    xhr.onerror = () => {
+      reject(new Error('خطا در برقراری ارتباط با سرور. لطفاً اتصال اینترنت خود را بررسی نمایید.'));
+    };
+
+    xhr.ontimeout = () => {
+      reject(new Error('زمان ارسال به پایان رسید. لطفاً مجدداً تلاش نمایید.'));
+    };
+
+    xhr.send(formData);
+  });
 }
 
 export interface UserProfile {
@@ -283,11 +326,12 @@ export const api = {
       }>
     >('/api/reports/'),
 
-  createReport: (formData: FormData) =>
-    request<{ id: number }>('/api/reports/', {
-      method: 'POST',
-      body: formData,
-    }),
+  createReport: (
+    formData: FormData,
+    onProgress?: (percent: number, loaded: number, total: number) => void,
+    signal?: AbortSignal
+  ) =>
+    uploadWithProgress<{ id: number }>('/api/reports/', formData, onProgress, signal),
 
   deleteReport: (id: number) =>
     request<void>(`/api/reports/${id}/`, {
