@@ -70,11 +70,26 @@ const toPersianDigits = (n: number | string): string => {
 // Safe media URL resolver to route through Vite proxy without CORS/host mismatch
 const resolveMediaUrl = (url: string | null | undefined): string => {
   if (!url) return '';
-  const cleaned = url.replace(/^http:\/\/(127\.0\.0\.1|localhost):8000/, '');
-  if (cleaned.startsWith('/')) {
-    return cleaned;
+
+  if (/^https?:\/\//i.test(url)) {
+    try {
+      const parsed = new URL(url);
+      if (
+        (parsed.hostname === '127.0.0.1' || parsed.hostname === 'localhost') &&
+        parsed.port === '8000'
+      ) {
+        return `${parsed.pathname}${parsed.search}`;
+      }
+      return url;
+    } catch {
+      return url;
+    }
   }
-  return `/media/${cleaned}`;
+
+  if (url.startsWith('/')) {
+    return url;
+  }
+  return `/media/${url}`;
 };
 
 export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {

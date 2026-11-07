@@ -38,3 +38,7 @@ dist/
 Thumbs.db
 .idea/
 .vscode/
+
+backup-postgres.sh
+*.dump
+backups/

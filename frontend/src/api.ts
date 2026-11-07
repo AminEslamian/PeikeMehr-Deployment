@@ -17,6 +17,44 @@ export const clearAuth = () => {
   localStorage.removeItem('user_role');
 };
 
+let refreshInFlight: Promise<string | null> | null = null;
+
+export const refreshAccessToken = async (): Promise<string | null> => {
+  const refresh = getRefreshToken();
+  if (!refresh) return null;
+
+  try {
+    const res = await fetch('/api/auth/token/refresh/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refresh }),
+    });
+
+    if (!res.ok) return null;
+
+    const data = await res.json().catch(() => null);
+    if (!data?.access) return null;
+
+    localStorage.setItem('access_token', data.access);
+    if (data.refresh) {
+      localStorage.setItem('refresh_token', data.refresh);
+    }
+    return data.access as string;
+  } catch {
+    return null;
+  }
+};
+
+const ensureFreshAccessToken = (): Promise<string | null> => {
+  if (!refreshInFlight) {
+    refreshInFlight = refreshAccessToken().finally(() => {
+      refreshInFlight = null;
+    });
+  }
+  return refreshInFlight;
+};
+
+
 export const getUserRole = (): 'admin' | 'teacher' | null => {
   const role = localStorage.getItem('user_role');
   if (role === 'admin' || role === 'teacher') return role;
@@ -42,14 +80,30 @@ export const setTeacherInfo = (info: any) => {
   localStorage.setItem('teacher_info', JSON.stringify(info));
 };
 
-// Safe media URL resolver to route through Vite proxy without CORS/host mismatch
+// Resolve local media through the app origin, but preserve absolute URLs.
+// Absolute URLs are required for S3-compatible object storage (signed URLs).
 export const resolveMediaUrl = (url: string | null | undefined): string => {
   if (!url) return '';
-  const cleaned = url.replace(/^http:\/\/(127\.0\.0\.1|localhost):8000/, '');
-  if (cleaned.startsWith('/')) {
-    return cleaned;
+
+  if (/^https?:\/\//i.test(url)) {
+    try {
+      const parsed = new URL(url);
+      if (
+        (parsed.hostname === '127.0.0.1' || parsed.hostname === 'localhost') &&
+        parsed.port === '8000'
+      ) {
+        return `${parsed.pathname}${parsed.search}`;
+      }
+      return url;
+    } catch {
+      return url;
+    }
   }
-  return `/media/${cleaned}`;
+
+  if (url.startsWith('/')) {
+    return url;
+  }
+  return `/media/${url}`;
 };
 
 /**
@@ -152,7 +206,11 @@ function translateApiError(detail: any, status?: number): string {
   return 'خطایی رخ داد. لطفاً دوباره امتحان کنید.';
 }
 
-async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
+async function request<T>(
+  url: string,
+  options: RequestInit = {},
+  allowRefresh = true,
+): Promise<T> {
   const token = getAccessToken();
   const headers = new Headers(options.headers || {});
 
@@ -170,6 +228,20 @@ async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
     res = await fetch(url, { ...options, headers });
   } catch {
     throw new Error('خطا در برقراری ارتباط با سرور. لطفاً اتصال اینترنت خود را بررسی نمایید.');
+  }
+
+  if (
+    res.status === 401 &&
+    allowRefresh &&
+    !url.includes('/token/refresh/') &&
+    getRefreshToken()
+  ) {
+    const newAccess = await ensureFreshAccessToken();
+    if (newAccess) {
+      const retryHeaders = new Headers(headers);
+      retryHeaders.set('Authorization', `Bearer ${newAccess}`);
+      return request<T>(url, { ...options, headers: retryHeaders }, false);
+    }
   }
 
   if (res.status === 401) {
