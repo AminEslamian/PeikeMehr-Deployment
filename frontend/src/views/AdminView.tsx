@@ -121,6 +121,9 @@ export const AdminView: React.FC<AdminViewProps> = ({ onNavigate }) => {
   const [teacherSearch, setTeacherSearch] = useState('');
   const [teacherProvince, setTeacherProvince] = useState('');
   const [teacherCity, setTeacherCity] = useState('');
+  const [teacherPage, setTeacherPage] = useState(1);
+  const [teacherPageSize, setTeacherPageSize] = useState(20);
+  const [teacherTotalCount, setTeacherTotalCount] = useState(0);
   const [viewingTeacher, setViewingTeacher] = useState<any | null>(null);
   const [viewingTeacherReports, setViewingTeacherReports] = useState<any[]>([]);
   const [viewingTeacherPoints, setViewingTeacherPoints] = useState<any[]>([]);
@@ -143,6 +146,9 @@ export const AdminView: React.FC<AdminViewProps> = ({ onNavigate }) => {
   const [reportCity, setReportCity] = useState('');
   const [reportMediaType, setReportMediaType] = useState<'all' | 'image' | 'video'>('all');
   const [reportTeacherFilter, setReportTeacherFilter] = useState<string>('');
+  const [reportPage, setReportPage] = useState(1);
+  const [reportPageSize, setReportPageSize] = useState(12);
+  const [reportTotalCount, setReportTotalCount] = useState(0);
   const [viewingReport, setViewingReport] = useState<any | null>(null);
   const [reportPointScore, setReportPointScore] = useState<number>(10);
   const [reportPointReason, setReportPointReason] = useState<string>('ثبت گزارش فعالیت آموزشی');
@@ -223,33 +229,39 @@ export const AdminView: React.FC<AdminViewProps> = ({ onNavigate }) => {
 
     try {
       // 1. Fetch Teachers (and filter out admin itself so admin is never listed as teacher)
-      const teachersRes = await api.admin.getTeachers({ page: 1 });
+      const teachersRes = await api.admin.getTeachers({ page: 1, page_size: teacherPageSize });
       const rawTeachersList = Array.isArray(teachersRes) ? teachersRes : (teachersRes?.results || []);
       const teachersList = rawTeachersList.filter((t: any) => !t.is_superuser && t.phone_number !== '09127519135');
-      const teachersTotal = teachersList.length;
+      const teachersTotal = typeof teachersRes?.count === 'number' ? teachersRes.count : teachersList.length;
       setTeachers(teachersList);
+      setTeacherTotalCount(teachersTotal);
 
-      // 2. Concurrently fetch all other modules
-      const [reportsRes, ticketsRes, surveysRes, tagsRes, blogsRes] = await Promise.all([
-        api.admin.getReports().catch(() => ({ results: [], count: 0 })),
+      // 2. Concurrently fetch all other modules and precise counts
+      const [reportsRes, ticketsRes, surveysRes, tagsRes, blogsRes, imagesRes, videosRes] = await Promise.all([
+        api.admin.getReports({ page: 1, page_size: reportPageSize }).catch(() => ({ results: [], count: 0 })),
         api.admin.getTickets().catch(() => ({ results: [], count: 0 })),
         api.admin.getSurveys().catch(() => []),
         api.admin.getTags().catch(() => []),
         api.getBlogs().catch(() => []),
+        api.admin.getReportImages({ page: 1, page_size: 1 }).catch(() => ({ count: 0 })),
+        api.admin.getReportVideos({ page: 1, page_size: 1 }).catch(() => ({ count: 0 })),
       ]);
 
       const reportsList = Array.isArray(reportsRes) ? reportsRes : (reportsRes?.results || []);
-      const reportsTotal = Array.isArray(reportsRes) ? reportsRes.length : (reportsRes?.count || 0);
+      const reportsTotal = typeof reportsRes?.count === 'number' ? reportsRes.count : (Array.isArray(reportsRes) ? reportsRes.length : 0);
+      setReportTotalCount(reportsTotal);
 
-      let totalImages = 0;
-      let totalVideos = 0;
-      reportsList.forEach((r: any) => {
-        totalImages += r.images_count || (r.images ? r.images.length : 0);
-        totalVideos += r.videos_count || (r.videos ? r.videos.length : 0);
-      });
+      let totalImages = typeof imagesRes?.count === 'number' && imagesRes.count > 0 ? imagesRes.count : 0;
+      let totalVideos = typeof videosRes?.count === 'number' && videosRes.count > 0 ? videosRes.count : 0;
+      if (totalImages === 0 && totalVideos === 0) {
+        reportsList.forEach((r: any) => {
+          totalImages += r.images_count || (r.images ? r.images.length : 0);
+          totalVideos += r.videos_count || (r.videos ? r.videos.length : 0);
+        });
+      }
 
       const ticketsList = Array.isArray(ticketsRes) ? ticketsRes : (ticketsRes?.results || []);
-      const ticketsTotal = Array.isArray(ticketsRes) ? ticketsRes.length : (ticketsRes?.count || 0);
+      const ticketsTotal = typeof ticketsRes?.count === 'number' ? ticketsRes.count : (Array.isArray(ticketsRes) ? ticketsRes.length : 0);
       const surveysList = Array.isArray(surveysRes) ? surveysRes : (surveysRes?.results || []);
       const tagsList = Array.isArray(tagsRes) ? tagsRes : (tagsRes?.results || []);
 
@@ -303,16 +315,21 @@ export const AdminView: React.FC<AdminViewProps> = ({ onNavigate }) => {
   }, [activeTab]);
 
   // Data Fetchers
-  const fetchTeachers = async () => {
+  const fetchTeachers = async (page = teacherPage, pageSize = teacherPageSize) => {
     setTeachersLoading(true);
     try {
       const res = await api.admin.getTeachers({
         search: teacherSearch,
         province: teacherProvince,
         city: teacherCity,
+        page,
+        page_size: pageSize,
       });
       const list = Array.isArray(res) ? res : (res?.results || []);
       setTeachers(list.filter((t: any) => !t.is_superuser && t.phone_number !== '09127519135'));
+      if (typeof res?.count === 'number') {
+        setTeacherTotalCount(res.count);
+      }
     } catch {
       // Handled
     } finally {
@@ -320,7 +337,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ onNavigate }) => {
     }
   };
 
-  const fetchReports = async () => {
+  const fetchReports = async (page = reportPage, pageSize = reportPageSize) => {
     setReportsLoading(true);
     try {
       const res = await api.admin.getReports({
@@ -328,6 +345,8 @@ export const AdminView: React.FC<AdminViewProps> = ({ onNavigate }) => {
         province: reportProvince,
         city: reportCity,
         teacher: reportTeacherFilter ? Number(reportTeacherFilter) : undefined,
+        page,
+        page_size: pageSize,
       });
       let list = Array.isArray(res) ? res : (res?.results || []);
       if (reportMediaType === 'image') {
@@ -336,6 +355,9 @@ export const AdminView: React.FC<AdminViewProps> = ({ onNavigate }) => {
         list = list.filter((r: any) => (r.videos_count || r.videos?.length) > 0);
       }
       setReports(list);
+      if (typeof res?.count === 'number') {
+        setReportTotalCount(res.count);
+      }
     } catch {
       // Handled
     } finally {
@@ -414,7 +436,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ onNavigate }) => {
 
     try {
       const [reportsRes, pointsRes] = await Promise.all([
-        api.admin.getReports({ teacher: teacher.id }),
+        api.admin.getReports({ teacher: teacher.id, page_size: 100 }),
         api.admin.getPoints(),
       ]);
       const repList = Array.isArray(reportsRes) ? reportsRes : (reportsRes?.results || []);
@@ -508,35 +530,49 @@ export const AdminView: React.FC<AdminViewProps> = ({ onNavigate }) => {
     }
   };
 
-  // Export Teachers to Excel
-  const handleExportTeachersExcel = () => {
-    const data = teachers.map((t) => ({
-      name: t.full_name || `${t.first_name} ${t.last_name}`,
-      phone: t.phone_number,
-      national_id: t.national_id || '',
-      province: t.province || '',
-      city: t.city || '',
-      village: t.village || '',
-      school: t.school || '',
-      position: t.position || '',
-      grades: Array.isArray(t.grade) ? t.grade.join(' - ') : '',
-      points: t.point_total || 0,
-      reports: t.report_count || 0,
-    }));
+  // Export Teachers to Excel (fetches complete dataset)
+  const handleExportTeachersExcel = async () => {
+    try {
+      const res = await api.admin.getTeachers({
+        page: 1,
+        page_size: 1000,
+        search: teacherSearch,
+        province: teacherProvince,
+        city: teacherCity,
+      });
+      let allList = Array.isArray(res) ? res : (res?.results || []);
+      allList = allList.filter((t: any) => !t.is_superuser && t.phone_number !== '09127519135');
 
-    exportToCsv('teachers_list_safiremehr', data, {
-      name: 'نام و نام خانوادگی',
-      phone: 'شماره تلفن',
-      national_id: 'کد ملی',
-      province: 'استان',
-      city: 'شهر',
-      village: 'روستا',
-      school: 'مدرسه',
-      position: 'سمت',
-      grades: 'پایه‌های تدریس',
-      points: 'مجموع امتیازات',
-      reports: 'تعداد گزارش‌ها',
-    });
+      const data = allList.map((t: any) => ({
+        name: t.full_name || `${t.first_name} ${t.last_name}`,
+        phone: t.phone_number,
+        national_id: t.national_id || '',
+        province: t.province || '',
+        city: t.city || '',
+        village: t.village || '',
+        school: t.school || '',
+        position: t.position || '',
+        grades: Array.isArray(t.grade) ? t.grade.join(' - ') : '',
+        points: t.point_total || 0,
+        reports: t.report_count || 0,
+      }));
+
+      exportToCsv('teachers_list_safiremehr', data, {
+        name: 'نام و نام خانوادگی',
+        phone: 'شماره تلفن',
+        national_id: 'کد ملی',
+        province: 'استان',
+        city: 'شهر',
+        village: 'روستا',
+        school: 'مدرسه',
+        position: 'سمت',
+        grades: 'پایه‌های تدریس',
+        points: 'مجموع امتیازات',
+        reports: 'تعداد گزارش‌ها',
+      });
+    } catch (err: any) {
+      alert('خطا در دریافت لیست کامل معلمان برای خروجی اکسل: ' + (err.message || ''));
+    }
   };
 
   // =========================================================================
@@ -581,34 +617,48 @@ export const AdminView: React.FC<AdminViewProps> = ({ onNavigate }) => {
     }
   };
 
-  const handleExportReportsExcel = () => {
-    const data = reports.map((r) => ({
-      id: r.id,
-      teacher: r.teacher_name || '',
-      phone: r.teacher_phone || '',
-      province: r.teacher_province || '',
-      city: r.teacher_city || '',
-      school: r.teacher_school || '',
-      text: r.text || '',
-      tags: Array.isArray(r.tags) ? r.tags.map((tg: any) => tg.name).join(' - ') : '',
-      images_count: r.images_count || (r.images ? r.images.length : 0),
-      videos_count: r.videos_count || (r.videos ? r.videos.length : 0),
-      created_at: formatDate(r.created_at),
-    }));
+  const handleExportReportsExcel = async () => {
+    try {
+      const res = await api.admin.getReports({
+        page: 1,
+        page_size: 1000,
+        search: reportSearch,
+        province: reportProvince,
+        city: reportCity,
+        teacher: reportTeacherFilter ? Number(reportTeacherFilter) : undefined,
+      });
+      const allList = Array.isArray(res) ? res : (res?.results || []);
 
-    exportToCsv('reports_list_safiremehr', data, {
-      id: 'شناسه گزارش',
-      teacher: 'نام معلم',
-      phone: 'شماره تماس',
-      province: 'استان',
-      city: 'شهر',
-      school: 'مدرسه',
-      text: 'متن گزارش',
-      tags: 'برچسب‌ها',
-      images_count: 'تعداد تصویر',
-      videos_count: 'تعداد ویدیو',
-      created_at: 'تاریخ ثبت',
-    });
+      const data = allList.map((r: any) => ({
+        id: r.id,
+        teacher: r.teacher_name || '',
+        phone: r.teacher_phone || '',
+        province: r.teacher_province || '',
+        city: r.teacher_city || '',
+        school: r.teacher_school || '',
+        text: r.text || '',
+        tags: Array.isArray(r.tags) ? r.tags.map((tg: any) => tg.name).join(' - ') : '',
+        images_count: r.images_count || (r.images ? r.images.length : 0),
+        videos_count: r.videos_count || (r.videos ? r.videos.length : 0),
+        created_at: formatDate(r.created_at),
+      }));
+
+      exportToCsv('reports_list_safiremehr', data, {
+        id: 'شناسه گزارش',
+        teacher: 'نام معلم',
+        phone: 'شماره تماس',
+        province: 'استان',
+        city: 'شهر',
+        school: 'مدرسه',
+        text: 'متن گزارش',
+        tags: 'برچسب‌ها',
+        images_count: 'تعداد تصویر',
+        videos_count: 'تعداد ویدیو',
+        created_at: 'تاریخ ثبت',
+      });
+    } catch (err: any) {
+      alert('خطا در دریافت لیست کامل گزارش‌ها برای خروجی اکسل: ' + (err.message || ''));
+    }
   };
 
   // =========================================================================
@@ -1440,7 +1490,10 @@ export const AdminView: React.FC<AdminViewProps> = ({ onNavigate }) => {
                     <button
                       type="button"
                       className="btn-astra btn-astra-primary btn-astra-md"
-                      onClick={fetchTeachers}
+                      onClick={() => {
+                        setTeacherPage(1);
+                        fetchTeachers(1, teacherPageSize);
+                      }}
                       style={{ flex: 1, justifyContent: 'center' }}
                     >
                       <Search size={15} />
@@ -1453,7 +1506,8 @@ export const AdminView: React.FC<AdminViewProps> = ({ onNavigate }) => {
                         setTeacherSearch('');
                         setTeacherProvince('');
                         setTeacherCity('');
-                        fetchTeachers();
+                        setTeacherPage(1);
+                        fetchTeachers(1, teacherPageSize);
                       }}
                       title="پاکسازی فیلتر"
                     >
@@ -1469,7 +1523,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ onNavigate }) => {
                   <div>
                     <span style={{ fontWeight: 800, fontSize: '0.95rem' }}>فهرست معلمان سامانه</span>
                     <span style={{ fontSize: '0.8rem', color: '#64748b', marginRight: '8px' }}>
-                      (تعداد: {toPersianDigits(teachers.length)} نفر)
+                      (تعداد کل: {toPersianDigits(teacherTotalCount > 0 ? teacherTotalCount : teachers.length)} نفر)
                     </span>
                   </div>
                 </div>
@@ -1588,6 +1642,103 @@ export const AdminView: React.FC<AdminViewProps> = ({ onNavigate }) => {
                     </table>
                   )}
                 </div>
+
+                {/* Teachers Pagination Footer */}
+                {teacherTotalCount > 0 && (
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      padding: '16px 20px',
+                      borderTop: '1px solid #f1f5f9',
+                      flexWrap: 'wrap',
+                      gap: '12px',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', color: '#64748b' }}>
+                      <span>
+                        نمایش {toPersianDigits((teacherPage - 1) * teacherPageSize + 1)} تا {toPersianDigits(Math.min(teacherPage * teacherPageSize, teacherTotalCount))} از {toPersianDigits(teacherTotalCount)} معلم
+                      </span>
+                      <span style={{ margin: '0 8px' }}>|</span>
+                      <span>تعداد در صفحه:</span>
+                      <select
+                        value={teacherPageSize}
+                        onChange={(e) => {
+                          const newSize = Number(e.target.value);
+                          setTeacherPageSize(newSize);
+                          setTeacherPage(1);
+                          fetchTeachers(1, newSize);
+                        }}
+                        style={{
+                          padding: '4px 8px',
+                          borderRadius: '6px',
+                          border: '1px solid #cbd5e1',
+                          fontSize: '0.82rem',
+                          background: '#fff',
+                        }}
+                      >
+                        <option value={10}>۱۰</option>
+                        <option value={20}>۲۰</option>
+                        <option value={50}>۵۰</option>
+                        <option value={100}>۱۰۰</option>
+                      </select>
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <button
+                        type="button"
+                        className="btn-astra btn-astra-outline btn-astra-sm"
+                        disabled={teacherPage <= 1 || teachersLoading}
+                        onClick={() => {
+                          const p = teacherPage - 1;
+                          setTeacherPage(p);
+                          fetchTeachers(p, teacherPageSize);
+                        }}
+                        title="صفحه قبلی"
+                      >
+                        <ChevronRight size={16} />
+                        قبلی
+                      </button>
+
+                      {Array.from({ length: Math.ceil(teacherTotalCount / teacherPageSize) }, (_, i) => i + 1)
+                        .filter((p) => p === 1 || p === Math.ceil(teacherTotalCount / teacherPageSize) || Math.abs(p - teacherPage) <= 1)
+                        .map((p, idx, arr) => (
+                          <React.Fragment key={p}>
+                            {idx > 0 && p - arr[idx - 1] > 1 && (
+                              <span style={{ padding: '0 4px', color: '#94a3b8' }}>...</span>
+                            )}
+                            <button
+                              type="button"
+                              className={`btn-astra btn-astra-sm ${p === teacherPage ? 'btn-astra-primary' : 'btn-astra-outline'}`}
+                              onClick={() => {
+                                setTeacherPage(p);
+                                fetchTeachers(p, teacherPageSize);
+                              }}
+                              style={{ minWidth: '32px', padding: '0 8px', justifyContent: 'center' }}
+                            >
+                              {toPersianDigits(p)}
+                            </button>
+                          </React.Fragment>
+                        ))}
+
+                      <button
+                        type="button"
+                        className="btn-astra btn-astra-outline btn-astra-sm"
+                        disabled={teacherPage >= Math.ceil(teacherTotalCount / teacherPageSize) || teachersLoading}
+                        onClick={() => {
+                          const p = teacherPage + 1;
+                          setTeacherPage(p);
+                          fetchTeachers(p, teacherPageSize);
+                        }}
+                        title="صفحه بعدی"
+                      >
+                        بعدی
+                        <ChevronLeft size={16} />
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -1603,6 +1754,9 @@ export const AdminView: React.FC<AdminViewProps> = ({ onNavigate }) => {
                   <div style={{ fontWeight: 800, fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <Filter size={18} style={{ color: 'var(--primary)' }} />
                     فیلتر گزارش‌ها و رسانه‌ها
+                    <span style={{ fontSize: '0.8rem', color: '#64748b', marginRight: '6px' }}>
+                      (تعداد کل: {toPersianDigits(reportTotalCount > 0 ? reportTotalCount : reports.length)} گزارش)
+                    </span>
                   </div>
                   <button
                     type="button"
@@ -1666,7 +1820,10 @@ export const AdminView: React.FC<AdminViewProps> = ({ onNavigate }) => {
                     <button
                       type="button"
                       className="btn-astra btn-astra-primary btn-astra-md"
-                      onClick={fetchReports}
+                      onClick={() => {
+                        setReportPage(1);
+                        fetchReports(1, reportPageSize);
+                      }}
                       style={{ flex: 1, justifyContent: 'center' }}
                     >
                       <Search size={15} />
@@ -1681,7 +1838,8 @@ export const AdminView: React.FC<AdminViewProps> = ({ onNavigate }) => {
                         setReportCity('');
                         setReportMediaType('all');
                         setReportTeacherFilter('');
-                        fetchReports();
+                        setReportPage(1);
+                        fetchReports(1, reportPageSize);
                       }}
                       title="پاکسازی فیلتر"
                     >
@@ -1810,6 +1968,103 @@ export const AdminView: React.FC<AdminViewProps> = ({ onNavigate }) => {
                       </div>
                     </div>
                   ))}
+                </div>
+              )}
+
+              {/* Reports Pagination Footer */}
+              {reportTotalCount > 0 && (
+                <div
+                  className="admin-panel-card"
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '16px 20px',
+                    flexWrap: 'wrap',
+                    gap: '12px',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', color: '#64748b' }}>
+                    <span>
+                      نمایش {toPersianDigits((reportPage - 1) * reportPageSize + 1)} تا {toPersianDigits(Math.min(reportPage * reportPageSize, reportTotalCount))} از {toPersianDigits(reportTotalCount)} گزارش
+                    </span>
+                    <span style={{ margin: '0 8px' }}>|</span>
+                    <span>تعداد در صفحه:</span>
+                    <select
+                      value={reportPageSize}
+                      onChange={(e) => {
+                        const newSize = Number(e.target.value);
+                        setReportPageSize(newSize);
+                        setReportPage(1);
+                        fetchReports(1, newSize);
+                      }}
+                      style={{
+                        padding: '4px 8px',
+                        borderRadius: '6px',
+                        border: '1px solid #cbd5e1',
+                        fontSize: '0.82rem',
+                        background: '#fff',
+                      }}
+                    >
+                      <option value={12}>۱۲</option>
+                      <option value={24}>۲۴</option>
+                      <option value={48}>۴۸</option>
+                      <option value={96}>۹۶</option>
+                    </select>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <button
+                      type="button"
+                      className="btn-astra btn-astra-outline btn-astra-sm"
+                      disabled={reportPage <= 1 || reportsLoading}
+                      onClick={() => {
+                        const p = reportPage - 1;
+                        setReportPage(p);
+                        fetchReports(p, reportPageSize);
+                      }}
+                      title="صفحه قبلی"
+                    >
+                      <ChevronRight size={16} />
+                      قبلی
+                    </button>
+
+                    {Array.from({ length: Math.ceil(reportTotalCount / reportPageSize) }, (_, i) => i + 1)
+                      .filter((p) => p === 1 || p === Math.ceil(reportTotalCount / reportPageSize) || Math.abs(p - reportPage) <= 1)
+                      .map((p, idx, arr) => (
+                        <React.Fragment key={p}>
+                          {idx > 0 && p - arr[idx - 1] > 1 && (
+                            <span style={{ padding: '0 4px', color: '#94a3b8' }}>...</span>
+                          )}
+                          <button
+                            type="button"
+                            className={`btn-astra btn-astra-sm ${p === reportPage ? 'btn-astra-primary' : 'btn-astra-outline'}`}
+                            onClick={() => {
+                              setReportPage(p);
+                              fetchReports(p, reportPageSize);
+                            }}
+                            style={{ minWidth: '32px', padding: '0 8px', justifyContent: 'center' }}
+                          >
+                            {toPersianDigits(p)}
+                          </button>
+                        </React.Fragment>
+                      ))}
+
+                    <button
+                      type="button"
+                      className="btn-astra btn-astra-outline btn-astra-sm"
+                      disabled={reportPage >= Math.ceil(reportTotalCount / reportPageSize) || reportsLoading}
+                      onClick={() => {
+                        const p = reportPage + 1;
+                        setReportPage(p);
+                        fetchReports(p, reportPageSize);
+                      }}
+                      title="صفحه بعدی"
+                    >
+                      بعدی
+                      <ChevronLeft size={16} />
+                    </button>
+                  </div>
                 </div>
               )}
             </div>

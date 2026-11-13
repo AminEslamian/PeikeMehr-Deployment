@@ -39,9 +39,9 @@ from .serializers import (
 # کلاس پجینیشن اختصاصی (Pagination Class)
 # ==========================================
 class StandardResultsSetPagination(PageNumberPagination):
-    page_size = 5  # تعداد آیتم‌ها در هر صفحه به صورت پیش‌فرض
-    page_size_query_param = 'page_size'  # امکان تغییر تعداد در درخواست (مثلا ?page_size=20)
-    max_page_size = 100  # سقف مجاز آیتم‌ها در یک صفحه
+    page_size = 20  # تعداد پیش‌فرض آیتم‌ها در هر صفحه (ارتقا یافته برای عملکرد و تجربه کاربری بهتر)
+    page_size_query_param = 'page_size'  # امکان تغییر تعداد در درخواست (مثلا ?page_size=50 یا ?page_size=1000)
+    max_page_size = 1000  # سقف مجاز آیتم‌ها در یک صفحه جهت خروجی اکسل و نمایش کامل داده‌ها
 
 
 

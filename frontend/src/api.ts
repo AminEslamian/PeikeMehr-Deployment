@@ -505,13 +505,14 @@ export const api = {
 
   // Admin APIs (/admin-panel/api/)
   admin: {
-    getTeachers: (params?: { search?: string; province?: string; city?: string; position?: string; page?: number }) => {
+    getTeachers: (params?: { search?: string; province?: string; city?: string; position?: string; page?: number; page_size?: number }) => {
       const q = new URLSearchParams();
       if (params?.search) q.append('search', params.search);
       if (params?.province) q.append('province', params.province);
       if (params?.city) q.append('city', params.city);
       if (params?.position) q.append('position', params.position);
       if (params?.page) q.append('page', params.page.toString());
+      if (params?.page_size) q.append('page_size', params.page_size.toString());
       return request<any>(`/admin-panel/api/teachers/?${q.toString()}`);
     },
 
@@ -526,14 +527,29 @@ export const api = {
         body: JSON.stringify(data),
       }),
 
-    getReports: (params?: { teacher?: number; province?: string; city?: string; search?: string; page?: number }) => {
+    getReports: (params?: { teacher?: number; province?: string; city?: string; search?: string; page?: number; page_size?: number }) => {
       const q = new URLSearchParams();
       if (params?.teacher) q.append('teacher', params.teacher.toString());
       if (params?.province) q.append('teacher__province', params.province);
       if (params?.city) q.append('teacher__city', params.city);
       if (params?.search) q.append('search', params.search);
       if (params?.page) q.append('page', params.page.toString());
+      if (params?.page_size) q.append('page_size', params.page_size.toString());
       return request<any>(`/admin-panel/api/reports/?${q.toString()}`);
+    },
+
+    getReportImages: (params?: { page?: number; page_size?: number }) => {
+      const q = new URLSearchParams();
+      if (params?.page) q.append('page', params.page.toString());
+      if (params?.page_size) q.append('page_size', params.page_size.toString());
+      return request<any>(`/admin-panel/api/report-images/?${q.toString()}`);
+    },
+
+    getReportVideos: (params?: { page?: number; page_size?: number }) => {
+      const q = new URLSearchParams();
+      if (params?.page) q.append('page', params.page.toString());
+      if (params?.page_size) q.append('page_size', params.page_size.toString());
+      return request<any>(`/admin-panel/api/report-videos/?${q.toString()}`);
     },
 
     deleteReport: (id: number) =>
