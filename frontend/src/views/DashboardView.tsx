@@ -269,7 +269,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
 
   const MAX_SINGLE_FILE_SIZE = 150 * 1024 * 1024; // 150 MB
   const MAX_TOTAL_REPORT_SIZE = 250 * 1024 * 1024; // 250 MB
-  const MAX_FILE_COUNT = 10;
+  const MAX_FILE_COUNT = 20;
 
   // File selection
   const handleFiles = (files: FileList | null) => {
@@ -293,7 +293,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
       }
 
       if (currentFiles.length >= MAX_FILE_COUNT) {
-        setSubmitError('حداکثر ۱۰ فایل مجاز است.');
+        setSubmitError('حداکثر ۲۰ فایل مجاز است.');
         break;
       }
 
@@ -388,7 +388,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
     }
 
     if (selectedFiles.length > MAX_FILE_COUNT) {
-      setSubmitError('حداکثر ۱۰ فایل مجاز است.');
+      setSubmitError('حداکثر ۲۰ فایل مجاز است.');
       return;
     }
 
@@ -837,7 +837,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onNavigate }) => {
                   <span>انتخاب عکس یا فیلم</span>
                 </div>
                 <div className="upload-compact-hint">
-                  حداکثر ۱۰ فایل (هر فایل تا ۱۵۰ مگابایت، مجموع تا ۲۵۰ مگابایت)
+                  حداکثر ۲۰ فایل (هر فایل تا ۱۵۰ مگابایت، مجموع تا ۲۵۰ مگابایت)
                 </div>
               </div>
 

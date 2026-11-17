@@ -122,9 +122,9 @@ class ReportAPITests(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_create_rejects_more_than_ten_files(self):
+    def test_create_rejects_more_than_twenty_files(self):
         self.client.force_authenticate(user=self.teacher)
-        files = [self._image(f"photo-{i}.png") for i in range(11)]
+        files = [self._image(f"photo-{i}.png") for i in range(21)]
         response = self.client.post(
             self.url,
             {"text": "A class activity", "tags": [self.tag.id], "media": files},
